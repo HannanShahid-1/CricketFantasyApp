@@ -1,9 +1,10 @@
 // League engine: pure-ish functions that mutate a League object (callers pass a fresh copy).
 import {
-  availability, perMatchProj, restOfSeason, weekProjection,
+  availability, perMatchProj, restOfSeason,
   type Data, type Player,
 } from './data'
 import type { SlotType } from './types'
+import { dmChannel, emptyChat, LEAGUE_CHANNEL, post, type ChannelId, type ChatEvent, type ChatState, type TradeStage } from './chat'
 
 export const SLOTS: SlotType[] = ['WK', 'BAT', 'BAT', 'BAT', 'BAT', 'BOWL', 'BOWL', 'BOWL', 'BOWL', 'FLEX', 'FLEX']
 export const ROSTER_SIZE = 15
@@ -34,6 +35,8 @@ export interface FTeam {
   faab: number
   autoSub: boolean
   autoLineup?: boolean
+  /** matches locked in for the current week: player → IPL match index (absent = his first match counts) */
+  picks?: { week: number; byPlayer: Record<number, number> }
 }
 
 export interface Pick {
@@ -68,6 +71,8 @@ export interface WeekResult {
   proj: Record<number, number>
   starters: Record<number, (number | null)[]>
   median: number | null
+  /** the one match that counted for each starter (parallel to `starters`) */
+  counted?: Record<number, (number | null)[]>
 }
 
 export interface Txn {
@@ -91,6 +96,31 @@ export interface Claim {
   bid: number
 }
 
+export type TradeStatus = 'pending' | 'declined' | 'withdrawn' | 'expired' | 'review' | 'approved' | 'vetoed' | 'failed'
+
+/** A trade offer from one manager to another. `give` moves from → to, `get` moves to → from. */
+export interface TradeOffer {
+  id: number
+  from: number
+  to: number
+  give: number[]
+  get: number[]
+  status: TradeStatus
+  week: number
+  createdAt: number
+  /** a pending offer expires at the end of this week */
+  expiresWeek: number
+  note?: string
+  /** why it failed, or who/what resolved it */
+  reason?: string
+  resolvedAt?: number
+}
+
+export interface LeagueSettings {
+  /** 'commissioner': accepted trades wait for the commissioner (or the review period) before processing */
+  tradeReview: 'commissioner' | 'none'
+}
+
 export interface League {
   dataVersion: string
   name: string
@@ -108,6 +138,21 @@ export interface League {
   txns: Txn[]
   nextId: number
   champion: number | null
+  commissionerId: number
+  settings: LeagueSettings
+  trades: TradeOffer[]
+  chat: ChatState
+}
+
+/** Fill in fields added after a league was first saved. */
+export function upgradeLeague(l: League): League {
+  return {
+    ...l,
+    commissionerId: l.commissionerId ?? 0,
+    settings: { tradeReview: l.settings?.tradeReview ?? 'commissioner' },
+    trades: l.trades ?? [],
+    chat: l.chat ?? emptyChat(),
+  }
 }
 
 // ---------------------------------------------------------------- setup
@@ -153,7 +198,7 @@ export function createLeague(d: Data, o: LeagueOptions): League {
     order = order.filter((id) => id !== 0)
     order.splice(o.draftSlot - 1, 0, 0)
   }
-  return {
+  const l: League = {
     dataVersion: d.version,
     name: o.name || 'IPL Draft League',
     createdAt: Date.now(),
@@ -170,7 +215,13 @@ export function createLeague(d: Data, o: LeagueOptions): League {
     txns: [],
     nextId: 1,
     champion: null,
+    commissionerId: 0,
+    settings: { tradeReview: 'commissioner' },
+    trades: [],
+    chat: emptyChat(),
   }
+  say(d, l, LEAGUE_CHANNEL, null, { event: { type: 'league-created' } })
+  return l
 }
 
 function roundRobin(ids: number[]): Matchup[] {
@@ -189,13 +240,16 @@ function roundRobin(ids: number[]): Matchup[] {
 
 // ---------------------------------------------------------------- draft
 
-export function teamOnClock(l: League): number | null {
+/** Snake order: the team making overall pick k (0-based). */
+export function teamAtPick(l: League, k: number): number {
   const n = l.numTeams
-  const k = l.draft.picks.length
-  if (k >= n * l.draft.rounds) return null
-  const round = Math.floor(k / n)
   const i = k % n
-  return round % 2 === 0 ? l.draft.order[i] : l.draft.order[n - 1 - i]
+  return Math.floor(k / n) % 2 === 0 ? l.draft.order[i] : l.draft.order[n - 1 - i]
+}
+
+export function teamOnClock(l: League): number | null {
+  const k = l.draft.picks.length
+  return k >= l.numTeams * l.draft.rounds ? null : teamAtPick(l, k)
 }
 
 export function draftedSet(l: League): Set<number> {
@@ -274,6 +328,7 @@ export function makePick(d: Data, l: League, player: number) {
 function finishDraft(d: Data, l: League) {
   l.phase = 'season'
   for (const t of l.teams) t.starters = bestLineup(d, l, t, 1).starters
+  say(d, l, LEAGUE_CHANNEL, null, { event: { type: 'draft-complete' } })
 }
 
 // ---------------------------------------------------------------- calendar
@@ -283,11 +338,111 @@ export function currentWeek(d: Data, l: League): number {
   return d.matches[l.played].gw
 }
 
+/** His week has started: at least one of his matches this week has begun. He can't be dropped, traded or
+ *  added as a free agent, and the choice of which match counts is closed. */
 export function isLocked(d: Data, l: League, p: number, week = currentWeek(d, l)): boolean {
   if (l.played >= d.matches.length) return true
   const pl = d.players[p]
   const mis = d.teamGw[pl.team]?.[week] ?? []
   return mis.some((mi) => mi < l.played)
+}
+
+// ---------------------------------------------------------------- one match counts
+// Only one of a player's matches counts each week. By default it's his first match. A manager can lock in a
+// later one, but only before his first match of the week starts, so nobody picks with hindsight. In the
+// lineup a player is fixed once the match that counts for him has started.
+
+/** A player's IPL matches in a gameweek, in order. */
+export function weekMatches(d: Data, p: number, week: number): number[] {
+  return d.teamGw[d.players[p].team]?.[week] ?? []
+}
+
+/** The match a manager explicitly locked in this week, if any. */
+export function lockedPick(l: League, teamId: number | null, p: number, week: number): number | undefined {
+  if (teamId === null) return undefined
+  const picks = l.teams[teamId].picks
+  return picks?.week === week ? picks.byPlayer[p] : undefined
+}
+
+/** The one match that counts for this player on this team: the locked-in pick, otherwise his first match. */
+export function countedMatch(d: Data, l: League, teamId: number | null, p: number, week: number): number | null {
+  const mis = weekMatches(d, p, week)
+  if (!mis.length) return null
+  const r = l.results[week]
+  if (r?.counted && teamId !== null) {
+    const i = r.starters[teamId]?.indexOf(p) ?? -1
+    if (i >= 0) return r.counted[teamId]?.[i] ?? null
+  }
+  const pick = lockedPick(l, teamId, p, week)
+  return pick !== undefined && mis.includes(pick) ? pick : mis[0]
+}
+
+/** The match choice is open until his first match of the week starts (and only matters with 2+ matches). */
+export function pickOpen(d: Data, l: League, p: number): boolean {
+  return l.phase === 'season' && weekMatches(d, p, currentWeek(d, l)).length > 1 && !isLocked(d, l, p)
+}
+
+/** Lock in which match counts (null or his first match = back to the default). */
+export function setMatchPick(d: Data, l: League, teamId: number, p: number, mi: number | null): string | null {
+  const team = l.teams[teamId]
+  const week = currentWeek(d, l)
+  const mis = weekMatches(d, p, week)
+  if (l.phase !== 'season') return 'The season is not in progress.'
+  if (!team.roster.includes(p)) return 'He is not on this roster.'
+  if (mis.length < 2) return 'He only has one match this week.'
+  if (isLocked(d, l, p)) return 'Too late: his first match of the week has started, so his choice is locked.'
+  if (mi !== null && !mis.includes(mi)) return 'That match is not in his week.'
+  if (team.picks?.week !== week) team.picks = { week, byPlayer: {} }
+  if (mi === null || mi === mis[0]) delete team.picks.byPlayer[p]
+  else team.picks.byPlayer[p] = mi
+  return null
+}
+
+/** Fixed in (or out of) the lineup: the match that counts for him has started. */
+export function slotLocked(d: Data, l: League, teamId: number, p: number, week = currentWeek(d, l)): boolean {
+  if (l.phase !== 'season' || l.played >= d.matches.length) return true
+  const cur = currentWeek(d, l)
+  if (week !== cur) return week < cur
+  const c = countedMatch(d, l, teamId, p, week)
+  return c !== null && c < l.played
+}
+
+/** A player's week: points (or projection) from his counted match only. */
+export function playerWeek(
+  d: Data, l: League, teamId: number | null, p: number, week: number, played = l.played,
+): { mi: number | null; banked: number; remaining: number; total: number } {
+  const mi = countedMatch(d, l, teamId, p, week)
+  if (mi === null) return { mi, banked: 0, remaining: 0, total: 0 }
+  const pl = d.players[p]
+  if (mi < played) {
+    const banked = pl.games.get(mi)?.pts.total ?? 0
+    return { mi, banked, remaining: 0, total: banked }
+  }
+  const remaining = perMatchProj(d, pl, played) * availability(d, pl, played)
+  return { mi, banked: 0, remaining, total: remaining }
+}
+
+/** Why a new lineup isn't allowed, or null. Guards against moving anyone whose counting match has begun. */
+export function lineupProblem(d: Data, l: League, teamId: number, next: (number | null)[]): string | null {
+  const team = l.teams[teamId]
+  const cur = team.starters
+  if (next.length !== SLOTS.length) return 'Invalid lineup.'
+  for (let i = 0; i < SLOTS.length; i++) {
+    const was = cur[i]
+    if (was !== null && next[i] !== was && slotLocked(d, l, teamId, was)) return `${d.players[was].name} is locked: the match that counts for him has started.`
+  }
+  const seen = new Set<number>()
+  for (let i = 0; i < SLOTS.length; i++) {
+    const p = next[i]
+    if (p === null) continue
+    const name = d.players[p].name
+    if (seen.has(p)) return `${name} is in the lineup twice.`
+    seen.add(p)
+    if (!team.roster.includes(p)) return `${name} is not on your roster.`
+    if (!d.players[p].elig.includes(SLOTS[i])) return `${name} can't play ${SLOTS[i]}.`
+    if (!cur.includes(p) && slotLocked(d, l, teamId, p)) return `${name} can't come in: the match that counts for him has already started.`
+  }
+  return null
 }
 
 // ---------------------------------------------------------------- lineups
@@ -299,16 +454,16 @@ export function bestLineup(d: Data, l: League, team: FTeam, week: number, respec
   const lockedBench = new Set<number>()
   if (respectLocks) {
     team.starters.forEach((p, i) => {
-      if (p !== null && isLocked(d, l, p, week)) {
+      if (p !== null && slotLocked(d, l, team.id, p, week)) {
         starters[i] = p
         fixed.add(i)
       }
     })
-    for (const p of team.roster) if (!team.starters.includes(p) && isLocked(d, l, p, week)) lockedBench.add(p)
+    for (const p of team.roster) if (!team.starters.includes(p) && slotLocked(d, l, team.id, p, week)) lockedBench.add(p)
   }
   const used = new Set(starters.filter((x): x is number => x !== null))
-  const value = (p: number) => weekProjection(d, d.players[p], week, l.played).total + 0.001 * preseasonValue(d.players[p])
-  const cands = team.roster.filter((p) => !used.has(p) && !lockedBench.has(p)).sort((a, b) => value(b) - value(a))
+  const value = new Map(team.roster.map((p) => [p, playerWeek(d, l, team.id, p, week).total + 0.001 * preseasonValue(d.players[p])]))
+  const cands = team.roster.filter((p) => !used.has(p) && !lockedBench.has(p)).sort((a, b) => value.get(b)! - value.get(a)!)
 
   const assign: (number | null)[] = [...starters]
   const tryAssign = (p: number, visited: Set<number>): boolean => {
@@ -348,26 +503,27 @@ export function canFillLineup(d: Data, roster: number[]): boolean {
   return assign.every((x) => x !== null)
 }
 
-export function teamWeekScore(d: Data, l: League, teamId: number, week: number): { score: number; proj: number } {
-  const res = l.results[week]
-  const starters = res ? res.starters[teamId] : l.teams[teamId].starters
-  let score = 0
-  let proj = 0
-  for (const p of starters) {
-    if (p === null) continue
-    const wp = weekProjection(d, d.players[p], week, res ? Infinity : l.played)
-    score += wp.banked
-    proj += wp.total
-  }
-  return { score, proj }
-}
-
 // ---------------------------------------------------------------- sim
 
 function log(l: League, t: Omit<Txn, 'id' | 'played'>) {
   l.txns.unshift({ ...t, id: l.nextId++, played: l.played })
 }
 
+/** League calendar day: the day of the next match (or the last one once the season is over). */
+export function leagueDate(d: Data, l: League): string {
+  return d.matches[Math.min(l.played, d.matches.length - 1)].raw.date
+}
+
+/** Post to a chat channel, stamped with the league calendar. */
+export function say(
+  d: Data, l: League, channel: ChannelId, author: number | null,
+  body: { text?: string; event?: ChatEvent }, stamp?: { date: string; week: number },
+) {
+  return post(l.chat, { channel, author, date: stamp?.date ?? leagueDate(d, l), week: stamp?.week ?? currentWeek(d, l), ...body })
+}
+
+/** At the toss: a starter whose counting match is this one but who isn't in the XI is swapped for the best
+ *  eligible bench player whose own counting match hasn't started yet. */
 function autoSubs(d: Data, l: League, mi: number) {
   const m = d.matches[mi]
   const week = m.gw
@@ -375,23 +531,14 @@ function autoSubs(d: Data, l: League, mi: number) {
     if (!team.autoSub) continue
     team.starters.forEach((p, slot) => {
       if (p === null) return
-      const pl = d.players[p]
-      if (!m.teams.includes(pl.team) || m.xi.has(p)) return
-      const teamMis = d.teamGw[pl.team][week] ?? []
-      if (teamMis.some((x) => x > mi)) return // still has another match this week
-      if (teamMis.some((x) => x < mi && pl.games.has(x))) return // already scored this week
-      // candidate bench players
+      if (countedMatch(d, l, team.id, p, week) !== mi || m.xi.has(p)) return
       let best: number | null = null
       let bestV = 0
       for (const c of team.roster) {
-        if (team.starters.includes(c)) continue
-        const cp = d.players[c]
-        if (!cp.elig.includes(SLOTS[slot])) continue
-        if (isLocked(d, l, c, week)) continue
-        const cm = (d.teamGw[cp.team][week] ?? []).filter((x) => x >= mi)
-        if (!cm.length) continue
-        if (cm[0] === mi && !m.xi.has(c)) continue
-        const v = weekProjection(d, cp, week, l.played).total
+        if (team.starters.includes(c) || !d.players[c].elig.includes(SLOTS[slot])) continue
+        const cm = countedMatch(d, l, team.id, c, week)
+        if (cm === null || cm < mi || (cm === mi && !m.xi.has(c))) continue
+        const v = playerWeek(d, l, team.id, c, week).total
         if (v > bestV) {
           bestV = v
           best = c
@@ -399,7 +546,7 @@ function autoSubs(d: Data, l: League, mi: number) {
       }
       if (best !== null) {
         team.starters[slot] = best
-        log(l, { week, type: 'autosub', teamId: team.id, adds: [best], drops: [p], note: `${pl.name} not in XI` })
+        log(l, { week, type: 'autosub', teamId: team.id, adds: [best], drops: [p], note: `${d.players[p].name} not in XI` })
       }
     })
   }
@@ -408,6 +555,7 @@ function autoSubs(d: Data, l: League, mi: number) {
 export function playNext(d: Data, l: League) {
   if (l.phase !== 'season' || l.played >= d.matches.length) return
   const mi = l.played
+  endReviewPeriod(d, l)
   autoSubs(d, l, mi)
   l.played++
   const week = d.matches[mi].gw
@@ -419,19 +567,23 @@ function endWeek(d: Data, l: League, week: number) {
   const scores: Record<number, number> = {}
   const proj: Record<number, number> = {}
   const starters: Record<number, (number | null)[]> = {}
+  const counted: Record<number, (number | null)[]> = {}
   const firstMi = d.gameweeks[week - 1].mis[0]
   for (const t of l.teams) {
     starters[t.id] = [...t.starters]
+    counted[t.id] = t.starters.map((p) => (p === null ? null : countedMatch(d, l, t.id, p, week)))
     let s = 0
     let pj = 0
-    for (const p of t.starters) {
-      if (p === null) continue
+    t.starters.forEach((p, i) => {
+      const mi = counted[t.id][i]
+      if (p === null || mi === null) return
       const pl = d.players[p]
-      s += weekProjection(d, pl, week, Infinity).banked
-      pj += weekProjection(d, pl, week, firstMi).total
-    }
+      s += pl.games.get(mi)?.pts.total ?? 0
+      pj += perMatchProj(d, pl, firstMi) * availability(d, pl, firstMi)
+    })
     scores[t.id] = Math.round(s * 100) / 100
     proj[t.id] = Math.round(pj * 100) / 100
+    t.picks = undefined
   }
   let median: number | null = null
   if (week <= REG_WEEKS) {
@@ -439,18 +591,26 @@ function endWeek(d: Data, l: League, week: number) {
     const n = xs.length
     median = n % 2 ? xs[(n - 1) / 2] : (xs[n / 2 - 1] + xs[n / 2]) / 2
   }
-  l.results[week] = { week, scores, proj, starters, median }
+  l.results[week] = { week, scores, proj, starters, median, counted }
+  const stamp = { date: d.matches[l.played - 1].raw.date, week }
+  say(d, l, LEAGUE_CHANNEL, null, { event: { type: 'week-result', week } }, stamp)
 
-  if (week === REG_WEEKS) seedPlayoffs(d, l)
+  if (week === REG_WEEKS) {
+    seedPlayoffs(d, l)
+    say(d, l, LEAGUE_CHANNEL, null, { event: { type: 'playoffs-set' } }, stamp)
+  }
   if (week === REG_WEEKS + 1) setFinals(l)
   if (week === LAST_WEEK) {
     const final = l.schedule.find((m) => m.week === LAST_WEEK && m.label === 'Championship')
     if (final) l.champion = matchupWinner(l, final)
+    if (l.champion !== null) say(d, l, LEAGUE_CHANNEL, null, { event: { type: 'champion', teamId: l.champion } }, stamp)
     l.phase = 'complete'
     return
   }
-  processWaivers(d, l, week)
+  expireOffers(d, l, week)
+  processWaivers(d, l, week, stamp)
   for (const t of l.teams) if (!t.isUser || t.autoLineup) t.starters = bestLineup(d, l, t, week + 1).starters
+  botTradeActivity(d, l, week)
 }
 
 export function matchupWinner(l: League, m: Matchup): number | null {
@@ -563,9 +723,10 @@ export function rosteredBy(l: League): Map<number, number> {
 
 export type AddMode = 'free' | 'waiver' | 'none'
 
-export function addMode(d: Data, l: League, p: number): AddMode {
+/** Pass `owned` (from rosteredBy) when calling this for many players. */
+export function addMode(d: Data, l: League, p: number, owned = rosteredBy(l)): AddMode {
   if (l.phase !== 'season') return 'none'
-  if (rosteredBy(l).has(p)) return 'none'
+  if (owned.has(p)) return 'none'
   if (l.onWaivers.includes(p) || isLocked(d, l, p)) return 'waiver'
   return 'free'
 }
@@ -573,6 +734,7 @@ export function addMode(d: Data, l: League, p: number): AddMode {
 function removeFromTeam(team: FTeam, p: number) {
   team.roster = team.roster.filter((x) => x !== p)
   team.starters = team.starters.map((x) => (x === p ? null : x))
+  if (team.picks) delete team.picks.byPlayer[p]
 }
 
 export function freeAgentAdd(d: Data, l: League, teamId: number, add: number, drop: number | null): string | null {
@@ -588,6 +750,7 @@ export function freeAgentAdd(d: Data, l: League, teamId: number, add: number, dr
   }
   team.roster.push(add)
   log(l, { week: currentWeek(d, l), type: 'add', teamId, adds: [add], drops: drop !== null ? [drop] : [] })
+  say(d, l, LEAGUE_CHANNEL, null, { event: { type: 'txn', teamId, adds: [add], drops: drop !== null ? [drop] : [] } })
   return null
 }
 
@@ -599,7 +762,7 @@ export function placeClaim(l: League, teamId: number, add: number, drop: number 
   return null
 }
 
-function processWaivers(d: Data, l: League, week: number) {
+function processWaivers(d: Data, l: League, week: number, stamp: { date: string; week: number }) {
   const nextWeek = week + 1
   const owned = rosteredBy(l)
   // bot claims
@@ -625,6 +788,7 @@ function processWaivers(d: Data, l: League, week: number) {
   const prio = (teamId: number) => l.waiverOrder.indexOf(teamId)
   const sorted = [...l.claims].sort((a, b) => b.bid - a.bid || prio(a.teamId) - prio(b.teamId))
   const won = new Set<number>()
+  const results: { teamId: number; add: number; drop: number | null; bid: number }[] = []
   for (const c of sorted) {
     const t = l.teams[c.teamId]
     const takenNow = rosteredBy(l)
@@ -658,9 +822,11 @@ function processWaivers(d: Data, l: League, week: number) {
     won.add(c.add)
     l.waiverOrder = l.waiverOrder.filter((x) => x !== t.id).concat(t.id)
     log(l, { week: nextWeek, type: 'waiver', teamId: t.id, adds: [c.add], drops: c.drop !== null ? [c.drop] : [], bid: c.bid })
+    results.push({ teamId: t.id, add: c.add, drop: c.drop, bid: c.bid })
   }
   l.claims = []
   l.onWaivers = []
+  if (results.length) say(d, l, LEAGUE_CHANNEL, null, { event: { type: 'waivers', week, claims: results } }, stamp)
 }
 
 export function dropPlayer(d: Data, l: League, teamId: number, p: number): string | null {
@@ -670,49 +836,216 @@ export function dropPlayer(d: Data, l: League, teamId: number, p: number): strin
   l.onWaivers.push(p)
   l.claims = l.claims.filter((c) => c.drop !== p)
   log(l, { week: currentWeek(d, l), type: 'drop', teamId, adds: [], drops: [p] })
+  say(d, l, LEAGUE_CHANNEL, null, { event: { type: 'txn', teamId, adds: [], drops: [p] } })
   return null
 }
 
-export interface TradeVerdict {
-  accepted: boolean
-  message: string
-  giveValue: number
-  getValue: number
+// ---------------------------------------------------------------- trades
+// Lifecycle: pending → accepted → review (commissioner) → approved | vetoed.
+// Also: declined, withdrawn, expired (end of week), failed (no longer legal when processed).
+// Every step is posted to the managers' DM; review and outcome are posted to the league chat.
+
+const ros = (d: Data, l: League, p: number) => restOfSeason(d, d.players[p], l.played)
+const pickOne = <T>(xs: T[]): T => xs[Math.floor(Math.random() * xs.length)]
+export const managerName = (t: FTeam) => (t.isUser ? 'You' : t.owner.replace('AI · ', ''))
+
+/** Why this trade can't happen right now, or null if it's legal. */
+export function tradeProblem(
+  d: Data, l: League, from: number, to: number, give: number[], get: number[], opts: { ignoreDeadline?: boolean } = {},
+): string | null {
+  const A = l.teams[from]
+  const B = l.teams[to]
+  if (l.phase !== 'season') return 'Trades are closed.'
+  if (!opts.ignoreDeadline && currentWeek(d, l) >= TRADE_DEADLINE_WEEK) return `The trade deadline has passed (start of Week ${TRADE_DEADLINE_WEEK}).`
+  if (!give.length || give.length !== get.length) return 'Pick the same number of players on each side.'
+  if (give.some((p) => !A.roster.includes(p)) || get.some((p) => !B.roster.includes(p))) return 'A player in this deal is no longer on the same roster.'
+  if ([...give, ...get].some((p) => isLocked(d, l, p))) return 'One of these players is locked for this week.'
+  if (!canFillLineup(d, B.roster.filter((x) => !get.includes(x)).concat(give))) return `${B.isUser ? "You" : B.name} can't field a legal lineup after this deal.`
+  if (!canFillLineup(d, A.roster.filter((x) => !give.includes(x)).concat(get))) return `${A.isUser ? "You" : A.name} can't field a legal lineup after this deal.`
+  return null
 }
 
-export function evaluateTrade(d: Data, l: League, otherId: number, give: number[], get: number[]): TradeVerdict {
-  const ros = (i: number) => restOfSeason(d, d.players[i], l.played)
-  const giveValue = give.reduce((a, i) => a + ros(i), 0)
-  const getValue = get.reduce((a, i) => a + ros(i), 0)
-  const other = l.teams[otherId]
-  const me = l.teams[0]
+export function tradeValue(d: Data, l: League, ps: number[]) {
+  return ps.reduce((a, p) => a + ros(d, l, p), 0)
+}
+
+function tradeEvent(d: Data, l: League, t: TradeOffer, stage: TradeStage, by: number | null, where: { dm?: boolean; league?: boolean } = {}) {
+  const event: ChatEvent = { type: 'trade', tradeId: t.id, stage, by }
+  if (where.dm ?? true) say(d, l, dmChannel(t.from, t.to), null, { event })
+  if (where.league) say(d, l, LEAGUE_CHANNEL, null, { event })
+}
+
+function resolve(t: TradeOffer, status: TradeStatus, reason?: string) {
+  t.status = status
+  t.resolvedAt = Date.now()
+  if (reason) t.reason = reason
+}
+
+export function proposeTrade(
+  d: Data, l: League, from: number, to: number, give: number[], get: number[], note?: string,
+): { trade?: TradeOffer; error?: string } {
+  const err = tradeProblem(d, l, from, to, give, get)
+  if (err) return { error: err }
   const week = currentWeek(d, l)
-  const base = { giveValue, getValue }
-  if (week >= TRADE_DEADLINE_WEEK) return { accepted: false, message: `The trade deadline has passed (start of Week ${TRADE_DEADLINE_WEEK}).`, ...base }
-  if (!give.length || give.length !== get.length) return { accepted: false, message: 'Pick the same number of players on each side.', ...base }
-  if ([...give, ...get].some((p) => isLocked(d, l, p))) return { accepted: false, message: 'One of these players is locked for this week.', ...base }
-  const otherNext = other.roster.filter((x) => !get.includes(x)).concat(give)
-  const meNext = me.roster.filter((x) => !give.includes(x)).concat(get)
-  if (!canFillLineup(d, otherNext)) return { accepted: false, message: `${other.name} can't field a legal lineup after this deal.`, ...base }
-  if (!canFillLineup(d, meNext)) return { accepted: false, message: `You can't field a legal lineup after this deal.`, ...base }
-  const need = other.persona === 'steady' ? 1.12 : other.persona === 'upside' ? 0.98 : 1.05
-  if (giveValue >= getValue * need) {
-    return { accepted: true, message: `${other.owner.replace('AI · ', '')} accepted! "Pleasure doing business."`, ...base }
+  const t: TradeOffer = {
+    id: l.nextId++, from, to, give: [...give], get: [...get], status: 'pending',
+    week, createdAt: Date.now(), expiresWeek: week, note: note?.trim() || undefined,
   }
-  const gap = Math.round(getValue * need - giveValue)
-  return { accepted: false, message: `${other.owner.replace('AI · ', '')} declined — "You're about ${gap} projected points short."`, ...base }
+  l.trades.push(t)
+  tradeEvent(d, l, t, 'proposed', from)
+  return { trade: t }
 }
 
-export function executeTrade(d: Data, l: League, otherId: number, give: number[], get: number[]) {
-  const me = l.teams[0]
-  const other = l.teams[otherId]
-  for (const p of give) removeFromTeam(me, p)
-  for (const p of get) removeFromTeam(other, p)
-  me.roster.push(...get)
-  other.roster.push(...give)
-  other.starters = bestLineup(d, l, other, currentWeek(d, l), true).starters
-  me.starters = me.starters.map((x) => x)
-  log(l, { week: currentWeek(d, l), type: 'trade', teamId: 0, otherTeamId: otherId, adds: get, drops: give })
+export function withdrawTrade(d: Data, l: League, id: number) {
+  const t = l.trades.find((x) => x.id === id)
+  if (!t || t.status !== 'pending') return
+  resolve(t, 'withdrawn')
+  tradeEvent(d, l, t, 'withdrawn', t.from)
+}
+
+/** The receiving manager accepts or declines. Returns an error if an accept can't go through. */
+export function respondTrade(d: Data, l: League, id: number, accept: boolean): string | null {
+  const t = l.trades.find((x) => x.id === id)
+  if (!t || t.status !== 'pending') return 'This offer is no longer open.'
+  if (!accept) {
+    resolve(t, 'declined')
+    tradeEvent(d, l, t, 'declined', t.to)
+    return null
+  }
+  const err = tradeProblem(d, l, t.from, t.to, t.give, t.get)
+  if (err) {
+    resolve(t, 'failed', err)
+    tradeEvent(d, l, t, 'failed', null)
+    return err
+  }
+  tradeEvent(d, l, t, 'accepted', t.to)
+  if (l.settings.tradeReview === 'commissioner') {
+    t.status = 'review'
+    tradeEvent(d, l, t, 'review', null, { dm: false, league: true })
+  } else {
+    processTrade(d, l, t, null)
+  }
+  return null
+}
+
+/** Commissioner decision on an accepted trade. */
+export function reviewTrade(d: Data, l: League, id: number, approve: boolean, by: number): string | null {
+  const t = l.trades.find((x) => x.id === id)
+  if (!t || t.status !== 'review') return 'This trade is no longer awaiting review.'
+  if (by !== l.commissionerId) return 'Only the commissioner can review trades.'
+  if (!approve) {
+    resolve(t, 'vetoed', 'Vetoed by the commissioner')
+    tradeEvent(d, l, t, 'vetoed', by, { league: true })
+    return null
+  }
+  return processTrade(d, l, t, by)
+}
+
+function processTrade(d: Data, l: League, t: TradeOffer, by: number | null): string | null {
+  const err = tradeProblem(d, l, t.from, t.to, t.give, t.get, { ignoreDeadline: true })
+  if (err) {
+    resolve(t, 'failed', err)
+    tradeEvent(d, l, t, 'failed', null, { league: true })
+    return err
+  }
+  const A = l.teams[t.from]
+  const B = l.teams[t.to]
+  for (const p of t.give) removeFromTeam(A, p)
+  for (const p of t.get) removeFromTeam(B, p)
+  A.roster.push(...t.get)
+  B.roster.push(...t.give)
+  const week = currentWeek(d, l)
+  for (const team of [A, B]) if (!team.isUser || team.autoLineup) team.starters = bestLineup(d, l, team, week, true).starters
+  log(l, { week, type: 'trade', teamId: t.from, otherTeamId: t.to, adds: t.get, drops: t.give })
+  resolve(t, 'approved', by === null ? 'Review period ended' : 'Approved by the commissioner')
+  tradeEvent(d, l, t, 'approved', by, { league: true })
+  return null
+}
+
+/** Accepted trades the commissioner hasn't ruled on go through when the next match starts. */
+function endReviewPeriod(d: Data, l: League) {
+  for (const t of l.trades) if (t.status === 'review') processTrade(d, l, t, null)
+}
+
+function expireOffers(d: Data, l: League, week: number) {
+  for (const t of l.trades) {
+    if (t.status === 'pending' && t.expiresWeek <= week) {
+      resolve(t, 'expired')
+      tradeEvent(d, l, t, 'expired', null)
+    }
+  }
+}
+
+const ACCEPT_LINES = ['Pleasure doing business 🤝', 'Deal. Good luck with them.', "Done. Don't make me regret this.", 'Easy yes. Thanks!']
+
+/** How an AI manager answers an offer sent to them. */
+export function botTradeVerdict(d: Data, l: League, t: TradeOffer): { accept: boolean; text: string } {
+  if (tradeProblem(d, l, t.from, t.to, t.give, t.get)) return { accept: false, text: "Can't make that one work right now, sorry." }
+  const bot = l.teams[t.to]
+  const gets = tradeValue(d, l, t.give)
+  const gives = tradeValue(d, l, t.get)
+  const need = bot.persona === 'steady' ? 1.12 : bot.persona === 'upside' ? 0.98 : 1.05
+  if (gets >= gives * need) return { accept: true, text: pickOne(ACCEPT_LINES) }
+  const gap = Math.round(gives * need - gets)
+  return {
+    accept: false,
+    text: pickOne([
+      `Not quite there for me. You're about ${gap} projected points short.`,
+      `Close, but I need a bit more. Roughly ${gap} points more value.`,
+      `Gonna pass on this one. Sweeten it by ~${gap} and we can talk.`,
+    ]),
+  }
+}
+
+/** A 1-for-1 swap where the receiving side's player is worth lo..hi × the giving side's. */
+function findSwap(d: Data, l: League, from: number, to: number, lo: number, hi: number): { give: number[]; get: number[] } | null {
+  const A = l.teams[from]
+  const B = l.teams[to]
+  const cands: { p: number; q: number; v: number }[] = []
+  for (const p of A.roster) {
+    if (isLocked(d, l, p)) continue
+    const vp = ros(d, l, p)
+    if (vp < 10) continue
+    for (const q of B.roster) {
+      if (isLocked(d, l, q) || d.players[q].role === d.players[p].role) continue
+      const r = ros(d, l, q) / vp
+      if (r < lo || r > hi) continue
+      if (tradeProblem(d, l, from, to, [p], [q])) continue
+      cands.push({ p, q, v: vp })
+    }
+  }
+  if (!cands.length) return null
+  cands.sort((a, b) => b.v - a.v)
+  const c = pickOne(cands.slice(0, 8))
+  return { give: [c.p], get: [c.q] }
+}
+
+/** AI managers make offers to the user and to each other at the end of a week. */
+function botTradeActivity(d: Data, l: League, week: number) {
+  if (week + 1 >= TRADE_DEADLINE_WEEK) return
+  const bots = l.teams.filter((t) => !t.isUser)
+  if (Math.random() < 0.6) {
+    const bot = pickOne(bots)
+    const swap = findSwap(d, l, bot.id, 0, 0.92, 1.1)
+    if (swap) {
+      const q = d.players[swap.get[0]]
+      const note = pickOne([
+        'Think this one works for both of us 🤝',
+        `Been eyeing ${q.name} for a while. Interested?`,
+        'Fair swap? Let me know before it expires.',
+        'Fixes a hole for both of us. Thoughts?',
+      ])
+      proposeTrade(d, l, bot.id, 0, swap.give, swap.get, note)
+    }
+  }
+  if (Math.random() < 0.4 && bots.length >= 2) {
+    const [a, b] = shuffle(bots)
+    const swap = findSwap(d, l, a.id, b.id, 0.94, 1.06)
+    if (swap) {
+      const r = proposeTrade(d, l, a.id, b.id, swap.give, swap.get)
+      if (r.trade) respondTrade(d, l, r.trade.id, true)
+    }
+  }
 }
 
 // ---------------------------------------------------------------- misc helpers
@@ -734,8 +1067,4 @@ export function winProbability(a: number, b: number, aBanked: number, bBanked: n
   const p = 1 / (1 + Math.exp(-1.702 * z))
   if (remainingShare <= 0) return aBanked > bBanked ? 1 : aBanked < bBanked ? 0 : 0.5
   return p
-}
-
-export function perMatchFor(d: Data, l: League, p: number) {
-  return perMatchProj(d, d.players[p], l.played) * availability(d, d.players[p], l.played)
 }

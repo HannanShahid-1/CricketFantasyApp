@@ -31,6 +31,13 @@ export function ScoringView() {
         <h1>Scoring</h1>
         <div className="sub">Option 1 · Standard — football-sized decimal scoring</div>
       </div>
+      <div className="rule-note">
+        <b>One match per player counts each week.</b> If a player has two matches in a gameweek, his first match counts
+        unless you lock in the other one on My Team (or his player card). You have to choose <i>before his first match
+        starts</i>; after that the choice is closed. A player is fixed in your lineup once the match that counts for him
+        begins, so a bench player whose counting match has already been played can't be moved in. If he isn't in the XI
+        for his counting match, auto-sub swaps in a bench player whose own counting match hasn't started.
+      </div>
       <div className="grid3" style={{ marginBottom: 16 }}>
         {(Object.entries(SCORING_RULES) as [string, readonly (readonly [string, string])[]][]).map(([k, rules]) => (
           <div className="card" key={k}>

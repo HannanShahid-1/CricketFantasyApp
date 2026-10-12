@@ -57,8 +57,10 @@ export const FLAG_WIDE = 1
 export const FLAG_NOBALL = 2
 export const FLAG_BYE = 4
 export const FLAG_LEGBYE = 8
+export const FLAG_PENALTY = 16
 export const FLAG_NONBOUNDARY = 32
 
+/** Reference for the numeric wicket codes in RawWicket[0] (index = code). */
 export const WICKET_KINDS = [
   'bowled', 'caught', 'lbw', 'stumped', 'caught and bowled', 'hit wicket',
   'run out', 'retired hurt', 'retired out', 'obstructing the field', 'timed out', 'handled the ball',

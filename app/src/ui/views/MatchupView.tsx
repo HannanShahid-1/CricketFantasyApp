@@ -1,14 +1,17 @@
-import { Crown, Lock, Sparkles, Trophy } from 'lucide-react'
-import { useState } from 'react'
-import { weekProjection } from '../../engine/data'
+import { ChevronLeft, ChevronRight, Crown, Lock, Maximize2, Sparkles, Trophy } from 'lucide-react'
+import { useLayoutEffect, useRef, useState } from 'react'
+import { LEAGUE_CHANNEL } from '../../engine/chat'
 import {
-  currentWeek, isLocked, LAST_WEEK, matchupsForWeek, matchupWinner, REG_WEEKS, SLOTS, standings, userMatchup, winProbability,
+  currentWeek, LAST_WEEK, matchupsForWeek, matchupWinner, playerWeek, REG_WEEKS, slotLocked, SLOTS, standings, winProbability,
   type Matchup,
 } from '../../engine/league'
 import { fmt } from '../../engine/scoring'
-import { getData, useApp } from '../../store'
-import { FTeamAvatar, MatchBalls, PlayerAvatar, RoleTag, TeamChip, weekLabel } from '../common'
+import { getData, ME, useApp } from '../../store'
+import { FTeamAvatar, MatchBalls, PlayerAvatar, RoleTag, TeamChip } from '../common'
+import { weekLabel } from '../format'
 import { liveTeamScore, teamStarters, weekRecap, weekSummary } from '../helpers'
+import { Conversation } from './ChatView'
+import { useShallow } from 'zustand/react/shallow'
 
 export function WeekPills({ week, onChange }: { week: number; onChange: (w: number) => void }) {
   const d = getData()
@@ -29,65 +32,131 @@ export function WeekPills({ week, onChange }: { week: number; onChange: (w: numb
 export function MatchupView() {
   const d = getData()
   const league = useApp((s) => s.league)!
-  const { viewWeek, setViewWeek, setTab } = useApp()
+  const { viewWeek, setViewWeek, setTab } = useApp(useShallow((s) => ({ viewWeek: s.viewWeek, setViewWeek: s.setViewWeek, setTab: s.setTab })))
   const cur = currentWeek(d, league)
   const week = viewWeek ?? cur
-  const [picked, setPicked] = useState<{ week: number; m: Matchup } | null>(null)
-  const weekMs = matchupsForWeek(league, week)
-  const mine = userMatchup(league, week)
-  const m = picked && picked.week === week ? picked.m : mine ?? weekMs[0]
+  const [picked, setPicked] = useState({ week, i: 0 })
+  // your matchup first, then the rest of the league
+  const weekMs = matchupsForWeek(league, week).sort((a, b) => Number(b.a === ME || b.b === ME) - Number(a.a === ME || a.b === ME))
+  const index = picked.week === week ? Math.min(picked.i, Math.max(0, weekMs.length - 1)) : 0
+  const m = weekMs[index]
   const recap = weekRecap(d, league, week)
 
   return (
     <>
-      <div className="page-title">
-        <h1>{weekLabel(week)}</h1>
-        <div className="sub">
-          {fmtRange(d, week)} · {d.gameweeks[week - 1].mis.length} IPL matches
-        </div>
-      </div>
-      <div style={{ marginBottom: 16 }}>
-        <WeekPills week={week} onChange={(w) => { setViewWeek(w); setPicked(null) }} />
-      </div>
-
-      {league.champion !== null && week === LAST_WEEK && <ChampionBanner />}
-
-      {!m ? (
-        <PlayoffPlaceholder onGo={() => setTab('playoffs')} />
-      ) : (
-        <div className="split">
-          <div className="col" style={{ gap: 16 }}>
-            <MatchupCard m={m} />
-          </div>
-          <div className="col" style={{ gap: 16 }}>
-            {recap && (
-              <div className="recap">
-                <div className="row" style={{ gap: 8 }}>
-                  <Sparkles size={16} style={{ color: 'var(--ar)' }} />
-                  <b className="display">Week recap</b>
-                  <span className="chip" style={{ marginLeft: 'auto' }}>AI · placeholder</span>
-                </div>
-                {recap.map((s, i) => (
-                  <p key={i}>{s}</p>
-                ))}
-              </div>
-            )}
-            <div className="card">
-              <div className="card-h">
-                <h3>League scoreboard</h3>
-                <span className="dim" style={{ marginLeft: 'auto', fontSize: 12 }}>{league.results[week] ? 'Final' : week === cur ? 'Live' : 'Upcoming'}</span>
-              </div>
-              <div className="col" style={{ padding: 12, gap: 8 }}>
-                {weekMs.map((x, i) => (
-                  <MiniMatchup key={i} m={x} active={x === m} onClick={() => setPicked({ week, m: x })} />
-                ))}
-                {!weekMs.length && <div className="dim" style={{ padding: 10, fontSize: 13 }}>Matchups set after Week {week - 1}.</div>}
-              </div>
+      <div className="split home-split">
+        <div className="col" style={{ gap: 16 }}>
+          <div className="page-title">
+            <h1>{weekLabel(week)}</h1>
+            <div className="sub">
+              {fmtRange(d, week)} · {d.gameweeks[week - 1].mis.length} IPL matches
             </div>
           </div>
+          <div>
+            <WeekPills week={week} onChange={(w) => { setViewWeek(w); setPicked({ week: w, i: 0 }) }} />
+          </div>
+
+          {league.champion !== null && week === LAST_WEEK && <ChampionBanner />}
+          {!m ? (
+            <PlayoffPlaceholder onGo={() => setTab('playoffs')} />
+          ) : (
+            <>
+              <MatchupCarousel key={week} ms={weekMs} index={index} onIndex={(i) => setPicked({ week, i })} />
+              <Lineups m={m} />
+            </>
+          )}
+          {recap && (
+            <div className="recap">
+              <div className="row" style={{ gap: 8 }}>
+                <Sparkles size={16} style={{ color: 'var(--ar)' }} />
+                <b className="display">Week recap</b>
+                <span className="chip" style={{ marginLeft: 'auto' }}>AI · placeholder</span>
+              </div>
+              {recap.map((s, i) => (
+                <p key={i}>{s}</p>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="col home-side">
+          <LeagueChatDock />
+        </div>
+      </div>
+    </>
+  )
+}
+
+function LeagueChatDock() {
+  const openChat = useApp((s) => s.openChat)
+  return (
+    <div className="chat-dock">
+      <Conversation
+        channel={LEAGUE_CHANNEL}
+        compact
+        action={
+          <button className="btn sm icon ghost" title="Open in Chat" aria-label="Open in Chat" onClick={() => openChat(LEAGUE_CHANNEL)}>
+            <Maximize2 size={14} />
+          </button>
+        }
+      />
+    </div>
+  )
+}
+
+/** Swipe (or use the arrows/dots) through every matchup of the week; the lineups below follow. */
+function MatchupCarousel({ ms, index, onIndex }: { ms: Matchup[]; index: number; onIndex: (i: number) => void }) {
+  const league = useApp((s) => s.league)!
+  const track = useRef<HTMLDivElement>(null)
+  const go = (i: number) => {
+    const el = track.current
+    if (el) el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' })
+  }
+  // open on the remembered matchup; after that the scroll position drives the index
+  const start = useRef(index)
+  useLayoutEffect(() => {
+    const el = track.current
+    if (el) el.scrollLeft = start.current * el.clientWidth
+  }, [])
+  const label = (m: Matchup) => {
+    if (m.a === ME || m.b === ME) return 'Your matchup'
+    return m.label ?? `${league.teams[m.a].name} v ${league.teams[m.b].name}`
+  }
+  return (
+    <div className="carousel">
+      <div
+        className="carousel-track"
+        ref={track}
+        onScroll={(e) => {
+          const el = e.currentTarget
+          const i = Math.round(el.scrollLeft / el.clientWidth)
+          if (i !== index && i >= 0 && i < ms.length) onIndex(i)
+        }}
+      >
+        {ms.map((m, i) => (
+          <div className="carousel-slide" key={i} aria-hidden={i !== index}>
+            <Scoreboard m={m} />
+          </div>
+        ))}
+      </div>
+      {ms.length > 1 && (
+        <div className="carousel-nav">
+          <button className="btn sm icon" disabled={index === 0} onClick={() => go(index - 1)} aria-label="Previous matchup">
+            <ChevronLeft size={16} />
+          </button>
+          <div className="carousel-meta">
+            <span className="carousel-label ellipsis">{label(ms[index])}</span>
+            <div className="carousel-dots">
+              {ms.map((m, i) => (
+                <button key={i} className={i === index ? 'on' : ''} onClick={() => go(i)} aria-label={label(m)} title={label(m)} />
+              ))}
+            </div>
+          </div>
+          <button className="btn sm icon" disabled={index === ms.length - 1} onClick={() => go(index + 1)} aria-label="Next matchup">
+            <ChevronRight size={16} />
+          </button>
         </div>
       )}
-    </>
+    </div>
   )
 }
 
@@ -97,13 +166,13 @@ function fmtRange(d: ReturnType<typeof getData>, w: number) {
   return `${f(g.start)} – ${f(g.end)}`
 }
 
-function MatchupCard({ m: raw }: { m: Matchup }) {
-  // keep the user's team on the left
-  const m = raw.b === 0 ? { ...raw, a: raw.b, b: raw.a } : raw
+/** keep the user's team on the left */
+const oriented = (m: Matchup): Matchup => (m.b === ME ? { ...m, a: m.b, b: m.a } : m)
+
+function Scoreboard({ m: raw }: { m: Matchup }) {
+  const m = oriented(raw)
   const d = getData()
   const league = useApp((s) => s.league)!
-  const openPlayer = useApp((s) => s.openPlayer)
-  const [showBench, setShowBench] = useState(false)
   const week = m.week
   const final = !!league.results[week]
   const cur = currentWeek(d, league)
@@ -121,19 +190,13 @@ function MatchupCard({ m: raw }: { m: Matchup }) {
   const remainingShare = final ? 0 : mis.filter((mi) => mi >= league.played).length / mis.length
   const pA = final ? (sa.score > sb.score ? 1 : sa.score < sb.score ? 0 : 0.5) : winProbability(sa.proj, sb.proj, sa.score, sb.score, remainingShare)
   const winner = final ? matchupWinner(league, m) : null
-  const stA = teamStarters(league, m.a, week)
-  const stB = teamStarters(league, m.b, week)
-  const played = final ? Infinity : league.played
   const rec = (id: number) => {
     const r = standings(league).find((x) => x.teamId === id)!
     return `${r.w + r.mw}-${r.l + r.ml}${r.t ? `-${r.t}` : ''}`
   }
 
-  const benchOf = (teamId: number, st: (number | null)[]) => league.teams[teamId].roster.filter((p) => !st.includes(p))
-
   return (
-    <>
-      <div className="scoreboard">
+    <div className="scoreboard">
         <div className="sb-team">
           <FTeamAvatar t={A} size="lg" />
           <div style={{ minWidth: 0 }}>
@@ -178,17 +241,33 @@ function MatchupCard({ m: raw }: { m: Matchup }) {
             <div className="dim" style={{ fontSize: 12, marginTop: 4 }}>Proj {fmt(sb.proj, 1)}</div>
           </div>
         </div>
-      </div>
+    </div>
+  )
+}
 
+function Lineups({ m: raw }: { m: Matchup }) {
+  const m = oriented(raw)
+  const league = useApp((s) => s.league)!
+  const openPlayer = useApp((s) => s.openPlayer)
+  const [showBench, setShowBench] = useState(false)
+  const week = m.week
+  const final = !!league.results[week]
+  const stA = teamStarters(league, m.a, week)
+  const stB = teamStarters(league, m.b, week)
+  const played = final ? Infinity : league.played
+  const benchOf = (teamId: number, st: (number | null)[]) => league.teams[teamId].roster.filter((p) => !st.includes(p))
+
+  return (
+    <>
       <div className="card">
         <div className="mrows">
           {SLOTS.map((s, i) => (
             <div className="mrow" key={i}>
-              <Cell pid={stA[i]} week={week} played={played} onOpen={openPlayer} side="l" />
+              <Cell teamId={m.a} pid={stA[i]} week={week} played={played} onOpen={openPlayer} side="l" />
               <div className="center">
                 <span className={`slot ${s}`}>{s}</span>
               </div>
-              <Cell pid={stB[i]} week={week} played={played} onOpen={openPlayer} side="r" />
+              <Cell teamId={m.b} pid={stB[i]} week={week} played={played} onOpen={openPlayer} side="r" />
             </div>
           ))}
         </div>
@@ -202,11 +281,11 @@ function MatchupCard({ m: raw }: { m: Matchup }) {
           <div className="mrows">
             {Array.from({ length: Math.max(benchOf(m.a, stA).length, benchOf(m.b, stB).length) }, (_, i) => (
               <div className="mrow" key={i}>
-                <Cell pid={benchOf(m.a, stA)[i] ?? null} week={week} played={played} onOpen={openPlayer} side="l" bench />
+                <Cell teamId={m.a} pid={benchOf(m.a, stA)[i] ?? null} week={week} played={played} onOpen={openPlayer} side="l" bench />
                 <div className="center">
                   <span className="slot BN">BN</span>
                 </div>
-                <Cell pid={benchOf(m.b, stB)[i] ?? null} week={week} played={played} onOpen={openPlayer} side="r" bench />
+                <Cell teamId={m.b} pid={benchOf(m.b, stB)[i] ?? null} week={week} played={played} onOpen={openPlayer} side="r" bench />
               </div>
             ))}
           </div>
@@ -216,14 +295,14 @@ function MatchupCard({ m: raw }: { m: Matchup }) {
   )
 }
 
-function Cell({ pid, week, played, onOpen, side, bench }: { pid: number | null; week: number; played: number; onOpen: (p: number) => void; side: 'l' | 'r'; bench?: boolean }) {
+function Cell({ teamId, pid, week, played, onOpen, side, bench }: { teamId: number; pid: number | null; week: number; played: number; onOpen: (p: number) => void; side: 'l' | 'r'; bench?: boolean }) {
   const d = getData()
   const league = useApp((s) => s.league)!
   if (pid === null || pid === undefined) return <div className={`mcell ${side === 'r' ? 'r' : ''}`}><span className="empty-slot">Empty</span></div>
   const p = d.players[pid]
-  const wp = weekProjection(d, p, week, played)
-  const summary = weekSummary(d, p, week, played)
-  const locked = !league.results[week] && week === currentWeek(d, league) && isLocked(d, league, pid, week)
+  const wp = playerWeek(d, league, teamId, pid, week, played)
+  const summary = weekSummary(d, p, wp.mi, played)
+  const locked = !league.results[week] && week === currentWeek(d, league) && slotLocked(d, league, teamId, pid, week)
   return (
     <div className={`mcell ${side === 'r' ? 'r' : ''}`} onClick={() => onOpen(pid)} style={bench ? { opacity: 0.7 } : undefined}>
       <PlayerAvatar p={p} />
@@ -232,7 +311,7 @@ function Cell({ pid, week, played, onOpen, side, bench }: { pid: number | null; 
         <div className="pmeta">
           <TeamChip code={p.team} />
           <RoleTag p={p} />
-          <MatchBalls d={d} p={p} gw={week} played={played} />
+          <MatchBalls d={d} p={p} gw={week} played={played} counted={wp.mi} />
           {locked && <Lock size={11} className="dim" />}
         </div>
         {summary && <div className="dim ellipsis" style={{ fontSize: 11, marginTop: 3 }}>{summary}</div>}
@@ -241,36 +320,6 @@ function Cell({ pid, week, played, onOpen, side, bench }: { pid: number | null; 
         <div className={`pts ${wp.banked >= 25 ? 'hot' : ''}`}>{fmt(wp.banked)}</div>
         <div className="proj">{wp.remaining > 0 ? `proj ${fmt(wp.total, 1)}` : ' '}</div>
       </div>
-    </div>
-  )
-}
-
-function MiniMatchup({ m, active, onClick }: { m: Matchup; active: boolean; onClick: () => void }) {
-  const d = getData()
-  const league = useApp((s) => s.league)!
-  const sa = liveTeamScore(d, league, m.a, m.week)
-  const sb = liveTeamScore(d, league, m.b, m.week)
-  const final = !!league.results[m.week]
-  const row = (id: number, s: { score: number; proj: number }, o: { score: number }) => {
-    const t = league.teams[id]
-    const win = final && s.score > o.score
-    return (
-      <>
-        <div className="row" style={{ gap: 8, minWidth: 0 }}>
-          <FTeamAvatar t={t} size="sm" />
-          <span className="ellipsis" style={{ fontWeight: t.isUser ? 800 : 600, fontSize: 13, color: final && !win ? 'var(--muted)' : undefined }}>{t.isUser ? `${t.name} (you)` : t.name}</span>
-        </div>
-        <div className="num right" style={{ fontWeight: 700, color: win ? 'var(--turf)' : final ? 'var(--muted)' : undefined }}>
-          {fmt(s.score)}
-        </div>
-      </>
-    )
-  }
-  return (
-    <div className="mini-matchup" style={active ? { borderColor: 'rgba(196,239,106,.45)' } : undefined} onClick={onClick}>
-      {m.label && <div className="up dim" style={{ gridColumn: '1 / -1', fontSize: 9.5 }}>{m.label}</div>}
-      {row(m.a, sa, sb)}
-      {row(m.b, sb, sa)}
     </div>
   )
 }

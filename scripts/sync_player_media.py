@@ -9,6 +9,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import runpy
 import sys
 import struct
 import unicodedata
@@ -93,12 +94,14 @@ def main():
         path, url, fallback = job
         target = PUBLIC / path
         pid = target.stem
-        if '--reuse' in sys.argv and target.exists() and target.stat().st_size > 1000:
+        # portraits are stored as WebP after optimize_player_media.py, so reuse either form
+        existing = next((t for t in (target, target.with_suffix('.webp')) if t.exists() and t.stat().st_size > 1000), None)
+        if '--reuse' in sys.argv and existing:
             if pid in previous:
                 profiles[pid].update(previous[pid])
             elif pid in franchise:
                 profiles[pid].update(franchise[pid])
-            return path, hashlib.sha256(target.read_bytes()).hexdigest()
+            return path, hashlib.sha256(existing.read_bytes()).hexdigest()
         try:
             content = fetch(url)
         except Exception:
@@ -131,7 +134,7 @@ def main():
         hashes = dict(pool.map(download, jobs))
     if not all(hashes.values()):
         raise ValueError("Missing images; review the URLs above")
-    portrait_hashes = [hashes[p["photo"]] for p in profiles.values()]
+    portrait_hashes = [h for path, h in hashes.items() if path.startswith("media/players/")]
     if len(set(portrait_hashes)) != len(portrait_hashes):
         raise ValueError("Duplicate portraits found; review possible placeholders before publishing metadata")
     metadata = {"players": profiles, "teams": {
@@ -139,6 +142,7 @@ def main():
     }}
     (PUBLIC / "data/player-media.json").write_text(json.dumps(metadata, indent=2) + "\n")
     print(f"Verified {len(profiles)} unique portraits and {len(logos)} team logos")
+    runpy.run_path(str(Path(__file__).with_name("optimize_player_media.py")), run_name="__main__")
 
 
 if __name__ == "__main__":

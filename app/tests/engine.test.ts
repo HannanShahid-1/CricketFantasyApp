@@ -1,0 +1,264 @@
+// Engine regression tests: run with `npm test`. They load the real Cricsheet data from public/ and play whole
+// simulated seasons, so they check rules end to end. The engine is random (AI picks, bot trades), so tests
+// assert invariants that must hold on every run rather than exact numbers.
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { beforeAll, describe, expect, it } from 'vitest'
+import { dmChannel, emptyChat, markRead, post, toggleReaction, unreadCount } from '../src/engine/chat'
+import { loadData, type Data } from '../src/engine/data'
+import {
+  chooseDraftPick, countedMatch, createLeague, currentWeek, lineupProblem, lockedPick, makePick, playNext, proposeTrade,
+  respondTrade, reviewTrade, setMatchPick, slotLocked, SLOTS, teamOnClock, tradeProblem, weekMatches, withdrawTrade,
+  type League,
+} from '../src/engine/league'
+import { computeLines } from '../src/engine/scoring'
+import { FLAG_LEGBYE, FLAG_NOBALL, type RawMatch } from '../src/engine/types'
+
+let d: Data
+
+beforeAll(async () => {
+  // the app fetches /data/*.json; serve them from public/
+  globalThis.fetch = (async (url: string) => {
+    const file = join(__dirname, '../public', String(url).replace(/^\//, ''))
+    return new Response(readFileSync(file))
+  }) as typeof fetch
+  d = await loadData()
+})
+
+function drafted(numTeams = 8): League {
+  const l = createLeague(d, { name: 'Test', teamName: 'Me', numTeams, draftSlot: 'random', timer: 0, speed: 'instant' })
+  while (teamOnClock(l) !== null) makePick(d, l, chooseDraftPick(d, l, teamOnClock(l)!))
+  return l
+}
+
+function playSeason(l: League, eachWeek?: (l: League, week: number) => void) {
+  let last = 0
+  while (l.phase === 'season' && l.played < d.matches.length) {
+    const w = currentWeek(d, l)
+    if (w !== last) {
+      last = w
+      eachWeek?.(l, w)
+    }
+    playNext(d, l)
+  }
+}
+
+/** a week-1 player on my roster with 2+ matches, placed in the lineup. Auto-sub is turned off so he stays put
+ *  even if he's left out of an XI (that's auto-sub's own test). */
+function twoMatchStarter(l: League) {
+  const me = l.teams[0]
+  me.autoSub = false
+  const p = me.roster.find((x) => weekMatches(d, x, 1).length > 1)!
+  if (!me.starters.includes(p)) me.starters[SLOTS.findIndex((s) => d.players[p].elig.includes(s))] = p
+  return p
+}
+
+describe('season simulation', () => {
+  it('plays full 8- and 10-team seasons with valid rosters and results', () => {
+    for (const n of [8, 10]) {
+      const l = drafted(n)
+      playSeason(l)
+      expect(l.phase).toBe('complete')
+      expect(l.champion).not.toBeNull()
+      expect(Object.keys(l.results)).toHaveLength(8)
+      const seen = new Set<number>()
+      for (const t of l.teams) {
+        expect(t.roster).toHaveLength(15)
+        for (const p of t.roster) {
+          expect(seen.has(p)).toBe(false)
+          seen.add(p)
+        }
+      }
+    }
+  })
+
+  it("scores each starter's one counted match, never more", () => {
+    const l = drafted()
+    playSeason(l, (l, w) => {
+      for (const t of l.teams) for (const p of t.roster) {
+        const mis = weekMatches(d, p, w)
+        if (mis.length > 1 && Math.random() < 0.5) expect(setMatchPick(d, l, t.id, p, mis[1])).toBeNull()
+      }
+    })
+    for (const [wk, r] of Object.entries(l.results)) {
+      for (const t of l.teams) {
+        let s = 0
+        r.starters[t.id].forEach((p, i) => {
+          const c = r.counted![t.id][i]
+          if (p === null || c === null) return
+          expect(weekMatches(d, p, Number(wk))).toContain(c)
+          s += d.players[p].games.get(c)?.pts.total ?? 0
+        })
+        expect(r.scores[t.id]).toBeCloseTo(s, 2)
+      }
+    }
+  })
+
+  it('auto-subs only replace starters missing from the XI, with players whose match has not started', () => {
+    const l = drafted(10)
+    playSeason(l)
+    for (const t of l.txns.filter((x) => x.type === 'autosub')) {
+      const [add] = t.adds
+      const [drop] = t.drops
+      expect(d.matches[t.played].xi.has(drop)).toBe(false)
+      const r = l.results[t.week]
+      const i = r.starters[t.teamId].indexOf(add)
+      if (i >= 0) expect(r.counted![t.teamId][i]!).toBeGreaterThanOrEqual(t.played)
+    }
+  })
+})
+
+describe('one match counts (lock-in)', () => {
+  it("defaults to the player's first match", () => {
+    const l = drafted()
+    const p = twoMatchStarter(l)
+    expect(countedMatch(d, l, 0, p, 1)).toBe(weekMatches(d, p, 1)[0])
+  })
+
+  it('locks a later match before his first match, then freezes the choice', () => {
+    const l = drafted()
+    const p = twoMatchStarter(l)
+    const [m1, m2] = weekMatches(d, p, 1)
+    expect(setMatchPick(d, l, 0, p, m2)).toBeNull()
+    expect(countedMatch(d, l, 0, p, 1)).toBe(m2)
+    while (l.played <= m1) playNext(d, l)
+    expect(setMatchPick(d, l, 0, p, m1)).toMatch(/too late/i) // no switching back after seeing match 1
+    expect(slotLocked(d, l, 0, p)).toBe(false) // still movable until match 2 starts
+    while (currentWeek(d, l) === 1) playNext(d, l)
+    const r = l.results[1]
+    expect(r.counted![0][r.starters[0].indexOf(p)]).toBe(m2) // match 1's points never counted
+  })
+
+  it('switching back to the first match clears the lock; locks reset each week', () => {
+    const l = drafted()
+    const p = twoMatchStarter(l)
+    const [m1, m2] = weekMatches(d, p, 1)
+    setMatchPick(d, l, 0, p, m2)
+    setMatchPick(d, l, 0, p, m1)
+    expect(lockedPick(l, 0, p, 1)).toBeUndefined()
+    setMatchPick(d, l, 0, p, m2)
+    while (currentWeek(d, l) === 1) playNext(d, l)
+    expect(l.teams[0].picks).toBeUndefined()
+  })
+
+  it('blocks hindsight lineup moves', () => {
+    const l = drafted()
+    // play until some bench player's counted match is over and some starter's has begun
+    while (l.played < 8) playNext(d, l)
+    const me = l.teams[0]
+    const benchDone = me.roster.find((p) => !me.starters.includes(p) && slotLocked(d, l, 0, p))
+    if (benchDone !== undefined) {
+      const slot = SLOTS.findIndex((s, i) => d.players[benchDone].elig.includes(s) && !slotLocked(d, l, 0, me.starters[i]!))
+      if (slot >= 0) {
+        const next = [...me.starters]
+        next[slot] = benchDone
+        expect(lineupProblem(d, l, 0, next)).toMatch(/can't come in/)
+      }
+    }
+    const lockedStarter = me.starters.find((p) => p !== null && slotLocked(d, l, 0, p))
+    expect(lockedStarter).toBeDefined()
+    expect(lineupProblem(d, l, 0, me.starters.map((p) => (p === lockedStarter ? null : p)))).toMatch(/locked/)
+  })
+
+  it("rejects picks for one-match players and other managers' players", () => {
+    const l = drafted()
+    l.played = d.gameweeks[1].mis[0] // start of week 2: weeks after the opener have one-match teams
+    const w = currentWeek(d, l)
+    const single = l.teams[0].roster.find((p) => weekMatches(d, p, w).length === 1)
+    if (single !== undefined) expect(setMatchPick(d, l, 0, single, null)).toMatch(/one match/)
+    expect(setMatchPick(d, l, 0, l.teams[1].roster[0], null)).toMatch(/not on this roster/)
+  })
+})
+
+describe('trades and the commissioner', () => {
+  function legalPair(l: League): [number, number] {
+    for (const p of l.teams[0].roster) for (const q of l.teams[1].roster) if (!tradeProblem(d, l, 0, 1, [p], [q])) return [p, q]
+    throw new Error('no legal 1-for-1 trade found')
+  }
+
+  it('accept → review → commissioner approves → players move', () => {
+    const l = drafted()
+    const [p, q] = legalPair(l)
+    const t = proposeTrade(d, l, 0, 1, [p], [q]).trade!
+    expect(t.status).toBe('pending')
+    expect(respondTrade(d, l, t.id, true)).toBeNull()
+    expect(t.status).toBe('review')
+    expect(reviewTrade(d, l, t.id, true, 3)).toMatch(/only the commissioner/i)
+    expect(reviewTrade(d, l, t.id, true, 0)).toBeNull()
+    expect(t.status).toBe('approved')
+    expect(l.teams[0].roster).toContain(q)
+    expect(l.teams[1].roster).toContain(p)
+  })
+
+  it('veto keeps rosters; review auto-approves when the next match starts', () => {
+    const l = drafted()
+    const [p, q] = legalPair(l)
+    const a = proposeTrade(d, l, 0, 1, [p], [q]).trade!
+    respondTrade(d, l, a.id, true)
+    reviewTrade(d, l, a.id, false, 0)
+    expect(a.status).toBe('vetoed')
+    expect(l.teams[0].roster).toContain(p)
+    const b = proposeTrade(d, l, 0, 1, [p], [q]).trade!
+    respondTrade(d, l, b.id, true)
+    playNext(d, l)
+    expect(b.status).toBe('approved')
+  })
+
+  it('withdraw, decline and end-of-week expiry close offers; chat records every step', () => {
+    const l = drafted()
+    const [p, q] = legalPair(l)
+    const a = proposeTrade(d, l, 0, 1, [p], [q]).trade!
+    withdrawTrade(d, l, a.id)
+    const b = proposeTrade(d, l, 0, 1, [p], [q]).trade!
+    respondTrade(d, l, b.id, false)
+    const c = proposeTrade(d, l, 0, 1, [p], [q]).trade!
+    while (currentWeek(d, l) === 1) playNext(d, l)
+    expect([a.status, b.status, c.status]).toEqual(['withdrawn', 'declined', 'expired'])
+    // only these three trades: the AI may also send its own offer in this DM at the end of the week
+    const ours = new Set([a.id, b.id, c.id])
+    const stages = l.chat.messages
+      .filter((m) => m.channel === dmChannel(0, 1) && m.event?.type === 'trade' && ours.has(m.event.tradeId))
+      .map((m) => (m.event as { stage: string }).stage)
+    expect(stages).toEqual(['proposed', 'withdrawn', 'proposed', 'declined', 'proposed', 'expired'])
+  })
+
+  it('mismatched or deadline-breaking offers are refused', () => {
+    const l = drafted()
+    const [p] = legalPair(l)
+    expect(proposeTrade(d, l, 0, 1, [p], []).error).toMatch(/same number/)
+    while (currentWeek(d, l) < 5) playNext(d, l)
+    const [x, y] = [l.teams[0].roster[0], l.teams[1].roster[0]]
+    expect(tradeProblem(d, l, 0, 1, [x], [y])).toMatch(/deadline/)
+  })
+})
+
+describe('chat', () => {
+  it('tracks unread counts, read cursors and reactions', () => {
+    const c = emptyChat()
+    const ch = dmChannel(3, 0)
+    expect(ch).toBe(dmChannel(0, 3))
+    const m1 = post(c, { channel: ch, author: 3, date: '2026-03-28', week: 1, text: 'hi' })
+    post(c, { channel: ch, author: 3, date: '2026-03-28', week: 1, text: 'trade?' })
+    expect(unreadCount(c, ch, 0)).toBe(2)
+    expect(unreadCount(c, ch, 3)).toBe(0) // your own messages are read
+    markRead(c, ch, 0, m1.id)
+    expect(unreadCount(c, ch, 0)).toBe(1)
+    markRead(c, ch, 0)
+    expect(unreadCount(c, ch, 0)).toBe(0)
+    toggleReaction(c, m1.id, 0, '🔥')
+    expect(c.messages[0].reactions).toEqual({ '🔥': [0] })
+    toggleReaction(c, m1.id, 0, '🔥')
+    expect(c.messages[0].reactions).toEqual({})
+  })
+})
+
+describe('scoring', () => {
+  it("charges a no-ball's own run to the bowler but not the leg-byes run off it", () => {
+    // one ball: no-ball + 2 leg-byes = 3 extras; bowler is charged only the no-ball's 1
+    const match = {
+      squads: { A: [1], B: [2] },
+      innings: [{ team: 'A', balls: [[0, 1, 2, 0, 3, FLAG_NOBALL | FLAG_LEGBYE]] }],
+    } as unknown as RawMatch
+    expect(computeLines(match).get(2)!.rc).toBe(1)
+  })
+})

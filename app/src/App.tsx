@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import { startBots } from './bots'
 import { loadData } from './engine/data'
+import { upgradeLeague } from './engine/league'
 import { setData, useApp } from './store'
 import { Logo } from './ui/common'
 import { DraftRoom } from './ui/DraftRoom'
@@ -10,12 +12,13 @@ import { PlayerModal } from './ui/modals/PlayerModal'
 import { TradeModal } from './ui/modals/TradeModal'
 import { Setup } from './ui/Setup'
 import { Shell } from './ui/Shell'
+import { useShallow } from 'zustand/react/shallow'
 
 export default function App() {
   const [ready, setReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const league = useApp((s) => s.league)
-  const { playerModal, matchModal, liveMatch, tradeWith, addTarget, toast } = useApp()
+  const { playerModal, matchModal, liveMatch, tradeWith, addTarget, toast } = useApp(useShallow((s) => ({ playerModal: s.playerModal, matchModal: s.matchModal, liveMatch: s.liveMatch, tradeWith: s.tradeWith, addTarget: s.addTarget, toast: s.toast })))
 
   useEffect(() => {
     loadData()
@@ -23,6 +26,8 @@ export default function App() {
         setData(d)
         const l = useApp.getState().league
         if (l && l.dataVersion !== d.version) useApp.getState().reset()
+        else if (l) useApp.setState({ league: upgradeLeague(l) })
+        startBots()
         setReady(true)
       })
       .catch((e) => setError(String(e)))

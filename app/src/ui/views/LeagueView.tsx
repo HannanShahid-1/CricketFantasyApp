@@ -2,10 +2,11 @@ import { matchupsForWeek, PERSONA_LABEL, REG_WEEKS, standings } from '../../engi
 import { fmt } from '../../engine/scoring'
 import { useApp } from '../../store'
 import { FTeamAvatar } from '../common'
+import { useShallow } from 'zustand/react/shallow'
 
 export function LeagueView() {
   const league = useApp((s) => s.league)!
-  const { setTab, setViewWeek } = useApp()
+  const { setTab, setViewWeek } = useApp(useShallow((s) => ({ setTab: s.setTab, setViewWeek: s.setViewWeek })))
   const rows = standings(league)
   const playoffLine = 4
 
@@ -118,7 +119,7 @@ export function LeagueView() {
                       const won = mine > opp
                       const med = res.median !== null && mine > res.median
                       return (
-                        <td key={w} className="n" style={{ color: won ? 'var(--win)' : 'var(--loss)' }}>
+                        <td key={w} className="n" style={{ color: won ? 'var(--win)' : mine === opp ? 'var(--muted)' : 'var(--loss)' }}>
                           {fmt(mine, 1)}
                           {med && <span className="gold"> ★</span>}
                         </td>

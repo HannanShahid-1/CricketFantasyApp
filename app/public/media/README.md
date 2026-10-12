@@ -15,6 +15,9 @@ and logos follow the app's roster team; historical-only players use their last
 IPL squad team as profile context, without making them draftable.
 
 Refresh from the repository root with `python3 scripts/sync_player_media.py`.
+Portraits are stored as WebP (longest side 512px): the sync runs
+`scripts/optimize_player_media.py` at the end, which converts downloads and
+updates the `photo` paths. Run that script on its own after replacing an image by hand.
 The source list currently targets IPL 2026 and 2025. The public IPL endpoint is
 not a guaranteed, supported commercial API. Review explicit aliases and fallback
 sources if squad names or the website's response format change. `--reuse` keeps

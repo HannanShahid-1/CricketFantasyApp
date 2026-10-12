@@ -1,11 +1,12 @@
 import { FastForward, Pause, Play, SkipForward } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { weekProjection } from '../../engine/data'
-import { rosteredBy, userMatchup } from '../../engine/league'
+import { countedMatch, rosteredBy, userMatchup } from '../../engine/league'
 import { computeLines, fmt, oversStr, score } from '../../engine/scoring'
 import { getData, useApp } from '../../store'
-import { FTeamAvatar, fmtDate, Modal, PlayerAvatar, TeamChip } from '../common'
+import { FTeamAvatar, Modal, PlayerAvatar, TeamChip } from '../common'
+import { fmtDate } from '../format'
 import { ballEvents, inningsDetails } from '../scorecard'
+import { useShallow } from 'zustand/react/shallow'
 
 const SPEEDS = [
   { k: '1×', ms: 420 },
@@ -16,7 +17,7 @@ const SPEEDS = [
 export function LiveMatch({ mi }: { mi: number }) {
   const d = getData()
   const league = useApp((s) => s.league)!
-  const { openLive, simMatch, notify, openPlayer } = useApp()
+  const { openLive, simMatch, notify, openPlayer } = useApp(useShallow((s) => ({ openLive: s.openLive, simMatch: s.simMatch, notify: s.notify, openPlayer: s.openPlayer })))
   const m = d.matches[mi]
   const isNext = mi === league.played && league.phase === 'season'
   const evs = useMemo(() => ballEvents(d, m.raw), [d, m])
@@ -70,10 +71,13 @@ export function LiveMatch({ mi }: { mi: number }) {
   const um = isNext ? userMatchup(league, m.gw) : undefined
   const liveScore = (teamId: number) => {
     let s = 0
+    // only each starter's counting match adds up: banked if it was earlier this week, live if it's this one
     for (const p of league.teams[teamId].starters) {
       if (p === null) continue
-      s += weekProjection(d, d.players[p], m.gw, mi).banked
-      if (m.xi.has(p)) {
+      const c = countedMatch(d, league, teamId, p, m.gw)
+      if (c === null || c > mi) continue
+      if (c < mi) s += d.players[p].games.get(c)?.pts.total ?? 0
+      else if (m.xi.has(p)) {
         const l = lines.get(p)
         if (l) s += score(l, d.players[p].role).total
       }
@@ -255,8 +259,9 @@ export function LiveMatch({ mi }: { mi: number }) {
                 const pl = d.players[p]
                 const t = league.teams[owner]
                 const starter = t.starters.includes(p)
+                const counts = starter && countedMatch(d, league, owner, p, m.gw) === mi
                 return (
-                  <div key={p} className={`fant-row ${owner === 0 ? 'mine' : ''}`}>
+                  <div key={p} className={`fant-row ${owner === 0 ? 'mine' : ''} ${starter && !counts ? 'nc' : ''}`}>
                     <div className="pcell" onClick={() => openPlayer(p)}>
                       <PlayerAvatar p={pl} size="sm" />
                       <div style={{ minWidth: 0 }}>
@@ -264,7 +269,7 @@ export function LiveMatch({ mi }: { mi: number }) {
                         <div className="pmeta" style={{ marginTop: 1 }}>
                           <TeamChip code={pl.team} />
                           <span className="ellipsis">{owner === 0 ? 'You' : t.name}</span>
-                          {!starter && <span className="dim">· bench</span>}
+                          {!starter ? <span className="dim">· bench</span> : !counts && <span className="dim" title="Only one match per player counts each week, and it isn't this one">· not counted</span>}
                         </div>
                       </div>
                     </div>

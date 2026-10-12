@@ -2,7 +2,8 @@ import { ArrowLeftRight, CircleDollarSign, Minus, Plus, RefreshCw, XCircle } fro
 import { useState } from 'react'
 import type { Txn } from '../../engine/league'
 import { getData, useApp } from '../../store'
-import { FTeamAvatar, weekLabel } from '../common'
+import { FTeamAvatar } from '../common'
+import { weekLabel } from '../format'
 
 const ICON: Record<Txn['type'], { i: typeof Plus; c: string; label: string }> = {
   add: { i: Plus, c: 'var(--turf)', label: 'Free agent add' },
@@ -19,7 +20,7 @@ export function ActivityView() {
   const openPlayer = useApp((s) => s.openPlayer)
   const [mine, setMine] = useState(false)
   const txns = league.txns.filter((t) => !mine || t.teamId === 0 || t.otherTeamId === 0)
-  const P = ({ id, c }: { id: number; c?: string }) => (
+  const P = (id: number, c?: string) => (
     <b style={{ cursor: 'pointer', color: c }} onClick={() => openPlayer(id)}>
       {d.players[id].name}
     </b>
@@ -60,25 +61,25 @@ export function ActivityView() {
                 <div style={{ marginTop: 6, fontSize: 13, lineHeight: 1.7 }}>
                   {t.type === 'trade' ? (
                     <>
-                      Received {t.adds.map((p, i) => <span key={p}>{i ? ', ' : ''}<P id={p} c="var(--turf)" /></span>)} from{' '}
-                      <b>{league.teams[t.otherTeamId!].name}</b> for {t.drops.map((p, i) => <span key={p}>{i ? ', ' : ''}<P id={p} c="var(--loss)" /></span>)}
+                      Received {t.adds.map((p, i) => <span key={p}>{i ? ', ' : ''}{P(p, "var(--turf)")}</span>)} from{' '}
+                      <b>{league.teams[t.otherTeamId!].name}</b> for {t.drops.map((p, i) => <span key={p}>{i ? ', ' : ''}{P(p, "var(--loss)")}</span>)}
                     </>
                   ) : t.type === 'autosub' ? (
                     <>
-                      <P id={t.adds[0]} c="var(--turf)" /> in for <P id={t.drops[0]} c="var(--loss)" /> <span className="dim">({t.note})</span>
+                      {P(t.adds[0], "var(--turf)")} in for {P(t.drops[0], "var(--loss)")} <span className="dim">({t.note})</span>
                     </>
                   ) : (
                     <>
                       {t.adds.map((p) => (
                         <span key={p}>
                           <span className="turf">+ </span>
-                          <P id={p} />{' '}
+                          {P(p)}{' '}
                         </span>
                       ))}
                       {t.drops.map((p) => (
                         <span key={p}>
                           <span className="loss">− </span>
-                          <P id={p} />{' '}
+                          {P(p)}{' '}
                         </span>
                       ))}
                       {t.note && <span className="dim">· {t.note}</span>}

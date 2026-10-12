@@ -1,16 +1,17 @@
 import { Trophy } from 'lucide-react'
-import { LAST_WEEK, REG_WEEKS, standings, type League, type Matchup } from '../../engine/league'
+import { LAST_WEEK, REG_WEEKS, standings, type Matchup } from '../../engine/league'
 import { fmt } from '../../engine/scoring'
 import { getData, useApp } from '../../store'
 import { FTeamAvatar } from '../common'
 import { liveTeamScore } from '../helpers'
+import { useShallow } from 'zustand/react/shallow'
 
 type Slot = { teamId: number | null; placeholder?: string }
 
 export function PlayoffsView() {
   const league = useApp((s) => s.league)!
   const seeded = league.schedule.some((m) => m.week === REG_WEEKS + 1)
-  const seedOrder = seeded ? seedsFromSchedule(league) : standings(league).map((r) => r.teamId)
+  const seedOrder = standings(league).map((r) => r.teamId) // standings only count regular-season weeks
   const seedOf = (id: number | null) => (id === null ? null : seedOrder.indexOf(id) + 1)
   const find = (week: number, label: string) => league.schedule.find((m) => m.week === week && m.label === label)
 
@@ -87,16 +88,10 @@ export function PlayoffsView() {
   )
 }
 
-function seedsFromSchedule(l: League): number[] {
-  // regular-season final standings are the seeds
-  const st = standings({ ...l, results: Object.fromEntries(Object.entries(l.results).filter(([w]) => Number(w) <= REG_WEEKS)) })
-  return st.map((r) => r.teamId)
-}
-
 function BkMatch({ label, m, a, b, seedOf, gold }: { label: string; m?: Matchup; a: Slot; b: Slot; seedOf: (id: number | null) => number | null; gold?: boolean }) {
   const d = getData()
   const league = useApp((s) => s.league)!
-  const { setTab, setViewWeek } = useApp()
+  const { setTab, setViewWeek } = useApp(useShallow((s) => ({ setTab: s.setTab, setViewWeek: s.setViewWeek })))
   const res = m ? league.results[m.week] : undefined
   const started = m && (res || league.played > d.gameweeks[m.week - 1].mis[0])
   const score = (id: number | null) => (m && id !== null && started ? liveTeamScore(d, league, id, m.week).score : null)

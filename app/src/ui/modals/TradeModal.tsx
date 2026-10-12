@@ -1,19 +1,21 @@
 import { ArrowLeftRight, Check } from 'lucide-react'
 import { useState } from 'react'
 import { restOfSeason } from '../../engine/data'
-import { currentWeek, isLocked, PERSONA_LABEL, TRADE_DEADLINE_WEEK, type TradeVerdict } from '../../engine/league'
+import { dmChannel } from '../../engine/chat'
+import { currentWeek, isLocked, managerName, PERSONA_LABEL, TRADE_DEADLINE_WEEK, tradeProblem } from '../../engine/league'
 import { fmt } from '../../engine/scoring'
-import { getData, useApp } from '../../store'
+import { getData, ME, useApp } from '../../store'
 import { FTeamAvatar, Modal, PlayerAvatar, RoleTag, TeamChip } from '../common'
+import { useShallow } from 'zustand/react/shallow'
 
 export function TradeModal({ initial }: { initial: number }) {
   const d = getData()
   const league = useApp((s) => s.league)!
-  const { openTrade, trade, notify } = useApp()
+  const { openTrade, proposeTrade, openChat, notify } = useApp(useShallow((s) => ({ openTrade: s.openTrade, proposeTrade: s.proposeTrade, openChat: s.openChat, notify: s.notify })))
   const [other, setOther] = useState(initial)
   const [give, setGive] = useState<number[]>([])
   const [get, setGet] = useState<number[]>([])
-  const [verdict, setVerdict] = useState<TradeVerdict | null>(null)
+  const [note, setNote] = useState('')
   const me = league.teams[0]
   const them = league.teams[other]
   const week = currentWeek(d, league)
@@ -22,13 +24,21 @@ export function TradeModal({ initial }: { initial: number }) {
   const close = () => openTrade(null)
 
   const toggle = (list: number[], set: (x: number[]) => void, p: number) => {
-    setVerdict(null)
     set(list.includes(p) ? list.filter((x) => x !== p) : [...list, p])
+  }
+  const problem = give.length || get.length ? tradeProblem(d, league, ME, other, give, get) : null
+  const pending = league.trades.filter((t) => t.status === 'pending' && t.from === ME && t.to === other).length
+  const send = () => {
+    const err = proposeTrade(other, give, get, note)
+    if (err) return notify(err, 'bad')
+    notify(`Offer sent to ${managerName(them)}`)
+    close()
+    openChat(dmChannel(ME, other))
   }
   const giveV = give.reduce((a, p) => a + ros(p), 0)
   const getV = get.reduce((a, p) => a + ros(p), 0)
 
-  const Side = ({ teamId, sel, onToggle }: { teamId: number; sel: number[]; onToggle: (p: number) => void }) => {
+  const side = (teamId: number, sel: number[], onToggle: (p: number) => void) => {
     const t = league.teams[teamId]
     const roster = [...t.roster].sort((a, b) => ros(b) - ros(a))
     return (
@@ -88,7 +98,6 @@ export function TradeModal({ initial }: { initial: number }) {
             onChange={(e) => {
               setOther(Number(e.target.value))
               setGet([])
-              setVerdict(null)
             }}
           >
             {league.teams
@@ -105,8 +114,8 @@ export function TradeModal({ initial }: { initial: number }) {
       <div className="modal-b">
         {closed && <div className="chip bad" style={{ marginBottom: 12 }}>The trade deadline has passed</div>}
         <div className="grid2">
-          <Side teamId={0} sel={give} onToggle={(p) => toggle(give, setGive, p)} />
-          <Side teamId={other} sel={get} onToggle={(p) => toggle(get, setGet, p)} />
+          {side(0, give, (p) => toggle(give, setGive, p))}
+          {side(other, get, (p) => toggle(get, setGet, p))}
         </div>
         <div className="card pad row wrap" style={{ marginTop: 16, gap: 18 }}>
           <div>
@@ -118,30 +127,28 @@ export function TradeModal({ initial }: { initial: number }) {
             <div className="up dim">You get</div>
             <div className="num turf" style={{ fontSize: 22, fontWeight: 700 }}>{fmt(getV, 0)}</div>
           </div>
-          <div className="grow">
-            {verdict && (
-              <div className={`chip ${verdict.accepted ? 'ok' : 'bad'}`} style={{ height: 'auto', padding: '8px 12px', whiteSpace: 'normal', fontSize: 13 }}>
-                {verdict.message}
-              </div>
-            )}
-          </div>
-          <button
-            className="btn primary"
-            disabled={closed || !give.length || give.length !== get.length}
-            onClick={() => {
-              const v = trade(other, give, get)
-              setVerdict(v)
-              if (v.accepted) {
-                notify(`Trade accepted by ${them.name}!`)
-                close()
-              }
-            }}
-          >
-            Send offer to {them.owner.replace('AI · ', '')}
+          <input
+            className="input grow"
+            style={{ minWidth: 200 }}
+            maxLength={200}
+            placeholder={`Add a message for ${managerName(them)} (optional)`}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
+          <button className="btn primary" disabled={closed || !give.length || !!problem} onClick={send}>
+            Send offer to {managerName(them)}
           </button>
         </div>
         <div className="dim" style={{ fontSize: 12, marginTop: 8 }}>
-          Same number of players each side. AI managers accept when they gain projected value ({me.name} → {them.name}).
+          {problem && give.length + get.length > 0 ? (
+            <span className="loss">{problem}</span>
+          ) : (
+            <>
+              The offer goes to your chat with {managerName(them)}. Once accepted, the commissioner can approve or veto it until the next match starts.
+              {pending > 0 && ` You already have ${pending} offer${pending > 1 ? 's' : ''} waiting on them.`}
+            </>
+          )}
+          {' '}({me.name} → {them.name})
         </div>
       </div>
     </Modal>

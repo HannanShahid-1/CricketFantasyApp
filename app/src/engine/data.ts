@@ -37,7 +37,6 @@ export interface Player {
   s25: { apps: number; pts: number; avg: number }
   prior: { perMatch: number; avail: number }
   games: Map<number, GameRow>
-  seasonPts: number
 }
 
 export interface InningsTotal {
@@ -75,6 +74,8 @@ export interface Data {
   matches: Match[]
   gameweeks: Gameweek[]
   teamGw: Record<string, Record<number, number[]>>
+  /** every match index for each IPL team, in order */
+  teamMis: Record<string, number[]>
   roleBaseline: Record<Role, number>
 }
 
@@ -102,7 +103,7 @@ export const ROLE_NAME: Record<Role, string> = {
   BOWL: 'Bowler',
 }
 
-export function inningsTotals(raw: RawMatch): InningsTotal[] {
+function inningsTotals(raw: RawMatch): InningsTotal[] {
   return raw.innings.map((inn) => {
     let runs = 0
     let wkts = 0
@@ -117,16 +118,21 @@ export function inningsTotals(raw: RawMatch): InningsTotal[] {
 }
 
 export async function loadData(): Promise<Data> {
-  const res = await fetch(`${import.meta.env.BASE_URL}data/ipl.json`)
-  const raw: RawData = await res.json()
-  // Photos are optional so a failed media request cannot block league loading.
-  const media: PlayerMedia = await fetch(`${import.meta.env.BASE_URL}data/player-media.json`)
-    .then((r) => r.ok ? r.json() : { players: {}, teams: {} })
-    .catch(() => ({ players: {}, teams: {} }))
+  const url = (f: string) => `${import.meta.env.BASE_URL}data/${f}`
+  // fetched in parallel; photos and bios are optional so a failed request can't block league loading
+  const [raw, media, bios] = await Promise.all([
+    fetch(url('ipl.json')).then((r) => {
+      if (!r.ok) throw new Error(`Couldn't load data/ipl.json (${r.status})`)
+      return r.json() as Promise<RawData>
+    }),
+    fetch(url('player-media.json'))
+      .then((r): Promise<PlayerMedia> => (r.ok ? r.json() : Promise.resolve({ players: {}, teams: {} })))
+      .catch((): PlayerMedia => ({ players: {}, teams: {} })),
+    fetch(url('player-bios.json'))
+      .then((r): Promise<Record<string, PlayerBio>> => (r.ok ? r.json() : Promise.resolve({})))
+      .catch(() => ({}) as Record<string, PlayerBio>),
+  ])
   const teams = Object.fromEntries(raw.teams.map((t) => [t.code, t]))
-  const bios: Record<string, PlayerBio> = await fetch(`${import.meta.env.BASE_URL}data/player-bios.json`)
-    .then((r) => r.ok ? r.json() : {})
-    .catch(() => ({}))
 
   const players: Player[] = raw.players.map((p, idx) => ({
     idx,
@@ -143,7 +149,6 @@ export async function loadData(): Promise<Data> {
     s25: { apps: 0, pts: 0, avg: 0 },
     prior: { perMatch: 0, avail: 0 },
     games: new Map(),
-    seasonPts: 0,
   }))
 
   // Prior season: points per appearance
@@ -198,7 +203,6 @@ export async function loadData(): Promise<Data> {
       lines,
     }
   })
-  for (const p of players) p.seasonPts = [...p.games.values()].reduce((a, g) => a + g.pts.total, 0)
 
   const gameweeks: Gameweek[] = raw.gameweeks.map((g) => ({
     gw: g.gw,
@@ -212,6 +216,8 @@ export async function loadData(): Promise<Data> {
     for (const t of m.teams) (teamGw[t][m.gw] ??= []).push(m.mi)
   }
 
+  const teamMis = Object.fromEntries(Object.entries(teamGw).map(([t, byGw]) => [t, Object.values(byGw).flat().sort((a, b) => a - b)]))
+
   const pool = players.filter((p) => p.team)
   return {
     raw,
@@ -223,6 +229,7 @@ export async function loadData(): Promise<Data> {
     matches,
     gameweeks,
     teamGw,
+    teamMis,
     roleBaseline,
   }
 }
@@ -247,39 +254,22 @@ export function perMatchProj(d: Data, p: Player, played: number): number {
 export function availability(d: Data, p: Player, played: number): number {
   if (!p.team) return 0
   let teamPlayed = 0
-  for (const mi of Object.values(d.teamGw[p.team]).flat()) if (mi < played) teamPlayed++
+  for (const mi of d.teamMis[p.team] ?? []) if (mi < played) teamPlayed++
   let apps = 0
   for (const g of p.games.values()) if (g.mi < played) apps++
   const k = 4
   return (p.prior.avail * k + apps) / (k + teamPlayed)
 }
 
-/** Projected points for the rest of a gameweek plus points already banked in that week. */
-export function weekProjection(d: Data, p: Player, gw: number, played: number): { banked: number; remaining: number; total: number } {
-  const mis = d.teamGw[p.team]?.[gw] ?? []
-  let banked = 0
-  let left = 0
-  for (const mi of mis) {
-    if (mi < played) banked += p.games.get(mi)?.pts.total ?? 0
-    else left++
-  }
-  const remaining = left ? perMatchProj(d, p, played) * availability(d, p, played) * left : 0
-  return { banked, remaining, total: banked + remaining }
-}
-
+/** Rest-of-season value. Only one match per player counts each week, so this counts the weeks he still has
+ *  a match in, not the matches. (A player's own week is scored by `playerWeek` in league.ts.) */
 export function restOfSeason(d: Data, p: Player, played: number, lastGw = 8): number {
-  let left = 0
+  let weeks = 0
   for (const [gw, mis] of Object.entries(d.teamGw[p.team] ?? {})) {
     if (Number(gw) > lastGw) continue
-    for (const mi of mis) if (mi >= played) left++
+    if (mis.some((mi) => mi >= played)) weeks++
   }
-  return perMatchProj(d, p, played) * availability(d, p, played) * left
-}
-
-export function pointsInRange(p: Player, fromMi: number, toMi: number): number {
-  let s = 0
-  for (const g of p.games.values()) if (g.mi >= fromMi && g.mi < toMi) s += g.pts.total
-  return s
+  return perMatchProj(d, p, played) * availability(d, p, played) * weeks
 }
 
 export function seasonToDate(p: Player, played: number) {

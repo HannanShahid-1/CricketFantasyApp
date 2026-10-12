@@ -1,27 +1,26 @@
-import { weekProjection, type Data, type Player } from '../engine/data'
-import { matchupsForWeek, matchupWinner, type League } from '../engine/league'
+import type { Data, Player } from '../engine/data'
+import { matchupsForWeek, matchupWinner, playerWeek, type League } from '../engine/league'
 import { batLine, bowlLine, fmt } from '../engine/scoring'
+import { opponentLabel } from './format'
 
-/** Compact "what did he do this week" string, e.g. "45 (30) · 2/28" */
-export function weekSummary(d: Data, p: Player, gw: number, played: number): string {
-  const mis = d.teamGw[p.team]?.[gw] ?? []
-  const bits: string[] = []
-  for (const mi of mis) {
-    if (mi >= played) continue
-    const g = p.games.get(mi)
-    if (!g) {
-      bits.push('DNP')
-      continue
-    }
-    const parts: string[] = []
-    const b = batLine(g.line)
-    const w = bowlLine(g.line)
-    if (b) parts.push(b.replace(/ \d+×[46]/g, ''))
-    if (w) parts.push(`${g.line.w}/${g.line.rc}`)
-    if (g.line.ct + g.line.st) parts.push(`${g.line.ct + g.line.st} ct`)
-    bits.push(parts.join(', ') || 'played')
-  }
-  return bits.join(' · ')
+/** Compact line for one match, e.g. "45 (30), 2/28" */
+function matchLine(p: Player, mi: number): string {
+  const g = p.games.get(mi)
+  if (!g) return 'DNP'
+  const parts: string[] = []
+  const b = batLine(g.line)
+  const w = bowlLine(g.line)
+  if (b) parts.push(b.replace(/ \d+×[46]/g, ''))
+  if (w) parts.push(`${g.line.w}/${g.line.rc}`)
+  if (g.line.ct + g.line.st) parts.push(`${g.line.ct + g.line.st} ct`)
+  return parts.join(', ') || 'played'
+}
+
+/** What his counting match did (or which match will count), e.g. "45 (30), 2/28" or "Counts v MI Tue 7 Apr" */
+export function weekSummary(d: Data, p: Player, counted: number | null, played: number): string {
+  if (counted === null) return 'No match this week'
+  if (counted < played) return matchLine(p, counted)
+  return `Counts ${opponentLabel(d, p.team, counted)}`
 }
 
 export function teamStarters(l: League, teamId: number, week: number) {
@@ -35,7 +34,7 @@ export function liveTeamScore(d: Data, l: League, teamId: number, week: number, 
   let proj = 0
   for (const p of teamStarters(l, teamId, week)) {
     if (p === null) continue
-    const wp = weekProjection(d, d.players[p], week, played)
+    const wp = playerWeek(d, l, teamId, p, week, played)
     score += wp.banked
     proj += wp.total
   }
@@ -63,7 +62,7 @@ export function weekRecap(d: Data, l: League, week: number): string[] | null {
     for (const pid of r.starters[t.id]) {
       if (pid === null) continue
       const p = d.players[pid]
-      const pts = weekProjection(d, p, week, Infinity).banked
+      const pts = playerWeek(d, l, t.id, pid, week, Infinity).banked
       if (!top || pts > top.pts) top = { p, pts, team: t.id }
     }
   }

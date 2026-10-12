@@ -1,27 +1,30 @@
 import { ArrowLeftRight, Lock, Sparkles, Trash2, Wand2 } from 'lucide-react'
 import { useState } from 'react'
-import { seasonToDate, weekProjection } from '../../engine/data'
-import { currentWeek, isLocked, SLOTS, standings } from '../../engine/league'
+import { seasonToDate } from '../../engine/data'
+import { currentWeek, playerWeek, slotLocked, SLOTS, standings } from '../../engine/league'
 import { fmt } from '../../engine/scoring'
-import { getData, useApp } from '../../store'
-import { FTeamAvatar, MatchBalls, opponentLabel, PlayerAvatar, RoleTag, TeamChip, weekLabel } from '../common'
+import { getData, ME, useApp } from '../../store'
+import { FTeamAvatar, PlayerAvatar, RoleTag, TeamChip } from '../common'
+import { weekLabel } from '../format'
+import { MatchPicker } from '../MatchPicker'
+import { useShallow } from 'zustand/react/shallow'
 
 type Sel = { kind: 'slot'; i: number } | { kind: 'bench'; p: number } | null
 
 export function TeamView() {
   const d = getData()
   const league = useApp((s) => s.league)!
-  const { setStarters, optimize, toggleAutoSub, toggleAutoLineup, openPlayer, drop, notify, cancelClaim, openTrade } = useApp()
+  const { setStarters, optimize, toggleAutoSub, toggleAutoLineup, openPlayer, drop, notify, cancelClaim, openTrade } = useApp(useShallow((s) => ({ setStarters: s.setStarters, optimize: s.optimize, toggleAutoSub: s.toggleAutoSub, toggleAutoLineup: s.toggleAutoLineup, openPlayer: s.openPlayer, drop: s.drop, notify: s.notify, cancelClaim: s.cancelClaim, openTrade: s.openTrade })))
   const [sel, setSel] = useState<Sel>(null)
   const me = league.teams[0]
   const week = currentWeek(d, league)
   const done = league.phase === 'complete'
   const st = me.starters
   const bench = me.roster.filter((p) => !st.includes(p))
-  const locked = (p: number | null) => p !== null && (done || isLocked(d, league, p, week))
+  const locked = (p: number | null) => p !== null && (done || slotLocked(d, league, ME, p, week))
   const row = standings(league).findIndex((r) => r.teamId === 0)
   const srow = standings(league)[row]
-  const proj = st.reduce<number>((a, p) => a + (p === null ? 0 : weekProjection(d, d.players[p], week, league.played).total), 0)
+  const proj = st.reduce<number>((a, p) => a + (p === null ? 0 : playerWeek(d, league, ME, p, week).total), 0)
 
   const selPlayer = sel ? (sel.kind === 'slot' ? st[sel.i] : sel.p) : null
 
@@ -52,7 +55,8 @@ export function TeamView() {
     else if (sel.kind === 'slot' && target.kind === 'slot') {
       ;[next[sel.i], next[target.i]] = [next[target.i], next[sel.i]]
     }
-    setStarters(next)
+    const err = setStarters(next)
+    if (err) notify(err, 'bad')
     setSel(null)
   }
 
@@ -60,7 +64,7 @@ export function TeamView() {
     if (done) return
     if (sel && isTarget(target)) return doMove(target)
     if (sel && JSON.stringify(sel) === JSON.stringify(target)) return setSel(null)
-    if (p !== null && locked(p)) return notify(`${d.players[p].name} is locked — his match this week has started`, 'info')
+    if (p !== null && locked(p)) return notify(`${d.players[p].name} is locked: the match that counts for him has started`, 'info')
     if (target?.kind === 'slot' && p === null) {
       setSel(target)
       return
@@ -111,8 +115,14 @@ export function TeamView() {
           <ArrowLeftRight size={15} /> Propose trade
         </button>
         <span className="muted" style={{ fontSize: 12.5, marginLeft: 6 }}>
-          {sel ? (selPlayer !== null ? `Moving ${d.players[selPlayer!].name} — tap a highlighted row` : 'Tap a highlighted player to fill this slot') : 'Tap a player, then tap where to move him. Players lock when their first match of the week starts.'}
+          {sel ? (selPlayer !== null ? `Moving ${d.players[selPlayer!].name}: tap a highlighted row` : 'Tap a highlighted player to fill this slot') : 'Tap a player, then tap where to move him.'}
         </span>
+      </div>
+
+      <div className="rule-note">
+        <b>One match counts.</b> Only one match per player counts each week: his first, unless you lock in another. For
+        players with two matches, tap the match you want <i>before his first match starts</i>. After that the choice is
+        closed. A player is fixed in your lineup once the match that counts for him begins.
       </div>
 
       <div className="card">
@@ -192,9 +202,8 @@ function LineupRow({ slot, pid, selected, target, locked, onClick, onOpen, onDro
   const league = useApp((s) => s.league)!
   const week = currentWeek(d, league)
   const p = pid !== null ? d.players[pid] : null
-  const wp = p ? weekProjection(d, p, week, league.played) : null
+  const wp = pid !== null ? playerWeek(d, league, ME, pid, week) : null
   const season = p ? seasonToDate(p, league.played) : null
-  const nextMi = p ? (d.teamGw[p.team]?.[week] ?? []).find((mi) => mi >= league.played) : undefined
   return (
     <div className={`lineup-row ${selected ? 'selected' : ''} ${target ? 'target' : ''} ${locked ? 'locked' : ''}`} onClick={onClick}>
       <span className={`slot ${slot}`}>{slot}</span>
@@ -218,19 +227,15 @@ function LineupRow({ slot, pid, selected, target, locked, onClick, onOpen, onDro
               <span className="dim">· {p.elig.join('/')}</span>
               {locked && <Lock size={11} className="dim" />}
             </div>
+            <div className="show-md" style={{ marginTop: 6 }}>
+              <MatchPicker pid={p.idx} />
+            </div>
           </div>
         </div>
       ) : (
         <span className="empty-slot">Empty — tap to fill</span>
       )}
-      <div className="hide-md" style={{ fontSize: 12 }}>
-        {p && (
-          <>
-            <MatchBalls d={d} p={p} gw={week} played={league.played} />
-            <div className="dim ellipsis" style={{ marginTop: 3 }}>{nextMi !== undefined ? `Next ${opponentLabel(d, p.team, nextMi)}` : 'Done this week'}</div>
-          </>
-        )}
-      </div>
+      <div className="hide-md">{p && <MatchPicker pid={p.idx} />}</div>
       <div className="num right" style={{ fontWeight: 700, fontSize: 16 }}>{wp ? fmt(wp.banked) : ''}</div>
       <div className="num right dim hide-md">{wp ? fmt(wp.total, 1) : ''}</div>
       <div className="num right muted">{season ? fmt(season.pts, 1) : ''}</div>
@@ -253,7 +258,7 @@ function LineupRow({ slot, pid, selected, target, locked, onClick, onOpen, onDro
   )
 }
 
-export function ordinal(n: number) {
+function ordinal(n: number) {
   const s = ['th', 'st', 'nd', 'rd']
   const v = n % 100
   return n + (s[(v - 20) % 10] || s[v] || s[0])

@@ -1,6 +1,6 @@
 import { CalendarRange, Gavel, Radio, Shuffle, Trophy } from 'lucide-react'
 import { useState } from 'react'
-import type { LeagueOptions } from '../engine/league'
+import { FAAB_BUDGET, LAST_WEEK, REG_WEEKS, ROSTER_SIZE, SLOTS, TRADE_DEADLINE_WEEK, type LeagueOptions } from '../engine/league'
 import { getData, useApp } from '../store'
 import { Logo } from './common'
 
@@ -39,7 +39,7 @@ export function Setup() {
         <div className="col" style={{ gap: 14, marginTop: 6 }}>
           {[
             [Gavel, 'Live snake draft', `${d.pool.length} real IPL ${d.raw.simSeason} players · rankings from ${Number(d.raw.simSeason) - 1}`],
-            [CalendarRange, '8 Monday–Sunday gameweeks', '6 regular-season weeks + median game, then semis & final'],
+            [CalendarRange, `${LAST_WEEK} Monday–Sunday gameweeks`, `${REG_WEEKS} regular-season weeks + median game, then semis & final`],
             [Radio, 'Ball-by-ball live scoring', `${d.matches.length} league matches from Cricsheet, replayed as they happened`],
             [Shuffle, 'Waivers, FAAB & trades', 'AI managers bid, trade and set lineups every week'],
           ].map(([Icon, t, s]) => {
@@ -118,14 +118,14 @@ export function Setup() {
           </div>
           <div className="tile" style={{ fontSize: 12.5, lineHeight: 1.6 }}>
             <div className="row" style={{ gap: 6, marginBottom: 6 }}>
-              {(['WK', 'BAT', 'BAT', 'BAT', 'BAT', 'BOWL', 'BOWL', 'BOWL', 'BOWL', 'FLEX', 'FLEX'] as const).map((s, i) => (
+              {SLOTS.map((s, i) => (
                 <span key={i} className={`slot ${s}`} style={{ minWidth: 0, padding: '0 5px', fontSize: 10, height: 20 }}>
                   {s}
                 </span>
               ))}
             </div>
             <span className="muted">
-              11 starters + 4 bench · Standard scoring (Option 1) · $100 FAAB · trade deadline Week 5
+              {SLOTS.length} starters + {ROSTER_SIZE - SLOTS.length} bench · Standard scoring (Option 1) · one match per player counts each week · ${FAAB_BUDGET} FAAB · trade deadline Week {TRADE_DEADLINE_WEEK}
             </span>
           </div>
           <button className="btn primary" style={{ height: 46, fontSize: 15 }} onClick={() => newLeague(o)}>

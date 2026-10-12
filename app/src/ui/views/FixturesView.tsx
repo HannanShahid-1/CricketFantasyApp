@@ -3,14 +3,16 @@ import { useState } from 'react'
 import { currentWeek, rosteredBy } from '../../engine/league'
 import { oversStr } from '../../engine/scoring'
 import { getData, useApp } from '../../store'
-import { fmtDate, TeamChip } from '../common'
+import { TeamChip } from '../common'
+import { fmtDate } from '../format'
 import { WeekPills } from './MatchupView'
+import { useShallow } from 'zustand/react/shallow'
 
 export function FixturesView() {
   const d = getData()
   const league = useApp((s) => s.league)!
-  const { openMatch, openLive } = useApp()
-  const [week, setWeek] = useState(currentWeek(d, league))
+  const { openMatch, openLive } = useApp(useShallow((s) => ({ openMatch: s.openMatch, openLive: s.openLive })))
+  const [week, setWeek] = useState(() => currentWeek(d, league))
   const gw = d.gameweeks[week - 1]
   const owned = rosteredBy(league)
 

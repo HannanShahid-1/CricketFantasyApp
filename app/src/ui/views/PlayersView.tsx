@@ -1,18 +1,29 @@
 import { ArrowLeftRight, Plus, Search } from 'lucide-react'
 import { useMemo, useState, type ReactNode } from 'react'
-import { restOfSeason, seasonToDate, weekProjection, type Player } from '../../engine/data'
-import { addMode, currentWeek, rosteredBy } from '../../engine/league'
+import { restOfSeason, seasonToDate } from '../../engine/data'
+import { addMode, currentWeek, playerWeek, rosteredBy } from '../../engine/league'
 import { fmt } from '../../engine/scoring'
 import type { Role } from '../../engine/types'
 import { getData, useApp } from '../../store'
-import { MatchBalls, PlayerAvatar, RoleTag, TeamChip, weekLabel } from '../common'
+import { MatchBalls, PlayerAvatar, RoleTag, TeamChip } from '../common'
+import { weekLabel } from '../format'
+import { useShallow } from 'zustand/react/shallow'
 
 type SortKey = 'season' | 'avg' | 'week' | 'ros' | 'last' | 'prev'
+
+function Th({ k, sort, onSort, children }: { k: SortKey; sort: SortKey; onSort: (k: SortKey) => void; children: ReactNode }) {
+  return (
+    <th className={`n sort ${sort === k ? 'on' : ''}`} onClick={() => onSort(k)}>
+      {children}
+      {sort === k ? ' ↓' : ''}
+    </th>
+  )
+}
 
 export function PlayersView() {
   const d = getData()
   const league = useApp((s) => s.league)!
-  const { openPlayer, openAdd, openTrade } = useApp()
+  const { openPlayer, openAdd, openTrade } = useApp(useShallow((s) => ({ openPlayer: s.openPlayer, openAdd: s.openAdd, openTrade: s.openTrade })))
   const [status, setStatus] = useState<'avail' | 'all' | 'mine' | 'rostered'>('avail')
   const [role, setRole] = useState<'ALL' | Role | 'AR'>('ALL')
   const [team, setTeam] = useState('ALL')
@@ -21,7 +32,9 @@ export function PlayersView() {
   const week = currentWeek(d, league)
   const owned = useMemo(() => rosteredBy(league), [league])
 
+  // every number a row shows is computed once here, then the same values drive both sorting and rendering
   const rows = useMemo(() => {
+    const needle = q.toLowerCase()
     const list = d.pool.filter((p) => {
       const o = owned.get(p.idx)
       if (status === 'avail' && o !== undefined) return false
@@ -29,35 +42,37 @@ export function PlayersView() {
       if (status === 'rostered' && o === undefined) return false
       if (role === 'AR' ? !(p.role === 'ARB' || p.role === 'ARW') : role !== 'ALL' && p.role !== role) return false
       if (team !== 'ALL' && p.team !== team) return false
-      if (q && !`${p.name} ${p.fullName} ${p.rawName}`.toLowerCase().includes(q.toLowerCase())) return false
+      if (needle && !`${p.name} ${p.fullName} ${p.rawName}`.toLowerCase().includes(needle)) return false
       return true
     })
-    const lastPts = (p: Player) => {
-      let best = -1
-      let pts = 0
-      for (const g of p.games.values()) if (g.mi < league.played && g.mi > best) ((best = g.mi), (pts = g.pts.total))
-      return best < 0 ? -99 : pts
+    const stats = list.map((p) => {
+      const o = owned.get(p.idx)
+      let last: number | null = null
+      let lastMi = -1
+      for (const g of p.games.values()) {
+        if (g.mi < league.played && g.mi > lastMi) {
+          lastMi = g.mi
+          last = g.pts.total
+        }
+      }
+      return {
+        p, o, last,
+        wk: playerWeek(d, league, o ?? null, p.idx, week),
+        season: seasonToDate(p, league.played),
+        ros: restOfSeason(d, p, league.played),
+        mode: o === undefined ? addMode(d, league, p.idx, owned) : 'none',
+      }
+    })
+    const key: Record<SortKey, (r: (typeof stats)[number]) => number> = {
+      season: (r) => r.season.pts,
+      avg: (r) => r.season.avg,
+      week: (r) => r.wk.total,
+      ros: (r) => r.ros,
+      last: (r) => r.last ?? -99,
+      prev: (r) => r.p.s25.avg,
     }
-    const val: Record<SortKey, (p: Player) => number> = {
-      season: (p) => seasonToDate(p, league.played).pts,
-      avg: (p) => seasonToDate(p, league.played).avg,
-      week: (p) => weekProjection(d, p, week, league.played).total,
-      ros: (p) => restOfSeason(d, p, league.played),
-      last: lastPts,
-      prev: (p) => p.s25.avg,
-    }
-    return list
-      .map((p) => ({ p, v: val[sort](p) }))
-      .sort((a, b) => b.v - a.v)
-      .map((x) => x.p)
-  }, [d, owned, status, role, team, q, sort, league.played, week])
-
-  const Th = ({ k, children }: { k: SortKey; children: ReactNode }) => (
-    <th className={`n sort ${sort === k ? 'on' : ''}`} onClick={() => setSort(k)}>
-      {children}
-      {sort === k ? ' ↓' : ''}
-    </th>
-  )
+    return stats.sort((a, b) => key[sort](b) - key[sort](a))
+  }, [d, league, owned, status, role, team, q, sort, week])
 
   return (
     <>
@@ -109,24 +124,18 @@ export function PlayersView() {
                 <th>Player</th>
                 <th>Status</th>
                 <th>{weekLabel(week)}</th>
-                <Th k="week">Wk proj</Th>
-                <Th k="last">Last</Th>
+                <Th k="week" sort={sort} onSort={setSort}>Wk proj</Th>
+                <Th k="last" sort={sort} onSort={setSort}>Last</Th>
                 <th className="n">GP</th>
-                <Th k="season">Season</Th>
-                <Th k="avg">Avg</Th>
-                <Th k="prev">{Number(d.raw.simSeason) - 1} avg</Th>
-                <Th k="ros">ROS proj</Th>
+                <Th k="season" sort={sort} onSort={setSort}>Season</Th>
+                <Th k="avg" sort={sort} onSort={setSort}>Avg</Th>
+                <Th k="prev" sort={sort} onSort={setSort}>{Number(d.raw.simSeason) - 1} avg</Th>
+                <Th k="ros" sort={sort} onSort={setSort}>ROS proj</Th>
                 <th />
               </tr>
             </thead>
             <tbody>
-              {rows.slice(0, 200).map((p) => {
-                const o = owned.get(p.idx)
-                const s = seasonToDate(p, league.played)
-                const mode = addMode(d, league, p.idx)
-                let last: number | null = null
-                let lastMi = -1
-                for (const g of p.games.values()) if (g.mi < league.played && g.mi > lastMi) ((lastMi = g.mi), (last = g.pts.total))
+              {rows.slice(0, 200).map(({ p, o, wk, season: s, ros, last, mode }) => {
                 return (
                   <tr key={p.idx} className={o === 0 ? 'me' : ''}>
                     <td>
@@ -150,15 +159,15 @@ export function PlayersView() {
                       )}
                     </td>
                     <td>
-                      <MatchBalls d={d} p={p} gw={week} played={league.played} />
+                      <MatchBalls d={d} p={p} gw={week} played={league.played} counted={wk.mi} />
                     </td>
-                    <td className="n">{fmt(weekProjection(d, p, week, league.played).total, 1)}</td>
+                    <td className="n">{fmt(wk.total, 1)}</td>
                     <td className="n">{last === null ? <span className="dim">–</span> : fmt(last)}</td>
                     <td className="n muted">{s.apps}</td>
                     <td className="n">{fmt(s.pts, 1)}</td>
                     <td className="n">{s.apps ? fmt(s.avg, 1) : '–'}</td>
                     <td className="n muted">{p.s25.apps ? fmt(p.s25.avg, 1) : '–'}</td>
-                    <td className="n turf">{fmt(restOfSeason(d, p, league.played), 0)}</td>
+                    <td className="n turf">{fmt(ros, 0)}</td>
                     <td style={{ width: 96 }}>
                       {o === undefined && league.phase === 'season' && (
                         <button className={`btn sm ${mode === 'free' ? 'primary' : ''}`} onClick={() => openAdd(p.idx)}>

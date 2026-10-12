@@ -1,11 +1,12 @@
 import { Bot, LayoutGrid, List, Pause, Play, Search, Star, Zap } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ROLE_LABEL, type Player } from '../engine/data'
-import { bestLineup, draftedSet, preseasonValue, SLOTS, teamOnClock } from '../engine/league'
+import type { Player } from '../engine/data'
+import { bestLineup, draftedSet, preseasonValue, SLOTS, teamAtPick, teamOnClock } from '../engine/league'
 import { fmt } from '../engine/scoring'
 import type { Role } from '../engine/types'
 import { getData, useApp } from '../store'
 import { FTeamAvatar, Logo, PlayerAvatar, RoleTag, TeamChip } from './common'
+import { useShallow } from 'zustand/react/shallow'
 
 const ROLE_FILTERS: { k: 'ALL' | Role | 'AR'; label: string }[] = [
   { k: 'ALL', label: 'All' },
@@ -18,7 +19,7 @@ const ROLE_FILTERS: { k: 'ALL' | Role | 'AR'; label: string }[] = [
 export function DraftRoom() {
   const d = getData()
   const league = useApp((s) => s.league)!
-  const { draftPick, draftAuto, toggleQueue, setDraftSpeed, openPlayer } = useApp()
+  const { draftPick, draftAuto, toggleQueue, setDraftSpeed, openPlayer } = useApp(useShallow((s) => ({ draftPick: s.draftPick, draftAuto: s.draftAuto, toggleQueue: s.toggleQueue, setDraftSpeed: s.setDraftSpeed, openPlayer: s.openPlayer })))
   const [paused, setPaused] = useState(false)
   const [autoMe, setAutoMe] = useState(false)
   const [view, setView] = useState<'players' | 'board'>('players')
@@ -39,13 +40,16 @@ export function DraftRoom() {
   )
   const adp = useMemo(() => new Map(ranked.map((p, i) => [p.idx, i + 1])), [ranked])
 
-  const pool = ranked.filter((p) => {
-    if (taken.has(p.idx)) return false
-    if (role === 'AR' ? !(p.role === 'ARB' || p.role === 'ARW') : role !== 'ALL' && p.role !== role) return false
-    if (team !== 'ALL' && p.team !== team) return false
-    if (q && !`${p.name} ${p.fullName} ${p.rawName}`.toLowerCase().includes(q.toLowerCase())) return false
-    return true
-  })
+  const pool = useMemo(() => {
+    const needle = q.toLowerCase()
+    return ranked.filter((p) => {
+      if (taken.has(p.idx)) return false
+      if (role === 'AR' ? !(p.role === 'ARB' || p.role === 'ARW') : role !== 'ALL' && p.role !== role) return false
+      if (team !== 'ALL' && p.team !== team) return false
+      if (needle && !`${p.name} ${p.fullName} ${p.rawName}`.toLowerCase().includes(needle)) return false
+      return true
+    })
+  }, [ranked, taken, role, team, q])
 
   // AI picks
   useEffect(() => {
@@ -55,26 +59,9 @@ export function DraftRoom() {
     return () => clearTimeout(t)
   }, [paused, onClock, picks.length, league.draft.speed, draftAuto, autoMe])
 
-  // user pick timer
-  const [left, setLeft] = useState(league.draft.timer)
-  useEffect(() => setLeft(league.draft.timer), [picks.length, league.draft.timer])
-  useEffect(() => {
-    if (!youOnClock || !league.draft.timer || paused) return
-    if (left <= 0) {
-      draftAuto()
-      return
-    }
-    const t = setTimeout(() => setLeft((x) => x - 1), 1000)
-    return () => clearTimeout(t)
-  }, [youOnClock, left, paused, league.draft.timer, draftAuto])
-
   // upcoming slots for ticker
   const upcoming: { overall: number; teamId: number }[] = []
-  for (let k = picks.length; k < Math.min(picks.length + 8, n * league.draft.rounds); k++) {
-    const round = Math.floor(k / n)
-    const i = k % n
-    upcoming.push({ overall: k + 1, teamId: round % 2 === 0 ? league.draft.order[i] : league.draft.order[n - 1 - i] })
-  }
+  for (let k = picks.length; k < Math.min(picks.length + 8, n * league.draft.rounds); k++) upcoming.push({ overall: k + 1, teamId: teamAtPick(league, k) })
   const yourNext = upcoming.findIndex((u) => u.teamId === 0)
 
   const tickerRef = useRef<HTMLDivElement>(null)
@@ -83,7 +70,8 @@ export function DraftRoom() {
   }, [picks.length])
 
   const me = league.teams[0]
-  const myLineup = bestLineup(d, league, me, 1).starters
+  // recomputed on picks, not on every timer tick or keystroke
+  const myLineup = useMemo(() => bestLineup(d, league, me, 1).starters, [d, league, me])
   const bench = me.roster.filter((p) => !myLineup.includes(p))
   const round = Math.floor(picks.length / n) + 1
   const pickInRound = (picks.length % n) + 1
@@ -113,7 +101,7 @@ export function DraftRoom() {
               <div className="up dim" style={{ fontSize: 9.5 }}>On the clock</div>
               <div style={{ fontWeight: 700 }}>{youOnClock ? 'You!' : otcTeam.name}</div>
             </div>
-            {youOnClock && league.draft.timer > 0 && <TimerRing left={left} total={league.draft.timer} />}
+            {youOnClock && league.draft.timer > 0 && <PickClock key={picks.length} total={league.draft.timer} paused={paused} onExpire={draftAuto} />}
             {!youOnClock && <Bot size={16} className="muted spin-ball" style={{ animationDuration: '2.4s' }} />}
           </div>
         )}
@@ -344,7 +332,7 @@ function PoolRow({ p, rank, queued, canPick, onPick, onQueue, onOpen }: { p: Pla
         </div>
       </td>
       <td>
-        <span className={`role ${p.role}`}>{ROLE_LABEL[p.role]}</span>
+        <RoleTag p={p} />
       </td>
       <td className="n">{p.s25.apps || '–'}</td>
       <td className="n">{p.s25.apps ? fmt(p.s25.avg, 1) : <span className="dim">new</span>}</td>
@@ -363,7 +351,16 @@ function PoolRow({ p, rank, queued, canPick, onPick, onQueue, onOpen }: { p: Pla
   )
 }
 
-function TimerRing({ left, total }: { left: number; total: number }) {
+/** Your pick countdown. Its ticking state lives here so the rest of the draft room doesn't re-render every
+ *  second; it remounts (resets) on every pick via `key`. */
+function PickClock({ total, paused, onExpire }: { total: number; paused: boolean; onExpire: () => void }) {
+  const [left, setLeft] = useState(total)
+  useEffect(() => {
+    if (paused) return
+    if (left <= 0) return onExpire()
+    const t = setTimeout(() => setLeft((x) => x - 1), 1000)
+    return () => clearTimeout(t)
+  }, [left, paused, onExpire])
   const r = 18
   const c = 2 * Math.PI * r
   const frac = Math.max(0, left / total)

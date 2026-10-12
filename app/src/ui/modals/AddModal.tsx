@@ -1,19 +1,25 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { restOfSeason } from '../../engine/data'
 import { addMode, isLocked, ROSTER_SIZE } from '../../engine/league'
 import { fmt } from '../../engine/scoring'
 import { getData, useApp } from '../../store'
 import { Modal, PlayerAvatar, RoleTag, TeamChip } from '../common'
+import { useShallow } from 'zustand/react/shallow'
 
 export function AddModal({ pid }: { pid: number }) {
   const d = getData()
   const league = useApp((s) => s.league)!
-  const { openAdd, faAdd, claim, notify } = useApp()
+  const { openAdd, faAdd, claim, notify } = useApp(useShallow((s) => ({ openAdd: s.openAdd, faAdd: s.faAdd, claim: s.claim, notify: s.notify })))
   const p = d.players[pid]
   const me = league.teams[0]
   const mode = addMode(d, league, pid)
   const full = me.roster.length >= ROSTER_SIZE
-  const ros = (x: number) => restOfSeason(d, d.players[x], league.played)
+  // rest-of-season values for him and your roster, computed once (they also drive the drop-list sort)
+  const rosMap = useMemo(
+    () => new Map([pid, ...me.roster].map((x) => [x, restOfSeason(d, d.players[x], league.played)])),
+    [d, pid, me.roster, league.played],
+  )
+  const ros = (x: number) => rosMap.get(x) ?? 0
   const [drop, setDrop] = useState<number | null>(null)
   const suggested = Math.min(me.faab, Math.max(1, Math.round(ros(pid) * 0.15)))
   const [bid, setBid] = useState(suggested)

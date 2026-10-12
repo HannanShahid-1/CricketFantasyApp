@@ -1,25 +1,27 @@
 import { Play } from 'lucide-react'
+import { useMemo } from 'react'
 import { rosteredBy } from '../../engine/league'
 import { fmt, oversStr, type Points, type StatLine } from '../../engine/scoring'
 import { getData, useApp } from '../../store'
-import { FTeamAvatar, fmtDate, Modal, PlayerAvatar, TeamChip } from '../common'
+import { FTeamAvatar, Modal, PlayerAvatar, TeamChip } from '../common'
+import { fmtDate } from '../format'
 import { inningsDetails } from '../scorecard'
+import { useShallow } from 'zustand/react/shallow'
 
 export function MatchModal({ mi }: { mi: number }) {
   const d = getData()
   const league = useApp((s) => s.league)!
-  const { openMatch, openPlayer, openLive } = useApp()
+  const { openMatch, openPlayer, openLive } = useApp(useShallow((s) => ({ openMatch: s.openMatch, openPlayer: s.openPlayer, openLive: s.openLive })))
   const m = d.matches[mi]
-  const inns = inningsDetails(d, m.raw)
-  const owned = rosteredBy(league)
+  const inns = useMemo(() => inningsDetails(d, m.raw), [d, m])
+  const owned = useMemo(() => rosteredBy(league), [league])
   const close = () => openMatch(null)
 
-  const Owner = ({ p }: { p: number }) => {
+  const owner = (p: number) => {
     const o = owned.get(p)
-    if (o === undefined) return null
-    return <FTeamAvatar t={league.teams[o]} size="sm" />
+    return o === undefined ? null : <FTeamAvatar t={league.teams[o]} size="sm" />
   }
-  const Pts = ({ pts }: { pts?: Points }) => <td className="n turf" style={{ fontSize: 14 }}>{pts ? fmt(pts.total) : ''}</td>
+  const ptsCell = (pts?: Points) => <td className="n turf" style={{ fontSize: 14 }}>{pts ? fmt(pts.total) : ''}</td>
 
   // fantasy leaderboard
   const lb = [...m.points.entries()].sort((a, b) => b[1].total - a[1].total).slice(0, 6)
@@ -111,9 +113,9 @@ export function MatchModal({ mi }: { mi: number }) {
                         <td className="n muted">{l.fours}</td>
                         <td className="n muted">{l.sixes}</td>
                         <td className="n muted">{l.b ? ((l.r / l.b) * 100).toFixed(1) : '–'}</td>
-                        <Pts pts={m.points.get(p)} />
+                        {ptsCell(m.points.get(p))}
                         <td style={{ width: 36 }}>
-                          <Owner p={p} />
+                          {owner(p)}
                         </td>
                       </tr>
                     )
@@ -150,9 +152,9 @@ export function MatchModal({ mi }: { mi: number }) {
                         <td className="n" style={{ fontSize: 15 }}>{l.w}</td>
                         <td className="n muted">{l.bb ? (l.rc / (l.bb / 6)).toFixed(2) : '–'}</td>
                         <td className="n muted">{l.dots}</td>
-                        <Pts pts={m.points.get(p)} />
+                        {ptsCell(m.points.get(p))}
                         <td style={{ width: 36 }}>
-                          <Owner p={p} />
+                          {owner(p)}
                         </td>
                       </tr>
                     )

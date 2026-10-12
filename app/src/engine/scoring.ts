@@ -1,8 +1,5 @@
 // Option 1 "Standard" scoring: football-style decimals.
-import {
-  FLAG_BYE, FLAG_LEGBYE, FLAG_NOBALL, FLAG_NONBOUNDARY, FLAG_WIDE,
-  type RawMatch, type Role,
-} from './types'
+import { FLAG_BYE, FLAG_LEGBYE, FLAG_NOBALL, FLAG_NONBOUNDARY, FLAG_PENALTY, FLAG_WIDE, type RawMatch, type Role } from './types'
 
 export interface StatLine {
   played: boolean
@@ -85,8 +82,9 @@ export function computeLines(match: RawMatch, upTo = Infinity): Map<number, Stat
       if (rb === 6) bat.sixes += 1
 
       const bw = get(bowler)
-      const byes = flags & (FLAG_BYE | FLAG_LEGBYE) ? rx : 0
-      const conceded = rb + (rx - byes)
+      // byes, leg-byes and penalty runs aren't charged to the bowler; a no-ball's own run (1) still is
+      const notBowlers = flags & (FLAG_BYE | FLAG_LEGBYE | FLAG_PENALTY) ? rx - (noball ? 1 : 0) : 0
+      const conceded = rb + (rx - notBowlers)
       bw.rc += conceded
       if (legal) {
         bw.bb += 1

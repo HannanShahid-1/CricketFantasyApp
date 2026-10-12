@@ -10,7 +10,6 @@ export interface InningsDetail {
   batters: number[]
   bowlers: number[]
   dismissal: Map<number, string>
-  balls_: number // number of deliveries included
 }
 
 export interface BallEvent {
@@ -45,11 +44,10 @@ export function inningsDetails(d: Data, m: RawMatch, upTo = Infinity): InningsDe
   let seen = 0
   for (const inn of m.innings) {
     if (seen >= upTo) break
-    const det: InningsDetail = { team: inn.team, runs: 0, wkts: 0, balls: 0, extras: 0, batters: [], bowlers: [], dismissal: new Map(), balls_: 0 }
+    const det: InningsDetail = { team: inn.team, runs: 0, wkts: 0, balls: 0, extras: 0, batters: [], bowlers: [], dismissal: new Map() }
     for (const b of inn.balls) {
       if (seen >= upTo) break
       seen++
-      det.balls_++
       const [, batter, bowler, rb, rx, flags, wk] = b
       if (!det.batters.includes(batter)) det.batters.push(batter)
       if (!det.bowlers.includes(bowler)) det.bowlers.push(bowler)
@@ -82,7 +80,7 @@ export function ballEvents(d: Data, m: RawMatch): BallEvent[] {
       }
       const isLegal = !(flags & (FLAG_WIDE | FLAG_NOBALL))
       if (isLegal) legal++
-      const label = `${over}.${Math.max(legal, isLegal ? legal : legal + 1)}`
+      const label = `${over}.${isLegal ? legal : legal + 1}`
       let text = ''
       let short = String(rb + rx)
       let cls: BallEvent['cls'] = ''
@@ -106,7 +104,7 @@ export function ballEvents(d: Data, m: RawMatch): BallEvent[] {
         cls = 'bx'
       } else if (flags & (FLAG_BYE | FLAG_LEGBYE)) {
         text = `${rx} ${flags & FLAG_BYE ? 'bye' : 'leg bye'}${rx > 1 ? 's' : ''}`
-        short = `${rx}lb`
+        short = `${rx}${flags & FLAG_BYE ? 'b' : 'lb'}`
         cls = 'bx'
       } else if (rb === 0) {
         text = 'No run, dot ball'

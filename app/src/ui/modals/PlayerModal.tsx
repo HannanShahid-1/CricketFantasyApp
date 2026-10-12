@@ -2,15 +2,18 @@ import { ArrowLeftRight, Plus, Trash2 } from 'lucide-react'
 import { Fragment, useState } from 'react'
 import { ROLE_NAME, restOfSeason, seasonToDate } from '../../engine/data'
 import { playerAge } from '../../engine/playerAge'
-import { addMode, isLocked, rosteredBy } from '../../engine/league'
+import { addMode, currentWeek, isLocked, rosteredBy, weekMatches } from '../../engine/league'
 import { batLine, bowlLine, fieldLine, fmt } from '../../engine/scoring'
 import { getData, useApp } from '../../store'
-import { FTeamAvatar, fmtDate, Modal, PlayerPortrait, TeamChip } from '../common'
+import { FTeamAvatar, Modal, PlayerPortrait, TeamChip } from '../common'
+import { fmtDate, weekLabel } from '../format'
+import { MatchPicker } from '../MatchPicker'
+import { useShallow } from 'zustand/react/shallow'
 
 export function PlayerModal({ pid }: { pid: number }) {
   const d = getData()
   const league = useApp((s) => s.league)
-  const { openPlayer, openAdd, openTrade, drop, notify, openMatch } = useApp()
+  const { openPlayer, openAdd, openTrade, drop, notify, openMatch } = useApp(useShallow((s) => ({ openPlayer: s.openPlayer, openAdd: s.openAdd, openTrade: s.openTrade, drop: s.drop, notify: s.notify, openMatch: s.openMatch })))
   const [open, setOpen] = useState<number | null>(null)
   const p = d.players[pid]
   const played = league?.phase === 'draft' || !league ? 0 : league.played
@@ -22,11 +25,12 @@ export function PlayerModal({ pid }: { pid: number }) {
   const age = p.bio ? playerAge(p.bio.birthDate) : null
   const close = () => openPlayer(null)
 
-  // rank among same role this season
-  const sameRole = d.pool.filter((x) => x.role === p.role).map((x) => ({ x, v: seasonToDate(x, played).pts })).sort((a, b) => b.v - a.v)
-  const rank = sameRole.findIndex((r) => r.x.idx === pid) + 1
+  // rank among same role this season (none until he has played)
+  const rank = s.apps ? 1 + d.pool.filter((x) => x.role === p.role && seasonToDate(x, played).pts > s.pts).length : 0
+  const week = league?.phase === 'season' ? currentWeek(d, league) : null
+  const weekMis = week !== null ? weekMatches(d, pid, week) : []
 
-  const allMis = Object.values(d.teamGw[p.team] ?? {}).flat().sort((a, b) => a - b)
+  const allMis = d.teamMis[p.team] ?? []
   const inSeason = league && league.phase !== 'draft'
   const mode = inSeason ? addMode(d, league!, pid) : 'none'
 
@@ -104,6 +108,19 @@ export function PlayerModal({ pid }: { pid: number }) {
           <div><dt>Bowling style</dt><dd>{p.bio?.bowlingStyle || 'Not listed'}</dd></div>
           {p.bio?.source && <a className="player-bio-source" href={p.bio.source} target="_blank" rel="noreferrer">Profile source ↗</a>}
         </dl>
+        {owner === 0 && week !== null && weekMis.length > 0 && (
+          <div className="this-week">
+            <div>
+              <div className="up dim">{weekLabel(week)} · which match counts</div>
+              <div className="dim" style={{ fontSize: 12, marginTop: 4 }}>
+                {weekMis.length > 1
+                  ? 'Only one counts. His first match counts unless you lock in another before it starts.'
+                  : 'He has one match this week, so it counts.'}
+              </div>
+            </div>
+            <MatchPicker pid={pid} />
+          </div>
+        )}
         <div className="tiles" style={{ marginBottom: 18 }}>
           <div className="tile">
             <div className="v turf">{fmt(s.pts, 1)}</div>
