@@ -1,6 +1,20 @@
 // Loads the Cricsheet-derived data file and pre-computes stat lines, fantasy points and projections.
 import { computeLines, score, type Points, type StatLine } from './scoring'
 import type { RawData, RawMatch, RawTeam, Role, SlotType } from './types'
+import { playerDisplayName } from './playerNames'
+
+interface PlayerMedia {
+  players: Record<string, { fullName: string; photo: string; team?: string }>
+  teams: Record<string, { logo: string }>
+}
+
+export interface PlayerBio {
+  birthDate: string
+  nationality: string
+  battingStyle: string
+  bowlingStyle: string | null
+  source: string
+}
 
 export interface GameRow {
   mi: number
@@ -12,6 +26,11 @@ export interface Player {
   idx: number
   id: string
   name: string
+  fullName: string
+  rawName: string
+  photo?: string
+  profileTeam?: string
+  bio?: PlayerBio
   role: Role
   team: string
   elig: SlotType[]
@@ -52,6 +71,7 @@ export interface Data {
   players: Player[]
   pool: Player[]
   teams: Record<string, RawTeam>
+  teamLogos: Record<string, string>
   matches: Match[]
   gameweeks: Gameweek[]
   teamGw: Record<string, Record<number, number[]>>
@@ -99,12 +119,24 @@ export function inningsTotals(raw: RawMatch): InningsTotal[] {
 export async function loadData(): Promise<Data> {
   const res = await fetch(`${import.meta.env.BASE_URL}data/ipl.json`)
   const raw: RawData = await res.json()
+  // Photos are optional so a failed media request cannot block league loading.
+  const media: PlayerMedia = await fetch(`${import.meta.env.BASE_URL}data/player-media.json`)
+    .then((r) => r.ok ? r.json() : { players: {}, teams: {} })
+    .catch(() => ({ players: {}, teams: {} }))
   const teams = Object.fromEntries(raw.teams.map((t) => [t.code, t]))
+  const bios: Record<string, PlayerBio> = await fetch(`${import.meta.env.BASE_URL}data/player-bios.json`)
+    .then((r) => r.ok ? r.json() : {})
+    .catch(() => ({}))
 
   const players: Player[] = raw.players.map((p, idx) => ({
     idx,
     id: p.id,
-    name: p.name,
+    name: playerDisplayName(media.players[p.id]?.fullName ?? p.name),
+    fullName: media.players[p.id]?.fullName ?? p.name,
+    rawName: p.name,
+    photo: media.players[p.id]?.photo,
+    profileTeam: media.players[p.id]?.team,
+    bio: bios[p.id],
     role: p.role,
     team: p.team ?? '',
     elig: ELIGIBILITY[p.role],
@@ -187,6 +219,7 @@ export async function loadData(): Promise<Data> {
     players,
     pool,
     teams,
+    teamLogos: Object.fromEntries(Object.entries(media.teams).map(([code, t]) => [code, t.logo])),
     matches,
     gameweeks,
     teamGw,

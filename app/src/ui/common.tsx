@@ -1,5 +1,5 @@
 import { X } from 'lucide-react'
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { ROLE_LABEL, type Data, type Player } from '../engine/data'
 import type { FTeam } from '../engine/league'
 import { getData } from '../store'
@@ -31,12 +31,19 @@ export function initials(name: string) {
 }
 
 export function PlayerAvatar({ p, size }: { p: Player; size?: 'sm' | 'lg' | 'xl' }) {
-  const t = getData().teams[p.team]
+  const t = getData().teams[p.team || p.profileTeam || '']
   return (
     <div className={`avatar ${size ?? ''}`} style={{ ['--tc' as string]: t?.color ?? '#334', ['--ta' as string]: t?.accent ?? '#556' }}>
-      {initials(p.name)}
+      <PlayerPortrait p={p} />
     </div>
   )
+}
+
+export function PlayerPortrait({ p }: { p: Player }) {
+  const [failed, setFailed] = useState<string>()
+  return p.photo && failed !== p.photo
+    ? <img src={`${import.meta.env.BASE_URL}${p.photo}`} alt={p.fullName} loading="lazy" onError={() => setFailed(p.photo)} />
+    : <span className="portrait-fallback">{initials(p.name)}</span>
 }
 
 export function TeamChip({ code }: { code: string }) {
@@ -62,7 +69,7 @@ export function FTeamAvatar({ t, size }: { t: FTeam; size?: 'sm' | 'lg' }) {
   )
 }
 
-export function Modal({ onClose, children, size, header }: { onClose: () => void; children: ReactNode; size?: 'sm' | 'lg'; header?: ReactNode }) {
+export function Modal({ onClose, children, size, header, className = '' }: { onClose: () => void; children: ReactNode; size?: 'sm' | 'lg'; header?: ReactNode; className?: string }) {
   useEffect(() => {
     const k = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', k)
@@ -70,7 +77,7 @@ export function Modal({ onClose, children, size, header }: { onClose: () => void
   }, [onClose])
   return (
     <div className="overlay" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className={`modal ${size ?? ''}`}>
+      <div className={`modal ${size ?? ''} ${className}`}>
         {header && (
           <div className="modal-h">
             <div className="grow">{header}</div>

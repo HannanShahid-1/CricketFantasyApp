@@ -1,10 +1,11 @@
 import { ArrowLeftRight, Plus, Trash2 } from 'lucide-react'
 import { Fragment, useState } from 'react'
 import { ROLE_NAME, restOfSeason, seasonToDate } from '../../engine/data'
+import { playerAge } from '../../engine/playerAge'
 import { addMode, isLocked, rosteredBy } from '../../engine/league'
 import { batLine, bowlLine, fieldLine, fmt } from '../../engine/scoring'
 import { getData, useApp } from '../../store'
-import { FTeamAvatar, fmtDate, Modal, PlayerAvatar, TeamChip } from '../common'
+import { FTeamAvatar, fmtDate, Modal, PlayerPortrait, TeamChip } from '../common'
 
 export function PlayerModal({ pid }: { pid: number }) {
   const d = getData()
@@ -16,7 +17,9 @@ export function PlayerModal({ pid }: { pid: number }) {
   const s = seasonToDate(p, played)
   const owner = league ? rosteredBy(league).get(pid) : undefined
   const ownerTeam = owner !== undefined ? league!.teams[owner] : null
-  const team = d.teams[p.team]
+  const profileTeam = p.team || p.profileTeam || ''
+  const team = d.teams[profileTeam]
+  const age = p.bio ? playerAge(p.bio.birthDate) : null
   const close = () => openPlayer(null)
 
   // rank among same role this season
@@ -29,14 +32,18 @@ export function PlayerModal({ pid }: { pid: number }) {
 
   return (
     <Modal
+      className="player-modal"
       onClose={close}
       header={
-        <div className="row" style={{ gap: 16 }}>
-          <PlayerAvatar p={p} size="xl" />
-          <div style={{ minWidth: 0 }}>
-            <div className="display" style={{ fontSize: 26, fontWeight: 700 }}>{p.name}</div>
+        <div className="player-hero" style={{ ['--tc' as string]: team?.color ?? '#334', ['--ta' as string]: team?.accent ?? '#556' }}>
+          <div className="player-hero-art">
+            {d.teamLogos[profileTeam] && <img className="player-hero-logo" src={`${import.meta.env.BASE_URL}${d.teamLogos[profileTeam]}`} alt="" aria-hidden />}
+            <div className="player-hero-portrait"><PlayerPortrait p={p} /></div>
+          </div>
+          <div className="player-hero-details">
+            <div className="display player-hero-name" title={p.fullName}>{p.fullName}</div>
             <div className="row wrap" style={{ gap: 8, marginTop: 4 }}>
-              <TeamChip code={p.team} />
+              <TeamChip code={profileTeam} />
               <span className="muted">{team?.name}</span>
               <span className={`role ${p.role}`}>{ROLE_NAME[p.role]}</span>
             </div>
@@ -49,8 +56,7 @@ export function PlayerModal({ pid }: { pid: number }) {
               ))}
             </div>
           </div>
-          <div className="grow" />
-          <div className="col" style={{ alignItems: 'flex-end', gap: 8 }}>
+          <div className="col player-hero-actions" style={{ gap: 8 }}>
             {ownerTeam ? (
               <div className="row" style={{ gap: 8 }}>
                 <FTeamAvatar t={ownerTeam} size="sm" />
@@ -91,6 +97,13 @@ export function PlayerModal({ pid }: { pid: number }) {
       }
     >
       <div className="modal-b">
+        <dl className="player-bio">
+          <div><dt>Age</dt><dd>{age !== null ? `${age} years` : 'Not listed'}</dd></div>
+          <div><dt>Nationality</dt><dd>{p.bio?.nationality || 'Not listed'}</dd></div>
+          <div><dt>Batting style</dt><dd>{p.bio?.battingStyle || 'Not listed'}</dd></div>
+          <div><dt>Bowling style</dt><dd>{p.bio?.bowlingStyle || 'Not listed'}</dd></div>
+          {p.bio?.source && <a className="player-bio-source" href={p.bio.source} target="_blank" rel="noreferrer">Profile source ↗</a>}
+        </dl>
         <div className="tiles" style={{ marginBottom: 18 }}>
           <div className="tile">
             <div className="v turf">{fmt(s.pts, 1)}</div>

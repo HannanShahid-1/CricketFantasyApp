@@ -29,7 +29,7 @@ export function PlayersView() {
       if (status === 'rostered' && o === undefined) return false
       if (role === 'AR' ? !(p.role === 'ARB' || p.role === 'ARW') : role !== 'ALL' && p.role !== role) return false
       if (team !== 'ALL' && p.team !== team) return false
-      if (q && !p.name.toLowerCase().includes(q.toLowerCase())) return false
+      if (q && !`${p.name} ${p.fullName} ${p.rawName}`.toLowerCase().includes(q.toLowerCase())) return false
       return true
     })
     const lastPts = (p: Player) => {

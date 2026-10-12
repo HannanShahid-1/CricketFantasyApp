@@ -1,0 +1,1312 @@
+{
+  "7c3b3b78": {
+    "providerId": "74298",
+    "expectedName": "Vaibhav Arora",
+    "appName": "Vaibhav Arora"
+  },
+  "9d430b40": {
+    "providerId": "11229",
+    "expectedName": "Sunil Narine",
+    "appName": "Sunil Narine"
+  },
+  "29e95537": {
+    "providerId": "3991",
+    "expectedName": "Ajinkya Rahane",
+    "appName": "Ajinkya Rahane"
+  },
+  "a24be938": {
+    "providerId": "65430",
+    "expectedName": "Venkatesh Iyer",
+    "appName": "Venkatesh Iyer"
+  },
+  "d7017798": {
+    "providerId": "88352",
+    "expectedName": "Angkrish Raghuvanshi",
+    "appName": "Angkrish Raghuvanshi"
+  },
+  "0a509d6b": {
+    "providerId": "64727",
+    "expectedName": "Rinku Singh",
+    "appName": "Rinku Singh"
+  },
+  "be24ead0": {
+    "providerId": "66953",
+    "expectedName": "Ramandeep Singh",
+    "appName": "Ramandeep Singh"
+  },
+  "77b1aa15": {
+    "providerId": "93526",
+    "expectedName": "Harshit Rana",
+    "appName": "Harshit Rana"
+  },
+  "83c3e8e3": {
+    "providerId": "67778",
+    "expectedName": "Spencer Johnson",
+    "appName": "Spencer Johnson"
+  },
+  "5b7ab5a9": {
+    "providerId": "67469",
+    "expectedName": "Varun Chakaravarthy",
+    "appName": "Varun Chakaravarthy"
+  },
+  "9440ef41": {
+    "providerId": "100564",
+    "expectedName": "Suyash Sharma",
+    "appName": "Suyash Sharma"
+  },
+  "3d284ca3": {
+    "providerId": "65632",
+    "expectedName": "Phil Salt",
+    "appName": "Phil Salt"
+  },
+  "ba607b88": {
+    "providerId": "3993",
+    "expectedName": "Virat Kohli",
+    "appName": "Virat Kohli"
+  },
+  "2c25d4f5": {
+    "providerId": "67589",
+    "expectedName": "Devdutt Padikkal",
+    "appName": "Devdutt Padikkal"
+  },
+  "c740ea83": {
+    "providerId": "65687",
+    "expectedName": "Rajat Patidar",
+    "appName": "Rajat Patidar"
+  },
+  "50c6bc2b": {
+    "providerId": "63940",
+    "expectedName": "Liam Livingstone",
+    "appName": "Liam Livingstone"
+  },
+  "800d2d97": {
+    "providerId": "64724",
+    "expectedName": "Jitesh Sharma",
+    "appName": "Jitesh Sharma"
+  },
+  "f1f99156": {
+    "providerId": "67402",
+    "expectedName": "Tim David",
+    "appName": "Tim David"
+  },
+  "5b8c830e": {
+    "providerId": "63788",
+    "expectedName": "Krunal Pandya",
+    "appName": "Krunal Pandya"
+  },
+  "b8527c3d": {
+    "providerId": "70296",
+    "expectedName": "Rasikh Salam",
+    "appName": "Rasikh Dar"
+  },
+  "03806cf8": {
+    "providerId": "4255",
+    "expectedName": "Josh Hazlewood",
+    "appName": "Josh Hazlewood"
+  },
+  "7210d461": {
+    "providerId": "70155",
+    "expectedName": "Yash Dayal",
+    "appName": "Yash Dayal"
+  },
+  "f29185a1": {
+    "providerId": "66799",
+    "expectedName": "Abhishek Sharma",
+    "appName": "Abhishek Sharma"
+  },
+  "12b610c2": {
+    "providerId": "62023",
+    "expectedName": "Travis Head",
+    "appName": "Travis Head"
+  },
+  "752f7486": {
+    "providerId": "64712",
+    "expectedName": "Ishan Kishan",
+    "appName": "Ishan Kishan"
+  },
+  "aad0c365": {
+    "providerId": "74837",
+    "expectedName": "Nitish Kumar Reddy",
+    "appName": "Nitish Kumar Reddy"
+  },
+  "235c2bb6": {
+    "providerId": "59736",
+    "expectedName": "Heinrich Klaasen",
+    "appName": "Heinrich Klaasen"
+  },
+  "a3b0600d": {
+    "providerId": "113017",
+    "expectedName": "Aniket Verma",
+    "appName": "Aniket Verma"
+  },
+  "0890552f": {
+    "providerId": "63715",
+    "expectedName": "Abhinav Manohar",
+    "appName": "Abhinav Manohar"
+  },
+  "ded9240e": {
+    "providerId": "56964",
+    "expectedName": "Pat Cummins",
+    "appName": "Pat Cummins"
+  },
+  "30df8c66": {
+    "providerId": "68237",
+    "expectedName": "Simarjeet Singh",
+    "appName": "Simarjeet Singh"
+  },
+  "f986ca1a": {
+    "providerId": "5407",
+    "expectedName": "Harshal Patel",
+    "appName": "Harshal Patel"
+  },
+  "8cf9814c": {
+    "providerId": "28994",
+    "expectedName": "Mohammad Shami",
+    "appName": "Mohammed Shami"
+  },
+  "6c19c6e5": {
+    "providerId": "69238",
+    "expectedName": "Yashasvi Jaiswal",
+    "appName": "Yashasvi Jaiswal"
+  },
+  "a4cc73aa": {
+    "providerId": "61837",
+    "expectedName": "Sanju Samson",
+    "appName": "Sanju Samson"
+  },
+  "04a418e8": {
+    "providerId": "66939",
+    "expectedName": "Riyan Parag",
+    "appName": "Riyan Parag"
+  },
+  "fb2d1dda": {
+    "providerId": "63649",
+    "expectedName": "Nitish Rana",
+    "appName": "Nitish Rana"
+  },
+  "bcf325d2": {
+    "providerId": "71370",
+    "expectedName": "Dhruv Jurel",
+    "appName": "Dhruv Jurel"
+  },
+  "48a1d7b7": {
+    "providerId": "64861",
+    "expectedName": "Shimron Hetmyer",
+    "appName": "Shimron Hetmyer"
+  },
+  "6b2ff18f": {
+    "providerId": "83453",
+    "expectedName": "Shubham Dubey",
+    "appName": "Shubham Dubey"
+  },
+  "5574750c": {
+    "providerId": "64254",
+    "expectedName": "Jofra Archer",
+    "appName": "Jofra Archer"
+  },
+  "46a9bea1": {
+    "providerId": "65478",
+    "expectedName": "Tushar Deshpande",
+    "appName": "Tushar Deshpande"
+  },
+  "ce820073": {
+    "providerId": "10116",
+    "expectedName": "Sandeep Sharma",
+    "appName": "Sandeep Sharma"
+  },
+  "1e030637": {
+    "providerId": "83549",
+    "expectedName": "Vignesh Puthur",
+    "appName": "Vignesh Puthur"
+  },
+  "740742ef": {
+    "providerId": "3852",
+    "expectedName": "Rohit Sharma",
+    "appName": "Rohit Sharma"
+  },
+  "e66732f8": {
+    "providerId": "64941",
+    "expectedName": "Ryan Rickelton",
+    "appName": "Ryan Rickelton"
+  },
+  "9caf69a1": {
+    "providerId": "66927",
+    "expectedName": "Will Jacks",
+    "appName": "Will Jacks"
+  },
+  "271f83cd": {
+    "providerId": "11803",
+    "expectedName": "Suryakumar Yadav",
+    "appName": "Suryakumar Yadav"
+  },
+  "b0482a1d": {
+    "providerId": "70761",
+    "expectedName": "Tilak Varma",
+    "appName": "Tilak Varma"
+  },
+  "bafd0398": {
+    "providerId": "95322",
+    "expectedName": "Robin Minz",
+    "appName": "Robin Minz"
+  },
+  "fffa744b": {
+    "providerId": "100353",
+    "expectedName": "Naman Dhir",
+    "appName": "Naman Dhir"
+  },
+  "e4a0deae": {
+    "providerId": "57903",
+    "expectedName": "Mitchell Santner",
+    "appName": "Mitch Santner"
+  },
+  "23eeb873": {
+    "providerId": "59547",
+    "expectedName": "Deepak Chahar",
+    "appName": "Deepak Chahar"
+  },
+  "a818c1be": {
+    "providerId": "4338",
+    "expectedName": "Trent Boult",
+    "appName": "Trent Boult"
+  },
+  "c27b5a0e": {
+    "providerId": "81901",
+    "expectedName": "Pyla Avinash",
+    "appName": "Pyla Avinash"
+  },
+  "a2f46292": {
+    "providerId": "65867",
+    "expectedName": "Khaleel Ahmed",
+    "appName": "Khaleel Ahmed"
+  },
+  "ba5e1069": {
+    "providerId": "66053",
+    "expectedName": "Rachin Ravindra",
+    "appName": "Rachin Ravindra"
+  },
+  "77255a9e": {
+    "providerId": "41229",
+    "expectedName": "Rahul Tripathi",
+    "appName": "Rahul Tripathi"
+  },
+  "45a43fe2": {
+    "providerId": "66584",
+    "expectedName": "Ruturaj Gaikwad",
+    "appName": "Ruturaj Gaikwad"
+  },
+  "a4e37e47": {
+    "providerId": "66044",
+    "expectedName": "Shivam Dube",
+    "appName": "Shivam Dube"
+  },
+  "73ad96ed": {
+    "providerId": "63748",
+    "expectedName": "Deepak Hooda",
+    "appName": "Deepak Hooda"
+  },
+  "e94915e6": {
+    "providerId": "65584",
+    "expectedName": "Sam Curran",
+    "appName": "Sam Curran"
+  },
+  "fe93fd9d": {
+    "providerId": "3850",
+    "expectedName": "Ravindra Jadeja",
+    "appName": "Ravindra Jadeja"
+  },
+  "4a8a2e3b": {
+    "providerId": "3676",
+    "expectedName": "MS Dhoni",
+    "appName": "Mahendra Singh Dhoni"
+  },
+  "495d42a5": {
+    "providerId": "4555",
+    "expectedName": "Ravichandran Ashwin",
+    "appName": "Ravichandran Ashwin"
+  },
+  "efc04be7": {
+    "providerId": "71411",
+    "expectedName": "Noor Ahmad",
+    "appName": "Noor Ahmad"
+  },
+  "9eb1455b": {
+    "providerId": "70324",
+    "expectedName": "Nathan Ellis",
+    "appName": "Nathan Ellis"
+  },
+  "cf0ccafa": {
+    "providerId": "67476",
+    "expectedName": "Manimaran Siddharth",
+    "appName": "Manimaran Siddharth"
+  },
+  "6a26221c": {
+    "providerId": "64219",
+    "expectedName": "Aiden Markram",
+    "appName": "Aiden Markram"
+  },
+  "3d8feaf8": {
+    "providerId": "10094",
+    "expectedName": "Mitchell Marsh",
+    "appName": "Mitch Marsh"
+  },
+  "3241e3fd": {
+    "providerId": "63726",
+    "expectedName": "Nicholas Pooran",
+    "appName": "Nicholas Pooran"
+  },
+  "919a3be2": {
+    "providerId": "65756",
+    "expectedName": "Rishabh Pant",
+    "appName": "Rishabh Pant"
+  },
+  "d67d5f00": {
+    "providerId": "5313",
+    "expectedName": "David Miller",
+    "appName": "David Miller"
+  },
+  "872b03f7": {
+    "providerId": "69656",
+    "expectedName": "Ayush Badoni",
+    "appName": "Ayush Badoni"
+  },
+  "1abb78f8": {
+    "providerId": "63345",
+    "expectedName": "Shardul Thakur",
+    "appName": "Shardul Thakur"
+  },
+  "df064e1a": {
+    "providerId": "71288",
+    "expectedName": "Ravi Bishnoi",
+    "appName": "Ravi Bishnoi"
+  },
+  "80b2fb19": {
+    "providerId": "100570",
+    "expectedName": "Prince Yadav",
+    "appName": "Prince Yadav"
+  },
+  "2cffab74": {
+    "providerId": "65723",
+    "expectedName": "Mukesh Kumar",
+    "appName": "Mukesh Kumar"
+  },
+  "9b6e1b3f": {
+    "providerId": "70746",
+    "expectedName": "Jake Fraser-McGurk",
+    "appName": "Jake Fraser-McGurk"
+  },
+  "3355b542": {
+    "providerId": "28891",
+    "expectedName": "Faf du Plessis",
+    "appName": "Faf du Plessis"
+  },
+  "ad3b6e95": {
+    "providerId": "82442",
+    "expectedName": "Abishek Porel",
+    "appName": "Abishek Porel"
+  },
+  "f89d3b11": {
+    "providerId": "71376",
+    "expectedName": "Sameer Rizvi",
+    "appName": "Sameer Rizvi"
+  },
+  "2e171977": {
+    "providerId": "62576",
+    "expectedName": "Axar Patel",
+    "appName": "Axar Patel"
+  },
+  "85b3fab2": {
+    "providerId": "74761",
+    "expectedName": "Tristan Stubbs",
+    "appName": "Tristan Stubbs"
+  },
+  "84d9c311": {
+    "providerId": "68176",
+    "expectedName": "Ashutosh Sharma",
+    "appName": "Ashutosh Sharma"
+  },
+  "5ffc0565": {
+    "providerId": "88677",
+    "expectedName": "Vipraj Nigam",
+    "appName": "Vipraj Nigam"
+  },
+  "3fb19989": {
+    "providerId": "10053",
+    "expectedName": "Mitchell Starc",
+    "appName": "Mitchell Starc"
+  },
+  "8d2c70ad": {
+    "providerId": "63187",
+    "expectedName": "Kuldeep Yadav",
+    "appName": "Kuldeep Yadav"
+  },
+  "759ac88f": {
+    "providerId": "63341",
+    "expectedName": "Mohit Sharma",
+    "appName": "Mohit Sharma"
+  },
+  "51ec3919": {
+    "providerId": "90635",
+    "expectedName": "Tripurana Vijay",
+    "appName": "Tripurana Vijay"
+  },
+  "b5797845": {
+    "providerId": "71366",
+    "expectedName": "Priyansh Arya",
+    "appName": "Priyansh Arya"
+  },
+  "9418198b": {
+    "providerId": "70222",
+    "expectedName": "Prabhsimran Singh",
+    "appName": "Prabhsimran Singh"
+  },
+  "85ec8e33": {
+    "providerId": "63961",
+    "expectedName": "Shreyas Iyer",
+    "appName": "Shreyas Iyer"
+  },
+  "8f6dd463": {
+    "providerId": "67516",
+    "expectedName": "Azmatullah Omarzai",
+    "appName": "Azmatullah Omarzai"
+  },
+  "b681e71e": {
+    "providerId": "10085",
+    "expectedName": "Glenn Maxwell",
+    "appName": "Glenn Maxwell"
+  },
+  "d9273ee7": {
+    "providerId": "4311",
+    "expectedName": "Marcus Stoinis",
+    "appName": "Marcus Stoinis"
+  },
+  "26989d80": {
+    "providerId": "63520",
+    "expectedName": "Shashank Singh",
+    "appName": "Shashank Singh"
+  },
+  "970ddd24": {
+    "providerId": "71951",
+    "expectedName": "Suryansh Shedge",
+    "appName": "Suryansh Shedge"
+  },
+  "81c36ee9": {
+    "providerId": "69409",
+    "expectedName": "Marco Jansen",
+    "appName": "Marco Jansen"
+  },
+  "244048f6": {
+    "providerId": "67905",
+    "expectedName": "Arshdeep Singh",
+    "appName": "Arshdeep Singh"
+  },
+  "57ee1fde": {
+    "providerId": "9844",
+    "expectedName": "Yuzvendra Chahal",
+    "appName": "Yuzvendra Chahal"
+  },
+  "54e52590": {
+    "providerId": "67628",
+    "expectedName": "Vijaykumar Vyshak",
+    "appName": "Vijaykumar Vyshak"
+  },
+  "d5130a30": {
+    "providerId": "69500",
+    "expectedName": "Sai Sudharsan",
+    "appName": "Sai Sudharsan"
+  },
+  "b4b99816": {
+    "providerId": "66818",
+    "expectedName": "Shubman Gill",
+    "appName": "Shubman Gill"
+  },
+  "99b75528": {
+    "providerId": "9782",
+    "expectedName": "Jos Buttler",
+    "appName": "Jos Buttler"
+  },
+  "d014d5ac": {
+    "providerId": "67285",
+    "expectedName": "Sherfane Rutherford",
+    "appName": "Sherfane Rutherford"
+  },
+  "39a2dfa8": {
+    "providerId": "64440",
+    "expectedName": "Rahul Tewatia",
+    "appName": "Rahul Tewatia"
+  },
+  "7dcb9bc9": {
+    "providerId": "64721",
+    "expectedName": "Shahrukh Khan",
+    "appName": "Shahrukh Khan"
+  },
+  "12314277": {
+    "providerId": "82839",
+    "expectedName": "Arshad Khan",
+    "appName": "Arshad Khan"
+  },
+  "c7a995d3": {
+    "providerId": "66438",
+    "expectedName": "Sai Kishore",
+    "appName": "Sai Kishore"
+  },
+  "5f547c8b": {
+    "providerId": "65748",
+    "expectedName": "Rashid Khan",
+    "appName": "Rashid Khan"
+  },
+  "e62dd25d": {
+    "providerId": "63611",
+    "expectedName": "Kagiso Rabada",
+    "appName": "Kagiso Rabada"
+  },
+  "2f49c897": {
+    "providerId": "65799",
+    "expectedName": "Mohammed Siraj",
+    "appName": "Mohammed Siraj"
+  },
+  "85e0cf10": {
+    "providerId": "65702",
+    "expectedName": "Prasidh Krishna",
+    "appName": "Prasidh Krishna"
+  },
+  "8e514b4c": {
+    "providerId": "71260",
+    "expectedName": "Abdul Samad",
+    "appName": "Abdul Samad"
+  },
+  "eef2536f": {
+    "providerId": "64511",
+    "expectedName": "Avesh Khan",
+    "appName": "Avesh Khan"
+  },
+  "2e81a32d": {
+    "providerId": "5132",
+    "expectedName": "Bhuvneshwar Kumar",
+    "appName": "Bhuvneshwar Kumar"
+  },
+  "64839cb3": {
+    "providerId": "73830",
+    "expectedName": "Matheesha Pathirana",
+    "appName": "Matheesha Pathirana"
+  },
+  "5bb1a1c4": {
+    "providerId": "3899",
+    "expectedName": "Ishant Sharma",
+    "appName": "Ishant Sharma"
+  },
+  "dbe50b21": {
+    "providerId": "63751",
+    "expectedName": "Hardik Pandya",
+    "appName": "Hardik Pandya"
+  },
+  "c96f6ac5": {
+    "providerId": "65525",
+    "expectedName": "Wiaan Mulder",
+    "appName": "Wiaan Mulder"
+  },
+  "36619795": {
+    "providerId": "65861",
+    "expectedName": "Zeeshan Ansari",
+    "appName": "Zeeshan Ansari"
+  },
+  "b17e2f24": {
+    "providerId": "60122",
+    "expectedName": "KL Rahul",
+    "appName": "KL Rahul"
+  },
+  "0994d0ae": {
+    "providerId": "61738",
+    "expectedName": "Vijay Shankar",
+    "appName": "Vijay Shankar"
+  },
+  "59559bc2": {
+    "providerId": "58482",
+    "expectedName": "Jamie Overton",
+    "appName": "Jamie Overton"
+  },
+  "93b4fc78": {
+    "providerId": "4276",
+    "expectedName": "Manish Pandey",
+    "appName": "Manish Pandey"
+  },
+  "d45c29b1": {
+    "providerId": "74296",
+    "expectedName": "Ashwani Kumar",
+    "appName": "Ashwani Kumar"
+  },
+  "d1a60072": {
+    "providerId": "69657",
+    "expectedName": "Nehal Wadhera",
+    "appName": "Nehal Wadhera"
+  },
+  "2f9d0389": {
+    "providerId": "63719",
+    "expectedName": "Lockie Ferguson",
+    "appName": "Lockie Ferguson"
+  },
+  "08548b13": {
+    "providerId": "65034",
+    "expectedName": "Kamindu Mendis",
+    "appName": "Kamindu Mendis"
+  },
+  "e4cdf230": {
+    "providerId": "66983",
+    "expectedName": "Anukul Roy",
+    "appName": "Anukul Roy"
+  },
+  "0a67aec0": {
+    "providerId": "71447",
+    "expectedName": "Akash Deep",
+    "appName": "Akash Deep"
+  },
+  "ba6b2f91": {
+    "providerId": "89168",
+    "expectedName": "Raj Bawa",
+    "appName": "Raj Bawa"
+  },
+  "172dff15": {
+    "providerId": "63605",
+    "expectedName": "Corbin Bosch",
+    "appName": "Corbin Bosch"
+  },
+  "df5a6881": {
+    "providerId": "13177",
+    "expectedName": "Devon Conway",
+    "appName": "Devon Conway"
+  },
+  "765a4731": {
+    "providerId": "67887",
+    "expectedName": "Mukesh Choudhary",
+    "appName": "Mukesh Choudhary"
+  },
+  "4885bbe6": {
+    "providerId": "74054",
+    "expectedName": "Yudhvir Singh",
+    "appName": "Yudhvir Singh Charak"
+  },
+  "1e66c162": {
+    "providerId": "5448",
+    "expectedName": "Jaydev Unadkat",
+    "appName": "Jaydev Unadkat"
+  },
+  "f19ccfad": {
+    "providerId": "65859",
+    "expectedName": "Washington Sundar",
+    "appName": "Washington Sundar"
+  },
+  "462411b3": {
+    "providerId": "63755",
+    "expectedName": "Jasprit Bumrah",
+    "appName": "Jasprit Bumrah"
+  },
+  "4b31f3a3": {
+    "providerId": "66819",
+    "expectedName": "Yash Thakur",
+    "appName": "Yash Thakur"
+  },
+  "fa2f1dde": {
+    "providerId": "67136",
+    "expectedName": "Kulwant Khejroliya",
+    "appName": "Kulwant Khejroliya"
+  },
+  "fcc21ace": {
+    "providerId": "71151",
+    "expectedName": "Anshul Kamboj",
+    "appName": "Anshul Kamboj"
+  },
+  "ebcfef83": {
+    "providerId": "65152",
+    "expectedName": "Himmat Singh",
+    "appName": "Himmat Singh"
+  },
+  "5750bcb4": {
+    "providerId": "94784",
+    "expectedName": "Eshan Malinga",
+    "appName": "Eshan Malinga"
+  },
+  "ed5a5510": {
+    "providerId": "63550",
+    "expectedName": "Praveen Dubey",
+    "appName": "Praveen Dubey"
+  },
+  "944533a5": {
+    "providerId": "62297",
+    "expectedName": "Karun Nair",
+    "appName": "Karun Nair"
+  },
+  "cbf58a86": {
+    "providerId": "89183",
+    "expectedName": "Shaik Rasheed",
+    "appName": "Shaik Rasheed"
+  },
+  "989889ff": {
+    "providerId": "65893",
+    "expectedName": "Josh Inglis",
+    "appName": "Josh Inglis"
+  },
+  "3b53243a": {
+    "providerId": "66516",
+    "expectedName": "Xavier Bartlett",
+    "appName": "Xavier Bartlett"
+  },
+  "acdc62f5": {
+    "providerId": "63641",
+    "expectedName": "Anrich Nortje",
+    "appName": "Anrich Nortje"
+  },
+  "2ed569a0": {
+    "providerId": "66823",
+    "expectedName": "Rahul Chahar",
+    "appName": "Rahul Chahar"
+  },
+  "c05edf8e": {
+    "providerId": "70500",
+    "expectedName": "Harpreet Brar",
+    "appName": "Harpreet Brar"
+  },
+  "f0af99a7": {
+    "providerId": "23487",
+    "expectedName": "Donovan Ferreira",
+    "appName": "Donovan Ferreira"
+  },
+  "da934ee8": {
+    "providerId": "65432",
+    "expectedName": "Mahipal Lomror",
+    "appName": "Mahipal Lomror"
+  },
+  "470f446b": {
+    "providerId": "114349",
+    "expectedName": "Vaibhav Sooryavanshi",
+    "appName": "Vaibhav Sooryavanshi"
+  },
+  "c5aef772": {
+    "providerId": "66243",
+    "expectedName": "Romario Shepherd",
+    "appName": "Romario Shepherd"
+  },
+  "b2b4f545": {
+    "providerId": "120157",
+    "expectedName": "Ayush Mhatre",
+    "appName": "Ayush Mhatre"
+  },
+  "327b58d3": {
+    "providerId": "58065",
+    "expectedName": "Dushmantha Chameera",
+    "appName": "Dushmantha Chameera"
+  },
+  "844e79d1": {
+    "providerId": "84562",
+    "expectedName": "Dewald Brevis",
+    "appName": "Dewald Brevis"
+  },
+  "650d5e49": {
+    "providerId": "65291",
+    "expectedName": "Rovman Powell",
+    "appName": "Rovman Powell"
+  },
+  "b1ad996b": {
+    "providerId": "90501",
+    "expectedName": "Mayank Yadav",
+    "appName": "Mayank Yadav"
+  },
+  "62175638": {
+    "providerId": "65875",
+    "expectedName": "Karim Janat",
+    "appName": "Karim Janat"
+  },
+  "4bd09374": {
+    "providerId": "74055",
+    "expectedName": "Akash Madhwal",
+    "appName": "Akash Madhwal"
+  },
+  "3204c99f": {
+    "providerId": "67443",
+    "expectedName": "Gerald Coetzee",
+    "appName": "Gerald Coetzee"
+  },
+  "f834dcfc": {
+    "providerId": "64225",
+    "expectedName": "Lungi Ngidi",
+    "appName": "Lungi Ngidi"
+  },
+  "50c09020": {
+    "providerId": "91316",
+    "expectedName": "Ashok Sharma",
+    "appName": "Ashok Sharma"
+  },
+  "b483905d": {
+    "providerId": "70376",
+    "expectedName": "Akash Singh",
+    "appName": "Akash Singh"
+  },
+  "ce794613": {
+    "providerId": "65160",
+    "expectedName": "T Natarajan",
+    "appName": "Thangarasu Natarajan"
+  },
+  "dc9dd038": {
+    "providerId": "55316",
+    "expectedName": "Sachin Baby",
+    "appName": "Sachin Baby"
+  },
+  "cf59b3f0": {
+    "providerId": "68150",
+    "expectedName": "Urvil Patel",
+    "appName": "Urvil Patel"
+  },
+  "fb5f69e4": {
+    "providerId": "124649",
+    "expectedName": "Madhav Tiwari",
+    "appName": "Madhav Tiwari"
+  },
+  "f2c936d7": {
+    "providerId": "81813",
+    "expectedName": "Mitchell Owen",
+    "appName": "Mitch Owen"
+  },
+  "107c26fb": {
+    "providerId": "90908",
+    "expectedName": "Kwena Maphaka",
+    "appName": "Kwena Maphaka"
+  },
+  "0a8fce53": {
+    "providerId": "63881",
+    "expectedName": "Mustafizur Rahman",
+    "appName": "Mustafizur Rahman"
+  },
+  "1ac746c8": {
+    "providerId": "67910",
+    "expectedName": "Atharva Taide",
+    "appName": "Atharva Taide"
+  },
+  "25228673": {
+    "providerId": "71368",
+    "expectedName": "Harsh Dubey",
+    "appName": "Harsh Dubey"
+  },
+  "68c56d09": {
+    "providerId": "63865",
+    "expectedName": "Kyle Jamieson",
+    "appName": "Kyle Jamieson"
+  },
+  "35f173a0": {
+    "providerId": "65618",
+    "expectedName": "Matthew Breetzke",
+    "appName": "Matthew Breetzke"
+  },
+  "ee1b6c27": {
+    "providerId": "66158",
+    "expectedName": "Nuwan Thushara",
+    "appName": "Nuwan Thushara"
+  },
+  "d621b427": {
+    "providerId": "94786",
+    "expectedName": "Musheer Khan",
+    "appName": "Musheer Khan"
+  },
+  "402f8494": {
+    "providerId": "65630",
+    "expectedName": "Richard Gleeson",
+    "appName": "Richard Gleeson"
+  },
+  "5d1e7582": {
+    "providerId": "63882",
+    "expectedName": "Kusal Mendis",
+    "appName": "Kusal Mendis"
+  },
+  "3c28853f": {
+    "providerId": "70227",
+    "expectedName": "Sediqullah Atal",
+    "appName": "Sediq Atal"
+  },
+  "d7423da1": {
+    "providerId": "73152",
+    "expectedName": "Salil Arora",
+    "appName": "Salil Arora"
+  },
+  "dadbdb68": {
+    "providerId": "57672",
+    "expectedName": "Jacob Duffy",
+    "appName": "Jacob Duffy"
+  },
+  "82c10dac": {
+    "providerId": "126643",
+    "expectedName": "Abhinandan Singh",
+    "appName": "Abhinandan Singh"
+  },
+  "5d2eea49": {
+    "providerId": "67735",
+    "expectedName": "Kartik Tyagi",
+    "appName": "Kartik Tyagi"
+  },
+  "bf74b130": {
+    "providerId": "66046",
+    "expectedName": "Finn Allen",
+    "appName": "Finn Allen"
+  },
+  "eaa76d3c": {
+    "providerId": "66870",
+    "expectedName": "Cameron Green",
+    "appName": "Cameron Green"
+  },
+  "449f4e3c": {
+    "providerId": "67784",
+    "expectedName": "Blessing Muzarabani",
+    "appName": "Blessing Muzarabani"
+  },
+  "a9fd84fb": {
+    "providerId": "67126",
+    "expectedName": "Mayank Markande",
+    "appName": "Mayank Markande"
+  },
+  "9ca68676": {
+    "providerId": "96648",
+    "expectedName": "AM Ghazanfar",
+    "appName": "AM Ghazanfar"
+  },
+  "a90e53ec": {
+    "providerId": "63846",
+    "expectedName": "Matthew Short",
+    "appName": "Matt Short"
+  },
+  "f088b960": {
+    "providerId": "63962",
+    "expectedName": "Sarfaraz Khan",
+    "appName": "Sarfaraz Khan"
+  },
+  "7b679de5": {
+    "providerId": "129073",
+    "expectedName": "Kartik Sharma",
+    "appName": "Kartik Sharma"
+  },
+  "e84ac20c": {
+    "providerId": "60544",
+    "expectedName": "Matt Henry",
+    "appName": "Matt Henry"
+  },
+  "465aa633": {
+    "providerId": "66195",
+    "expectedName": "Nandre Burger",
+    "appName": "Nandre Burger"
+  },
+  "133bbd61": {
+    "providerId": "133689",
+    "expectedName": "Brijesh Sharma",
+    "appName": "Brijesh Sharma"
+  },
+  "9a46c4e5": {
+    "providerId": "65295",
+    "expectedName": "Glenn Phillips",
+    "appName": "Glenn Phillips"
+  },
+  "fe366f34": {
+    "providerId": "74410",
+    "expectedName": "Cooper Connolly",
+    "appName": "Cooper Connolly"
+  },
+  "1c84109e": {
+    "providerId": "99128",
+    "expectedName": "Mukul Choudhary",
+    "appName": "Mukul Choudhary"
+  },
+  "c33d8116": {
+    "providerId": "68182",
+    "expectedName": "Mohsin Khan",
+    "appName": "Mohsin Khan"
+  },
+  "8ee36b18": {
+    "providerId": "66368",
+    "expectedName": "Pathum Nissanka",
+    "appName": "Pathum Nissanka"
+  },
+  "7b44eb3e": {
+    "providerId": "124639",
+    "expectedName": "Shivang Kumar",
+    "appName": "Shivang Kumar"
+  },
+  "e148e6bd": {
+    "providerId": "98636",
+    "expectedName": "Prashant Veer",
+    "appName": "Prashant Veer"
+  },
+  "57ca01b3": {
+    "providerId": "74097",
+    "expectedName": "Kumar Kushagra",
+    "appName": "Kumar Kushagra"
+  },
+  "21d4e29b": {
+    "providerId": "64448",
+    "expectedName": "Navdeep Saini",
+    "appName": "Navdeep Saini"
+  },
+  "4d7f517e": {
+    "providerId": "57239",
+    "expectedName": "Akeal Hosein",
+    "appName": "Akeal Hosein"
+  },
+  "cc61ee8f": {
+    "providerId": "86633",
+    "expectedName": "Gurjapneet Singh",
+    "appName": "Gurjapneet Singh"
+  },
+  "7c3c0337": {
+    "providerId": "70172",
+    "expectedName": "Auqib Nabi",
+    "appName": "Auqib Nabi"
+  },
+  "e5437608": {
+    "providerId": "57533",
+    "expectedName": "George Linde",
+    "appName": "George Linde"
+  },
+  "280fff14": {
+    "providerId": "99098",
+    "expectedName": "Sakib Hussain",
+    "appName": "Sakib Hussain"
+  },
+  "ece7b6b3": {
+    "providerId": "88089",
+    "expectedName": "Praful Hinge",
+    "appName": "Praful Hinge"
+  },
+  "60aa2db3": {
+    "providerId": "109249",
+    "expectedName": "Lhuan-dre Pretorius",
+    "appName": "Lhuan-dr\u00e9 Pretorius"
+  },
+  "2b801189": {
+    "providerId": "66974",
+    "expectedName": "Mayank Rawat",
+    "appName": "Mayank Rawat"
+  },
+  "4663bd23": {
+    "providerId": "63867",
+    "expectedName": "Tim Seifert",
+    "appName": "Tim Seifert"
+  },
+  "02dfebbe": {
+    "providerId": "100840",
+    "expectedName": "Yash Punja",
+    "appName": "Yash Punja"
+  },
+  "9e6032fa": {
+    "providerId": "89179",
+    "expectedName": "Danish Malewar",
+    "appName": "Danish Malewar"
+  },
+  "e48a4814": {
+    "providerId": "88262",
+    "expectedName": "Krish Bhagat",
+    "appName": "Krish Bhagat"
+  },
+  "de7d833e": {
+    "providerId": "70764",
+    "expectedName": "Dilshan Madushanka",
+    "appName": "Dilshan Madushanka"
+  },
+  "0f721006": {
+    "providerId": "10232",
+    "expectedName": "Jason Holder",
+    "appName": "Jason Holder"
+  },
+  "025c4400": {
+    "providerId": "71149",
+    "expectedName": "Manav Suthar",
+    "appName": "Manav Suthar"
+  },
+  "926c7443": {
+    "providerId": "114374",
+    "expectedName": "Sahil Parakh",
+    "appName": "Sahil Parakh"
+  },
+  "3ff033bb": {
+    "providerId": "59067",
+    "expectedName": "Dasun Shanaka",
+    "appName": "Dasun Shanaka"
+  },
+  "5b615e7c": {
+    "providerId": "67726",
+    "expectedName": "Raghu Sharma",
+    "appName": "Raghu Sharma"
+  },
+  "dee07622": {
+    "providerId": "98813",
+    "expectedName": "Ramakrishna Ghosh",
+    "appName": "Ramakrishna Ghosh"
+  },
+  "c1e53c3f": {
+    "providerId": "88627",
+    "expectedName": "Ravichandran Smaran",
+    "appName": "Ravichandran Smaran"
+  },
+  "3cea23da": {
+    "providerId": "88873",
+    "expectedName": "Nishant Sindhu",
+    "appName": "Nishant Sindhu"
+  },
+  "d8d67045": {
+    "providerId": "89169",
+    "expectedName": "Akshat Raghuwanshi",
+    "appName": "Akshat Raghuwanshi"
+  },
+  "2d140b79": {
+    "providerId": "88542",
+    "expectedName": "Arshin Kulkarni",
+    "appName": "Arshin Kulkarni"
+  },
+  "e1b9f3a9": {
+    "providerId": "64473",
+    "expectedName": "Ben Dwarshuis",
+    "appName": "Ben Dwarshuis"
+  },
+  "11061889": {
+    "providerId": "74123",
+    "expectedName": "Saurabh Dubey",
+    "appName": "Saurabh Dubey"
+  },
+  "0494fa6e": {
+    "providerId": "64783",
+    "expectedName": "Vishnu Vinod",
+    "appName": "Vishnu Vinod"
+  },
+  "350bb1b1": {
+    "providerId": "11933",
+    "expectedName": "Adam Milne",
+    "appName": "Adam Milne"
+  },
+  "92500ad5": {
+    "providerId": "71380",
+    "expectedName": "Sushant Mishra",
+    "appName": "Sushant Mishra"
+  },
+  "f12fe2a1": {
+    "providerId": "126180",
+    "expectedName": "Tejasvi Singh",
+    "appName": "Tejasvi Dahiya"
+  },
+  "ff154ecd": {
+    "providerId": "70925",
+    "expectedName": "Jordan Cox",
+    "appName": "Jordan Cox"
+  },
+  "44aac2f0": {
+    "providerId": "69659",
+    "expectedName": "Arjun Tendulkar",
+    "appName": "Arjun Tendulkar"
+  },
+  "372455c4": {
+    "providerId": "28035",
+    "expectedName": "Quinton de Kock",
+    "appName": "Quinton de Kock"
+  },
+  "bbd41817": {
+    "providerId": "12047",
+    "expectedName": "Andre Russell",
+    "appName": "Andre Russell"
+  },
+  "14f96089": {
+    "providerId": "58913",
+    "expectedName": "Adam Zampa",
+    "appName": "Adam Zampa"
+  },
+  "e9c7f0d0": {
+    "providerId": "67927",
+    "expectedName": "Fazalhaq Farooqi",
+    "appName": "Fazalhaq Farooqi"
+  },
+  "f24c6701": {
+    "providerId": "69274",
+    "expectedName": "Maheesh Theekshana",
+    "appName": "Maheesh Theekshana"
+  },
+  "13fc5c6d": {
+    "providerId": "100574",
+    "expectedName": "Digvesh Singh",
+    "appName": "Digvesh Singh Rathi"
+  },
+  "a97c8ec2": {
+    "providerId": "65027",
+    "expectedName": "Wanindu Hasaranga",
+    "appName": "Wanindu Hasaranga"
+  },
+  "bb351c23": {
+    "providerId": "4688",
+    "expectedName": "Moeen Ali",
+    "appName": "Moeen Ali"
+  },
+  "7d92277a": {
+    "providerId": "67540",
+    "expectedName": "Mujeeb Ur Rahman",
+    "appName": "Mujeeb Ur Rahman"
+  },
+  "f6d8a7ab": {
+    "providerId": "70191",
+    "expectedName": "Kumar Kartikeya",
+    "appName": "Kumar Kartikeya"
+  },
+  "0bacade8": {
+    "providerId": "68027",
+    "expectedName": "Rahmanullah Gurbaz",
+    "appName": "Rahmanullah Gurbaz"
+  },
+  "2cdce1be": {
+    "providerId": "68173",
+    "expectedName": "Chetan Sakariya",
+    "appName": "Chetan Sakariya"
+  },
+  "cb9b8664": {
+    "providerId": "74400",
+    "expectedName": "Will O'Rourke",
+    "appName": "Will O'Rourke"
+  },
+  "abb83e27": {
+    "providerId": "19394",
+    "expectedName": "Jonny Bairstow",
+    "appName": "Jonny Bairstow"
+  },
+  "548516a6": {
+    "providerId": "129333",
+    "expectedName": "Ravi Singh",
+    "appName": "Ravi Singh"
+  },
+  "f9e6e7ef": {
+    "providerId": "58223",
+    "expectedName": "Shahbaz Ahamad",
+    "appName": "Shahbaz Ahmed"
+  },
+  "e96801ea": {
+    "providerId": "67648",
+    "expectedName": "Manoj Bhandage",
+    "appName": "Manoj Bhandage"
+  },
+  "119678fd": {
+    "providerId": "5090",
+    "expectedName": "Karn Sharma",
+    "appName": "Karn Sharma"
+  },
+  "3c55c703": {
+    "providerId": "85736",
+    "expectedName": "Jacob Bethell",
+    "appName": "Jacob Bethell"
+  },
+  "e3851766": {
+    "providerId": "88492",
+    "expectedName": "Kunal Singh Rathore",
+    "appName": "Kunal Rathore"
+  },
+  "00ea847a": {
+    "providerId": "10115",
+    "expectedName": "Mayank Agarwal",
+    "appName": "Mayank Agarwal"
+  },
+  "8db7f47f": {
+    "providerId": "58101",
+    "expectedName": "Reece Topley",
+    "appName": "Reece Topley"
+  },
+  "6c79c098": {
+    "providerId": "10128",
+    "expectedName": "David Payne",
+    "appName": "David Payne"
+  }
+}

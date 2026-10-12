@@ -199,6 +199,42 @@ select.input option { background: var(--panel); }
 .avatar.sm { width: 28px; height: 28px; font-size: 11px; }
 .avatar.lg { width: 64px; height: 64px; font-size: 22px; }
 .avatar.xl { width: 84px; height: 84px; font-size: 28px; }
+.avatar { overflow: hidden; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+
+/* Scoped to player cards; league screens and other modal headers are unchanged. */
+.player-modal .modal-h { padding: 0; display: block; }
+.player-modal .modal-h > .btn { position: absolute; top: 12px; right: 12px; z-index: 3; color: white; background: #101820aa; }
+.player-hero {
+  position: relative; isolation: isolate; min-height: 240px; display: flex;
+  align-items: center; gap: 22px; padding: 38px 44px 24px 260px; color: white;
+  background: linear-gradient(105deg, var(--tc) 0%, color-mix(in srgb, var(--tc), #09121c 60%) 80%);
+  border-bottom: 4px solid var(--ta);
+}
+.player-hero-art { position: absolute; inset: 0 auto 0 0; width: 400px; max-width: 100%; overflow: hidden; z-index: -1; }
+.player-hero-logo { position: absolute; width: 240px; height: 220px; left: 140px; top: 10px; object-fit: contain; opacity: .22; }
+.player-hero-portrait { position: absolute; inset: 10px auto 0 0; width: 260px; display: grid; place-items: center; }
+.player-hero-portrait img { width: 100%; height: 100%; object-fit: contain; object-position: center bottom; filter: drop-shadow(0 8px 12px #0005); }
+.player-hero-portrait .portrait-fallback { font: 700 58px var(--display); opacity: .7; }
+.player-hero-details { min-width: 0; flex: 1; }
+.player-hero-name { font-size: clamp(24px, 3vw, 34px); font-weight: 700; line-height: 1.15; }
+.player-hero .muted, .player-hero .dim { color: #e0e6ed; }
+.player-hero-actions { align-items: flex-end; flex-shrink: 0; font-size: 12px; }
+.player-hero .role, .player-hero .slot, .player-hero .tchip { background: #101820c9; }
+.player-bio { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px 22px; margin: 0 0 20px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.player-bio > div { min-width: 0; }
+.player-bio dt { color: var(--muted); text-transform: uppercase; font-size: 10px; font-weight: 600; letter-spacing: .08em; margin-bottom: 6px; }
+.player-bio dd { margin: 0; font-size: 14px; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+.player-bio-source { grid-column: 1 / -1; justify-self: end; font-size: 10px; color: var(--muted); }
+@media (max-width: 700px) {
+  .player-bio { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .player-hero { min-height: 230px; padding: 40px 18px 18px 145px; flex-wrap: wrap; gap: 12px; }
+  .player-hero-art { width: 240px; }
+  .player-hero-logo { width: 145px; height: 145px; left: 85px; top: 30px; }
+  .player-hero-portrait { inset: 50px auto 0 -12px; width: 169px; }
+  .player-hero-details { flex-basis: 100%; }
+  .player-hero-actions { align-items: flex-start; }
+}
 
 .fteam-av {
   flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center;

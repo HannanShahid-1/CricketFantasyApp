@@ -1,0 +1,2666 @@
+{
+  "players": {
+    "7c3b3b78": {
+      "fullName": "Vaibhav Arora",
+      "iplId": 72965,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F72965.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F72965.png&brand=ipl",
+      "photo": "media/players/7c3b3b78.png"
+    },
+    "372455c4": {
+      "fullName": "Quinton de Kock",
+      "iplId": 17614,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F17614.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F17614.png&brand=ipl",
+      "photo": "media/players/372455c4.png"
+    },
+    "9d430b40": {
+      "fullName": "Sunil Narine",
+      "iplId": 11658,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F11658.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F11658.png&brand=ipl",
+      "photo": "media/players/9d430b40.png"
+    },
+    "29e95537": {
+      "fullName": "Ajinkya Rahane",
+      "iplId": 12685,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F12685.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F12685.png&brand=ipl",
+      "photo": "media/players/29e95537.png"
+    },
+    "a24be938": {
+      "fullName": "Venkatesh Iyer",
+      "iplId": 34170,
+      "season": 2026,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2138%252F34170.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F34170.png&brand=ipl",
+      "photo": "media/players/a24be938.png"
+    },
+    "d7017798": {
+      "fullName": "Angkrish Raghuvanshi",
+      "iplId": 76204,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F76204.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F76204.png&brand=ipl",
+      "photo": "media/players/d7017798.png"
+    },
+    "0a509d6b": {
+      "fullName": "Rinku Singh",
+      "iplId": 33718,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F33718.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F33718.png&brand=ipl",
+      "photo": "media/players/0a509d6b.png"
+    },
+    "bbd41817": {
+      "fullName": "Andre Russell",
+      "iplId": 12377,
+      "season": null,
+      "team": "KKR",
+      "source": "https://www.kkr.in/players/andre-russell-profile-12047",
+      "imageUrl": "https://www.kkr.in/static-assets/images/players/12047.png?v=112.14",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1873%2F12377.png&brand=ipl",
+      "photo": "media/players/bbd41817.png"
+    },
+    "be24ead0": {
+      "fullName": "Ramandeep Singh",
+      "iplId": 65478,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F65478.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F65478.png&brand=ipl",
+      "photo": "media/players/be24ead0.png"
+    },
+    "77b1aa15": {
+      "fullName": "Harshit Rana",
+      "iplId": 77153,
+      "season": null,
+      "team": "KKR",
+      "source": "https://www.kkr.in/players/harshit-rana-profile-93526",
+      "imageUrl": "https://www.kkr.in/static-assets/images/players/93526.png?v=112.14",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F77153.png&brand=ipl",
+      "photo": "media/players/77b1aa15.png"
+    },
+    "83c3e8e3": {
+      "fullName": "Spencer Johnson",
+      "iplId": 66728,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F66728.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F66728.png&brand=ipl",
+      "photo": "media/players/83c3e8e3.png"
+    },
+    "5b7ab5a9": {
+      "fullName": "Varun Chakaravarthy",
+      "iplId": 68649,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F68649.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F68649.png&brand=ipl",
+      "photo": "media/players/5b7ab5a9.png"
+    },
+    "9440ef41": {
+      "fullName": "Suyash Sharma",
+      "iplId": 80525,
+      "season": 2026,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2138%252F80525.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F80525.png&brand=ipl",
+      "photo": "media/players/9440ef41.png"
+    },
+    "3d284ca3": {
+      "fullName": "Phil Salt",
+      "iplId": 28502,
+      "season": 2026,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2138%252F28502.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F28502.png&brand=ipl",
+      "photo": "media/players/3d284ca3.png"
+    },
+    "ba607b88": {
+      "fullName": "Virat Kohli",
+      "iplId": 13144,
+      "season": 2026,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2138%252F13144.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F13144.png&brand=ipl",
+      "photo": "media/players/ba607b88.png"
+    },
+    "2c25d4f5": {
+      "fullName": "Devdutt Padikkal",
+      "iplId": 68292,
+      "season": 2026,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2138%252F68292.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F68292.png&brand=ipl",
+      "photo": "media/players/2c25d4f5.png"
+    },
+    "c740ea83": {
+      "fullName": "Rajat Patidar",
+      "iplId": 29333,
+      "season": 2026,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2138%252F29333.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F29333.png&brand=ipl",
+      "photo": "media/players/c740ea83.png"
+    },
+    "50c6bc2b": {
+      "fullName": "Liam Livingstone",
+      "iplId": 23875,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F23875.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F23875.png&brand=ipl",
+      "photo": "media/players/50c6bc2b.png"
+    },
+    "800d2d97": {
+      "fullName": "Jitesh Sharma",
+      "iplId": 20033,
+      "season": 2026,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2138%252F20033.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F20033.png&brand=ipl",
+      "photo": "media/players/800d2d97.png"
+    },
+    "f1f99156": {
+      "fullName": "Tim David",
+      "iplId": 67369,
+      "season": 2026,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2138%252F67369.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F67369.png&brand=ipl",
+      "photo": "media/players/f1f99156.png"
+    },
+    "5b8c830e": {
+      "fullName": "Krunal Pandya",
+      "iplId": 20456,
+      "season": 2026,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2138%252F20456.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F20456.png&brand=ipl",
+      "photo": "media/players/5b8c830e.png"
+    },
+    "b8527c3d": {
+      "fullName": "Rasikh Dar",
+      "iplId": 68859,
+      "season": 2026,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2138%252F68859.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F68859.png&brand=ipl",
+      "photo": "media/players/b8527c3d.png"
+    },
+    "03806cf8": {
+      "fullName": "Josh Hazlewood",
+      "iplId": 14327,
+      "season": 2026,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2138%252F14327.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F14327.png&brand=ipl",
+      "photo": "media/players/03806cf8.png"
+    },
+    "7210d461": {
+      "fullName": "Yash Dayal",
+      "iplId": 68716,
+      "season": 2026,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2138%252F68716.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F68716.png&brand=ipl",
+      "photo": "media/players/7210d461.png"
+    },
+    "14f96089": {
+      "fullName": "Adam Zampa",
+      "iplId": 13490,
+      "season": null,
+      "team": "SRH",
+      "source": "https://www.rajasthanroyals.com/rr-players/adam-zampa-ipl-profile-58913",
+      "imageUrl": "https://www.rajasthanroyals.com/static-assets/images/players/58913.png?v=7.95",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1153%2F13490.png&brand=ipl",
+      "photo": "media/players/14f96089.png"
+    },
+    "f29185a1": {
+      "fullName": "Abhishek Sharma",
+      "iplId": 65346,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F65346.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F65346.png&brand=ipl",
+      "photo": "media/players/f29185a1.png"
+    },
+    "12b610c2": {
+      "fullName": "Travis Head",
+      "iplId": 21033,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F21033.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F21033.png&brand=ipl",
+      "photo": "media/players/12b610c2.png"
+    },
+    "752f7486": {
+      "fullName": "Ishan Kishan",
+      "iplId": 20227,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F20227.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F20227.png&brand=ipl",
+      "photo": "media/players/752f7486.png"
+    },
+    "aad0c365": {
+      "fullName": "Nitish Kumar Reddy",
+      "iplId": 74028,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F74028.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F74028.png&brand=ipl",
+      "photo": "media/players/aad0c365.png"
+    },
+    "235c2bb6": {
+      "fullName": "Heinrich Klaasen",
+      "iplId": 23673,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F23673.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F23673.png&brand=ipl",
+      "photo": "media/players/235c2bb6.png"
+    },
+    "a3b0600d": {
+      "fullName": "Aniket Verma",
+      "iplId": 87977,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F87977.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F87977.png&brand=ipl",
+      "photo": "media/players/a3b0600d.png"
+    },
+    "0890552f": {
+      "fullName": "Abhinav Manohar",
+      "iplId": 69551,
+      "season": 2025,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2025",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8502%252F1153%252F69551.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1153%2F69551.png&brand=ipl",
+      "photo": "media/players/0890552f.png"
+    },
+    "ded9240e": {
+      "fullName": "Pat Cummins",
+      "iplId": 14153,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F14153.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F14153.png&brand=ipl",
+      "photo": "media/players/ded9240e.png"
+    },
+    "30df8c66": {
+      "fullName": "Simarjeet Singh",
+      "iplId": 68700,
+      "season": 2025,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2025",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8502%252F1153%252F68700.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1153%2F68700.png&brand=ipl",
+      "photo": "media/players/30df8c66.png"
+    },
+    "f986ca1a": {
+      "fullName": "Harshal Patel",
+      "iplId": 18000,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F18000.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F18000.png&brand=ipl",
+      "photo": "media/players/f986ca1a.png"
+    },
+    "8cf9814c": {
+      "fullName": "Mohammed Shami",
+      "iplId": 11458,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F11458.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F11458.png&brand=ipl",
+      "photo": "media/players/8cf9814c.png"
+    },
+    "e9c7f0d0": {
+      "fullName": "Fazalhaq Farooqi",
+      "iplId": 67208,
+      "season": 2025,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2025",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8502%252F1558%252F67208.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1558%2F67208.png&brand=ipl",
+      "photo": "media/players/e9c7f0d0.png"
+    },
+    "6c19c6e5": {
+      "fullName": "Yashasvi Jaiswal",
+      "iplId": 68314,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F68314.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F68314.png&brand=ipl",
+      "photo": "media/players/6c19c6e5.png"
+    },
+    "a4cc73aa": {
+      "fullName": "Sanju Samson",
+      "iplId": 17613,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F17613.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F17613.png&brand=ipl",
+      "photo": "media/players/a4cc73aa.png"
+    },
+    "04a418e8": {
+      "fullName": "Riyan Parag",
+      "iplId": 65476,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F65476.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F65476.png&brand=ipl",
+      "photo": "media/players/04a418e8.png"
+    },
+    "fb2d1dda": {
+      "fullName": "Nitish Rana",
+      "iplId": 23460,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F23460.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F23460.png&brand=ipl",
+      "photo": "media/players/fb2d1dda.png"
+    },
+    "bcf325d2": {
+      "fullName": "Dhruv Jurel",
+      "iplId": 71456,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F71456.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F71456.png&brand=ipl",
+      "photo": "media/players/bcf325d2.png"
+    },
+    "48a1d7b7": {
+      "fullName": "Shimron Hetmyer",
+      "iplId": 23713,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F23713.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F23713.png&brand=ipl",
+      "photo": "media/players/48a1d7b7.png"
+    },
+    "6b2ff18f": {
+      "fullName": "Shubham Dubey",
+      "iplId": 74047,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F74047.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F74047.png&brand=ipl",
+      "photo": "media/players/6b2ff18f.png"
+    },
+    "5574750c": {
+      "fullName": "Jofra Archer",
+      "iplId": 28503,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F28503.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F28503.png&brand=ipl",
+      "photo": "media/players/5574750c.png"
+    },
+    "f24c6701": {
+      "fullName": "Maheesh Theekshana",
+      "iplId": 67860,
+      "season": 2025,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2025",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8502%252F1558%252F67860.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1558%2F67860.png&brand=ipl",
+      "photo": "media/players/f24c6701.png"
+    },
+    "46a9bea1": {
+      "fullName": "Tushar Deshpande",
+      "iplId": 44044,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F44044.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F44044.png&brand=ipl",
+      "photo": "media/players/46a9bea1.png"
+    },
+    "ce820073": {
+      "fullName": "Sandeep Sharma",
+      "iplId": 15660,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F15660.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F15660.png&brand=ipl",
+      "photo": "media/players/ce820073.png"
+    },
+    "1e030637": {
+      "fullName": "Vignesh Puthur",
+      "iplId": 87852,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F87852.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F87852.png&brand=ipl",
+      "photo": "media/players/1e030637.png"
+    },
+    "740742ef": {
+      "fullName": "Rohit Sharma",
+      "iplId": 11326,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F11326.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F11326.png&brand=ipl",
+      "photo": "media/players/740742ef.png"
+    },
+    "e66732f8": {
+      "fullName": "Ryan Rickelton",
+      "iplId": 37670,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F37670.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F37670.png&brand=ipl",
+      "photo": "media/players/e66732f8.png"
+    },
+    "9caf69a1": {
+      "fullName": "Will Jacks",
+      "iplId": 65551,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F65551.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F65551.png&brand=ipl",
+      "photo": "media/players/9caf69a1.png"
+    },
+    "271f83cd": {
+      "fullName": "Suryakumar Yadav",
+      "iplId": 20861,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F20861.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F20861.png&brand=ipl",
+      "photo": "media/players/271f83cd.png"
+    },
+    "b0482a1d": {
+      "fullName": "Tilak Varma",
+      "iplId": 69845,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F69845.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F69845.png&brand=ipl",
+      "photo": "media/players/b0482a1d.png"
+    },
+    "bafd0398": {
+      "fullName": "Robin Minz",
+      "iplId": 84159,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F84159.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F84159.png&brand=ipl",
+      "photo": "media/players/bafd0398.png"
+    },
+    "fffa744b": {
+      "fullName": "Naman Dhir",
+      "iplId": 79429,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F79429.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F79429.png&brand=ipl",
+      "photo": "media/players/fffa744b.png"
+    },
+    "e4a0deae": {
+      "fullName": "Mitch Santner",
+      "iplId": 14334,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F14334.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F14334.png&brand=ipl",
+      "photo": "media/players/e4a0deae.png"
+    },
+    "23eeb873": {
+      "fullName": "Deepak Chahar",
+      "iplId": 19257,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F19257.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F19257.png&brand=ipl",
+      "photo": "media/players/23eeb873.png"
+    },
+    "a818c1be": {
+      "fullName": "Trent Boult",
+      "iplId": 14330,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F14330.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F14330.png&brand=ipl",
+      "photo": "media/players/a818c1be.png"
+    },
+    "c27b5a0e": {
+      "fullName": "Pyla Avinash",
+      "iplId": 83182,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F83182.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F83182.png&brand=ipl",
+      "photo": "media/players/c27b5a0e.png"
+    },
+    "a2f46292": {
+      "fullName": "Khaleel Ahmed",
+      "iplId": 43272,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F43272.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F43272.png&brand=ipl",
+      "photo": "media/players/a2f46292.png"
+    },
+    "ba5e1069": {
+      "fullName": "Rachin Ravindra",
+      "iplId": 26162,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F26162.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F26162.png&brand=ipl",
+      "photo": "media/players/ba5e1069.png"
+    },
+    "77255a9e": {
+      "fullName": "Rahul Tripathi",
+      "iplId": 22692,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F22692.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F22692.png&brand=ipl",
+      "photo": "media/players/77255a9e.png"
+    },
+    "45a43fe2": {
+      "fullName": "Ruturaj Gaikwad",
+      "iplId": 64377,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F64377.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F64377.png&brand=ipl",
+      "photo": "media/players/45a43fe2.png"
+    },
+    "a4e37e47": {
+      "fullName": "Shivam Dube",
+      "iplId": 63520,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F63520.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F63520.png&brand=ipl",
+      "photo": "media/players/a4e37e47.png"
+    },
+    "73ad96ed": {
+      "fullName": "Deepak Hooda",
+      "iplId": 20738,
+      "season": null,
+      "team": "CSK",
+      "source": "https://www.lucknowsupergiants.in/team/deepak-hooda-63748-profile",
+      "imageUrl": "https://www.lucknowsupergiants.in/static-assets/images/players/63748.png?v=14.12",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1622%2F20738.png&brand=ipl",
+      "photo": "media/players/73ad96ed.png"
+    },
+    "e94915e6": {
+      "fullName": "Sam Curran",
+      "iplId": 21837,
+      "season": null,
+      "team": "RR",
+      "source": "https://www.rajasthanroyals.com/rr-players/sam-curran-ipl-profile-65584",
+      "imageUrl": "https://www.rajasthanroyals.com/static-assets/images/players/65584.png?v=7.95",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F21837.png&brand=ipl",
+      "photo": "media/players/e94915e6.png"
+    },
+    "fe93fd9d": {
+      "fullName": "Ravindra Jadeja",
+      "iplId": 13143,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F13143.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F13143.png&brand=ipl",
+      "photo": "media/players/fe93fd9d.png"
+    },
+    "4a8a2e3b": {
+      "fullName": "Mahendra Singh Dhoni",
+      "iplId": 11318,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F11318.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F11318.png&brand=ipl",
+      "photo": "media/players/4a8a2e3b.png"
+    },
+    "495d42a5": {
+      "fullName": "Ravichandran Ashwin",
+      "iplId": 14164,
+      "season": 2025,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2025",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8502%252F1622%252F14164.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1622%2F14164.png&brand=ipl",
+      "photo": "media/players/495d42a5.png"
+    },
+    "efc04be7": {
+      "fullName": "Noor Ahmad",
+      "iplId": 71151,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F71151.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F71151.png&brand=ipl",
+      "photo": "media/players/efc04be7.png"
+    },
+    "9eb1455b": {
+      "fullName": "Nathan Ellis",
+      "iplId": 68917,
+      "season": null,
+      "team": "CSK",
+      "source": "https://www.punjabkingsipl.in/players/70324-nathan-ellis-profile",
+      "imageUrl": "https://www.punjabkingsipl.in/static-assets/images/players/70324.png?v=6.68",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F68917.png&brand=ipl",
+      "photo": "media/players/9eb1455b.png"
+    },
+    "cf0ccafa": {
+      "fullName": "Manimaran Siddharth",
+      "iplId": 69572,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F69572.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F69572.png&brand=ipl",
+      "photo": "media/players/cf0ccafa.png"
+    },
+    "6a26221c": {
+      "fullName": "Aiden Markram",
+      "iplId": 27774,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F27774.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F27774.png&brand=ipl",
+      "photo": "media/players/6a26221c.png"
+    },
+    "3d8feaf8": {
+      "fullName": "Mitch Marsh",
+      "iplId": 12612,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F12612.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F12612.png&brand=ipl",
+      "photo": "media/players/3d8feaf8.png"
+    },
+    "3241e3fd": {
+      "fullName": "Nicholas Pooran",
+      "iplId": 23906,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F23906.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F23906.png&brand=ipl",
+      "photo": "media/players/3241e3fd.png"
+    },
+    "919a3be2": {
+      "fullName": "Rishabh Pant",
+      "iplId": 17617,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F17617.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F17617.png&brand=ipl",
+      "photo": "media/players/919a3be2.png"
+    },
+    "d67d5f00": {
+      "fullName": "David Miller",
+      "iplId": 13575,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F13575.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F13575.png&brand=ipl",
+      "photo": "media/players/d67d5f00.png"
+    },
+    "872b03f7": {
+      "fullName": "Ayush Badoni",
+      "iplId": 68296,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F68296.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F68296.png&brand=ipl",
+      "photo": "media/players/872b03f7.png"
+    },
+    "1abb78f8": {
+      "fullName": "Shardul Thakur",
+      "iplId": 27765,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F27765.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F27765.png&brand=ipl",
+      "photo": "media/players/1abb78f8.png"
+    },
+    "f9e6e7ef": {
+      "fullName": "Shahbaz Ahmed",
+      "iplId": 70625,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F70625.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F70625.png&brand=ipl",
+      "photo": "media/players/f9e6e7ef.png"
+    },
+    "df064e1a": {
+      "fullName": "Ravi Bishnoi",
+      "iplId": 70430,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F70430.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F70430.png&brand=ipl",
+      "photo": "media/players/df064e1a.png"
+    },
+    "13fc5c6d": {
+      "fullName": "Digvesh Singh Rathi",
+      "iplId": 86771,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F86771.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F86771.png&brand=ipl",
+      "photo": "media/players/13fc5c6d.png"
+    },
+    "80b2fb19": {
+      "fullName": "Prince Yadav",
+      "iplId": 84374,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F84374.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F84374.png&brand=ipl",
+      "photo": "media/players/80b2fb19.png"
+    },
+    "2cffab74": {
+      "fullName": "Mukesh Kumar",
+      "iplId": 31742,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F31742.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F31742.png&brand=ipl",
+      "photo": "media/players/2cffab74.png"
+    },
+    "9b6e1b3f": {
+      "fullName": "Jake Fraser-McGurk",
+      "iplId": 69824,
+      "season": null,
+      "team": "DC",
+      "source": "https://www.delhicapitals.in/players/70746-jake-fraser-mcgurk-profile",
+      "imageUrl": "https://www.delhicapitals.in/static-assets/images/players/ipl/70746.png?v=2.65",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1396%2F69824.png&brand=ipl",
+      "photo": "media/players/9b6e1b3f.png"
+    },
+    "3355b542": {
+      "fullName": "Faf du Plessis",
+      "iplId": 14151,
+      "season": null,
+      "team": "DC",
+      "source": "https://www.delhicapitals.in/players/28891-faf-du-plessis-profile",
+      "imageUrl": "https://www.delhicapitals.in/static-assets/images/players/ipl/28891.png?v=2.65",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1396%2F14151.png&brand=ipl",
+      "photo": "media/players/3355b542.png"
+    },
+    "ad3b6e95": {
+      "fullName": "Abishek Porel",
+      "iplId": 76558,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F76558.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F76558.png&brand=ipl",
+      "photo": "media/players/ad3b6e95.png"
+    },
+    "f89d3b11": {
+      "fullName": "Sameer Rizvi",
+      "iplId": 71449,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F71449.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F71449.png&brand=ipl",
+      "photo": "media/players/f89d3b11.png"
+    },
+    "2e171977": {
+      "fullName": "Axar Patel",
+      "iplId": 17616,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F17616.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F17616.png&brand=ipl",
+      "photo": "media/players/2e171977.png"
+    },
+    "85b3fab2": {
+      "fullName": "Tristan Stubbs",
+      "iplId": 73364,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F73364.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F73364.png&brand=ipl",
+      "photo": "media/players/85b3fab2.png"
+    },
+    "84d9c311": {
+      "fullName": "Ashutosh Sharma",
+      "iplId": 67627,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F67627.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F67627.png&brand=ipl",
+      "photo": "media/players/84d9c311.png"
+    },
+    "5ffc0565": {
+      "fullName": "Vipraj Nigam",
+      "iplId": 86874,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F86874.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F86874.png&brand=ipl",
+      "photo": "media/players/5ffc0565.png"
+    },
+    "3fb19989": {
+      "fullName": "Mitchell Starc",
+      "iplId": 14328,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F14328.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F14328.png&brand=ipl",
+      "photo": "media/players/3fb19989.png"
+    },
+    "8d2c70ad": {
+      "fullName": "Kuldeep Yadav",
+      "iplId": 20030,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F20030.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F20030.png&brand=ipl",
+      "photo": "media/players/8d2c70ad.png"
+    },
+    "759ac88f": {
+      "fullName": "Mohit Sharma",
+      "iplId": 17612,
+      "season": null,
+      "team": "DC",
+      "source": "https://www.delhicapitals.in/players/63341-mohit-sharma-profile",
+      "imageUrl": "https://www.delhicapitals.in/static-assets/images/players/ipl/63341.png?v=2.65",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1396%2F17612.png&brand=ipl",
+      "photo": "media/players/759ac88f.png"
+    },
+    "51ec3919": {
+      "fullName": "Tripurana Vijay",
+      "iplId": 76128,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F76128.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F76128.png&brand=ipl",
+      "photo": "media/players/51ec3919.png"
+    },
+    "b5797845": {
+      "fullName": "Priyansh Arya",
+      "iplId": 75656,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F75656.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F75656.png&brand=ipl",
+      "photo": "media/players/b5797845.png"
+    },
+    "9418198b": {
+      "fullName": "Prabhsimran Singh",
+      "iplId": 68831,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F68831.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F68831.png&brand=ipl",
+      "photo": "media/players/9418198b.png"
+    },
+    "85ec8e33": {
+      "fullName": "Shreyas Iyer",
+      "iplId": 22014,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F22014.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F22014.png&brand=ipl",
+      "photo": "media/players/85ec8e33.png"
+    },
+    "8f6dd463": {
+      "fullName": "Azmatullah Omarzai",
+      "iplId": 66512,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F66512.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F66512.png&brand=ipl",
+      "photo": "media/players/8f6dd463.png"
+    },
+    "b681e71e": {
+      "fullName": "Glenn Maxwell",
+      "iplId": 12614,
+      "season": null,
+      "team": "PBKS",
+      "source": "https://www.punjabkingsipl.in/players/10085-glenn-maxwell-profile",
+      "imageUrl": "https://www.punjabkingsipl.in/static-assets/images/players/10085.png?v=6.68",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F2040%2F12614.png&brand=ipl",
+      "photo": "media/players/b681e71e.png"
+    },
+    "d9273ee7": {
+      "fullName": "Marcus Stoinis",
+      "iplId": 10925,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F10925.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F10925.png&brand=ipl",
+      "photo": "media/players/d9273ee7.png"
+    },
+    "26989d80": {
+      "fullName": "Shashank Singh",
+      "iplId": 34331,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F34331.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F34331.png&brand=ipl",
+      "photo": "media/players/26989d80.png"
+    },
+    "970ddd24": {
+      "fullName": "Suryansh Shedge",
+      "iplId": 78777,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F78777.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F78777.png&brand=ipl",
+      "photo": "media/players/970ddd24.png"
+    },
+    "81c36ee9": {
+      "fullName": "Marco Jansen",
+      "iplId": 68021,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F68021.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F68021.png&brand=ipl",
+      "photo": "media/players/81c36ee9.png"
+    },
+    "244048f6": {
+      "fullName": "Arshdeep Singh",
+      "iplId": 67190,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F67190.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F67190.png&brand=ipl",
+      "photo": "media/players/244048f6.png"
+    },
+    "57ee1fde": {
+      "fullName": "Yuzvendra Chahal",
+      "iplId": 14621,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F14621.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F14621.png&brand=ipl",
+      "photo": "media/players/57ee1fde.png"
+    },
+    "54e52590": {
+      "fullName": "Vijaykumar Vyshak",
+      "iplId": 74053,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F74053.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F74053.png&brand=ipl",
+      "photo": "media/players/54e52590.png"
+    },
+    "d5130a30": {
+      "fullName": "Sai Sudharsan",
+      "iplId": 74538,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F74538.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F74538.png&brand=ipl",
+      "photo": "media/players/d5130a30.png"
+    },
+    "b4b99816": {
+      "fullName": "Shubman Gill",
+      "iplId": 65345,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F65345.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F65345.png&brand=ipl",
+      "photo": "media/players/b4b99816.png"
+    },
+    "99b75528": {
+      "fullName": "Jos Buttler",
+      "iplId": 16261,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F16261.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F16261.png&brand=ipl",
+      "photo": "media/players/99b75528.png"
+    },
+    "d014d5ac": {
+      "fullName": "Sherfane Rutherford",
+      "iplId": 66048,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F66048.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F66048.png&brand=ipl",
+      "photo": "media/players/d014d5ac.png"
+    },
+    "39a2dfa8": {
+      "fullName": "Rahul Tewatia",
+      "iplId": 50536,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F50536.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F50536.png&brand=ipl",
+      "photo": "media/players/39a2dfa8.png"
+    },
+    "7dcb9bc9": {
+      "fullName": "Shahrukh Khan",
+      "iplId": 27214,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F27214.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F27214.png&brand=ipl",
+      "photo": "media/players/7dcb9bc9.png"
+    },
+    "12314277": {
+      "fullName": "Arshad Khan",
+      "iplId": 74055,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F74055.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F74055.png&brand=ipl",
+      "photo": "media/players/12314277.png"
+    },
+    "c7a995d3": {
+      "fullName": "Sai Kishore",
+      "iplId": 65783,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F65783.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F65783.png&brand=ipl",
+      "photo": "media/players/c7a995d3.png"
+    },
+    "5f547c8b": {
+      "fullName": "Rashid Khan",
+      "iplId": 25242,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F25242.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F25242.png&brand=ipl",
+      "photo": "media/players/5f547c8b.png"
+    },
+    "e62dd25d": {
+      "fullName": "Kagiso Rabada",
+      "iplId": 19720,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F19720.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F19720.png&brand=ipl",
+      "photo": "media/players/e62dd25d.png"
+    },
+    "2f49c897": {
+      "fullName": "Mohammed Siraj",
+      "iplId": 44904,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F44904.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F44904.png&brand=ipl",
+      "photo": "media/players/2f49c897.png"
+    },
+    "85e0cf10": {
+      "fullName": "Prasidh Krishna",
+      "iplId": 59553,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F59553.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F59553.png&brand=ipl",
+      "photo": "media/players/85e0cf10.png"
+    },
+    "a97c8ec2": {
+      "fullName": "Wanindu Hasaranga",
+      "iplId": 26489,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F26489.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F26489.png&brand=ipl",
+      "photo": "media/players/a97c8ec2.png"
+    },
+    "bb351c23": {
+      "fullName": "Moeen Ali",
+      "iplId": 15852,
+      "season": null,
+      "team": "KKR",
+      "source": "https://www.kkr.in/players/moeen-ali-profile-4688",
+      "imageUrl": "https://www.kkr.in/static-assets/images/players/4688.png?v=112.14",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1873%2F15852.png&brand=ipl",
+      "photo": "media/players/bb351c23.png"
+    },
+    "8e514b4c": {
+      "fullName": "Abdul Samad",
+      "iplId": 70433,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F70433.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F70433.png&brand=ipl",
+      "photo": "media/players/8e514b4c.png"
+    },
+    "eef2536f": {
+      "fullName": "Avesh Khan",
+      "iplId": 20223,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F20223.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F20223.png&brand=ipl",
+      "photo": "media/players/eef2536f.png"
+    },
+    "2e81a32d": {
+      "fullName": "Bhuvneshwar Kumar",
+      "iplId": 12690,
+      "season": 2026,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2138%252F12690.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F12690.png&brand=ipl",
+      "photo": "media/players/2e81a32d.png"
+    },
+    "64839cb3": {
+      "fullName": "Matheesha Pathirana",
+      "iplId": 72580,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F72580.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F72580.png&brand=ipl",
+      "photo": "media/players/64839cb3.png"
+    },
+    "e96801ea": {
+      "fullName": "Manoj Bhandage",
+      "iplId": 69468,
+      "season": 2025,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2025",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8502%252F2138%252F69468.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F2138%2F69468.png&brand=ipl",
+      "photo": "media/players/e96801ea.png"
+    },
+    "5bb1a1c4": {
+      "fullName": "Ishant Sharma",
+      "iplId": 17701,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F17701.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F17701.png&brand=ipl",
+      "photo": "media/players/5bb1a1c4.png"
+    },
+    "dbe50b21": {
+      "fullName": "Hardik Pandya",
+      "iplId": 16093,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F16093.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F16093.png&brand=ipl",
+      "photo": "media/players/dbe50b21.png"
+    },
+    "7d92277a": {
+      "fullName": "Mujeeb Ur Rahman",
+      "iplId": 66734,
+      "season": null,
+      "team": "MI",
+      "source": "https://acb.af/en-US/afghan-atalan",
+      "imageUrl": "https://api.acb.af/storage/media/cricket/teams/686a22698384a_1751786089.jpg",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1854%2F66734.png&brand=ipl",
+      "photo": "media/players/7d92277a.jpg"
+    },
+    "c96f6ac5": {
+      "fullName": "Wiaan Mulder",
+      "iplId": 20969,
+      "season": 2025,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2025",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8502%252F1153%252F20969.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1153%2F20969.png&brand=ipl",
+      "photo": "media/players/c96f6ac5.png"
+    },
+    "36619795": {
+      "fullName": "Zeeshan Ansari",
+      "iplId": 20236,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F20236.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F20236.png&brand=ipl",
+      "photo": "media/players/36619795.png"
+    },
+    "b17e2f24": {
+      "fullName": "KL Rahul",
+      "iplId": 20451,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F20451.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F20451.png&brand=ipl",
+      "photo": "media/players/b17e2f24.png"
+    },
+    "f6d8a7ab": {
+      "fullName": "Kumar Kartikeya",
+      "iplId": 68769,
+      "season": 2025,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2025",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8502%252F1558%252F68769.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1558%2F68769.png&brand=ipl",
+      "photo": "media/players/f6d8a7ab.png"
+    },
+    "0994d0ae": {
+      "fullName": "Vijay Shankar",
+      "iplId": 27213,
+      "season": null,
+      "team": "CSK",
+      "source": "https://www.gujarattitansipl.com/players/vijay-shankar-61738-profile",
+      "imageUrl": "https://www.gujarattitansipl.com/static-assets/images/players/61738.png?v=6.76",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1622%2F27213.png&brand=ipl",
+      "photo": "media/players/0994d0ae.png"
+    },
+    "59559bc2": {
+      "fullName": "Jamie Overton",
+      "iplId": 10301,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F10301.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F10301.png&brand=ipl",
+      "photo": "media/players/59559bc2.png"
+    },
+    "93b4fc78": {
+      "fullName": "Manish Pandey",
+      "iplId": 16935,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F16935.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F16935.png&brand=ipl",
+      "photo": "media/players/93b4fc78.png"
+    },
+    "d45c29b1": {
+      "fullName": "Ashwani Kumar",
+      "iplId": 72996,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F72996.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F72996.png&brand=ipl",
+      "photo": "media/players/d45c29b1.png"
+    },
+    "d1a60072": {
+      "fullName": "Nehal Wadhera",
+      "iplId": 68289,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F68289.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F68289.png&brand=ipl",
+      "photo": "media/players/d1a60072.png"
+    },
+    "2f9d0389": {
+      "fullName": "Lockie Ferguson",
+      "iplId": 20183,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F20183.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F20183.png&brand=ipl",
+      "photo": "media/players/2f9d0389.png"
+    },
+    "08548b13": {
+      "fullName": "Kamindu Mendis",
+      "iplId": 26488,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F26488.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F26488.png&brand=ipl",
+      "photo": "media/players/08548b13.png"
+    },
+    "e4cdf230": {
+      "fullName": "Anukul Roy",
+      "iplId": 65841,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F65841.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F65841.png&brand=ipl",
+      "photo": "media/players/e4cdf230.png"
+    },
+    "0a67aec0": {
+      "fullName": "Akash Deep",
+      "iplId": 70603,
+      "season": null,
+      "team": "KKR",
+      "source": "https://www.lucknowsupergiants.in/team/akash-deep-71447-profile",
+      "imageUrl": "https://www.lucknowsupergiants.in/static-assets/images/players/71447.png?v=14.12",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F70603.png&brand=ipl",
+      "photo": "media/players/0a67aec0.png"
+    },
+    "ba6b2f91": {
+      "fullName": "Raj Bawa",
+      "iplId": 76211,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F76211.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F76211.png&brand=ipl",
+      "photo": "media/players/ba6b2f91.png"
+    },
+    "172dff15": {
+      "fullName": "Corbin Bosch",
+      "iplId": 22181,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F22181.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F22181.png&brand=ipl",
+      "photo": "media/players/172dff15.png"
+    },
+    "df5a6881": {
+      "fullName": "Devon Conway",
+      "iplId": 21804,
+      "season": 2025,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2025",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8502%252F1622%252F21804.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1622%2F21804.png&brand=ipl",
+      "photo": "media/players/df5a6881.png"
+    },
+    "765a4731": {
+      "fullName": "Mukesh Choudhary",
+      "iplId": 70580,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F70580.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F70580.png&brand=ipl",
+      "photo": "media/players/765a4731.png"
+    },
+    "4885bbe6": {
+      "fullName": "Yudhvir Singh Charak",
+      "iplId": 72710,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F72710.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F72710.png&brand=ipl",
+      "photo": "media/players/4885bbe6.png"
+    },
+    "1e66c162": {
+      "fullName": "Jaydev Unadkat",
+      "iplId": 15271,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F15271.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F15271.png&brand=ipl",
+      "photo": "media/players/1e66c162.png"
+    },
+    "f19ccfad": {
+      "fullName": "Washington Sundar",
+      "iplId": 20226,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F20226.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F20226.png&brand=ipl",
+      "photo": "media/players/f19ccfad.png"
+    },
+    "462411b3": {
+      "fullName": "Jasprit Bumrah",
+      "iplId": 16096,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F16096.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F16096.png&brand=ipl",
+      "photo": "media/players/462411b3.png"
+    },
+    "4b31f3a3": {
+      "fullName": "Yash Thakur",
+      "iplId": 65344,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F65344.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F65344.png&brand=ipl",
+      "photo": "media/players/4b31f3a3.png"
+    },
+    "fa2f1dde": {
+      "fullName": "Kulwant Khejroliya",
+      "iplId": 65727,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F65727.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F65727.png&brand=ipl",
+      "photo": "media/players/fa2f1dde.png"
+    },
+    "fcc21ace": {
+      "fullName": "Anshul Kamboj",
+      "iplId": 70442,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F70442.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F70442.png&brand=ipl",
+      "photo": "media/players/fcc21ace.png"
+    },
+    "ebcfef83": {
+      "fullName": "Himmat Singh",
+      "iplId": 54303,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F54303.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F54303.png&brand=ipl",
+      "photo": "media/players/ebcfef83.png"
+    },
+    "5750bcb4": {
+      "fullName": "Eshan Malinga",
+      "iplId": 77440,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F77440.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F77440.png&brand=ipl",
+      "photo": "media/players/5750bcb4.png"
+    },
+    "ed5a5510": {
+      "fullName": "Praveen Dubey",
+      "iplId": 49784,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F49784.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F49784.png&brand=ipl",
+      "photo": "media/players/ed5a5510.png"
+    },
+    "119678fd": {
+      "fullName": "Karn Sharma",
+      "iplId": 20618,
+      "season": 2025,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2025",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8502%252F1854%252F20618.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1854%2F20618.png&brand=ipl",
+      "photo": "media/players/119678fd.png"
+    },
+    "944533a5": {
+      "fullName": "Karun Nair",
+      "iplId": 16936,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F16936.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F16936.png&brand=ipl",
+      "photo": "media/players/944533a5.png"
+    },
+    "cbf58a86": {
+      "fullName": "Shaik Rasheed",
+      "iplId": 76206,
+      "season": 2025,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2025",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8502%252F1622%252F76206.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1622%2F76206.png&brand=ipl",
+      "photo": "media/players/cbf58a86.png"
+    },
+    "989889ff": {
+      "fullName": "Josh Inglis",
+      "iplId": 37709,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F37709.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F37709.png&brand=ipl",
+      "photo": "media/players/989889ff.png"
+    },
+    "3b53243a": {
+      "fullName": "Xavier Bartlett",
+      "iplId": 55170,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F55170.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F55170.png&brand=ipl",
+      "photo": "media/players/3b53243a.png"
+    },
+    "acdc62f5": {
+      "fullName": "Anrich Nortje",
+      "iplId": 23659,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F23659.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F23659.png&brand=ipl",
+      "photo": "media/players/acdc62f5.png"
+    },
+    "2ed569a0": {
+      "fullName": "Rahul Chahar",
+      "iplId": 63511,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F63511.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F63511.png&brand=ipl",
+      "photo": "media/players/2ed569a0.png"
+    },
+    "c05edf8e": {
+      "fullName": "Harpreet Brar",
+      "iplId": 69782,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F69782.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F69782.png&brand=ipl",
+      "photo": "media/players/c05edf8e.png"
+    },
+    "f0af99a7": {
+      "fullName": "Donovan Ferreira",
+      "iplId": 68473,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F68473.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F68473.png&brand=ipl",
+      "photo": "media/players/f0af99a7.png"
+    },
+    "da934ee8": {
+      "fullName": "Mahipal Lomror",
+      "iplId": 20222,
+      "season": null,
+      "team": "MI",
+      "source": "https://www.gujarattitansipl.com/players/mahipal-lomror-65432-profile",
+      "imageUrl": "https://www.gujarattitansipl.com/static-assets/images/players/65432.png?v=6.76",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F20222.png&brand=ipl",
+      "photo": "media/players/da934ee8.png"
+    },
+    "470f446b": {
+      "fullName": "Vaibhav Sooryavanshi",
+      "iplId": 83313,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F83313.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F83313.png&brand=ipl",
+      "photo": "media/players/470f446b.png"
+    },
+    "c5aef772": {
+      "fullName": "Romario Shepherd",
+      "iplId": 58377,
+      "season": 2026,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2138%252F58377.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F58377.png&brand=ipl",
+      "photo": "media/players/c5aef772.png"
+    },
+    "b2b4f545": {
+      "fullName": "Ayush Mhatre",
+      "iplId": 86445,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F86445.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F86445.png&brand=ipl",
+      "photo": "media/players/b2b4f545.png"
+    },
+    "0bacade8": {
+      "fullName": "Rahmanullah Gurbaz",
+      "iplId": 67497,
+      "season": 2025,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2025",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8502%252F1873%252F67497.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1873%2F67497.png&brand=ipl",
+      "photo": "media/players/0bacade8.png"
+    },
+    "327b58d3": {
+      "fullName": "Dushmantha Chameera",
+      "iplId": 13294,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F13294.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F13294.png&brand=ipl",
+      "photo": "media/players/327b58d3.png"
+    },
+    "844e79d1": {
+      "fullName": "Dewald Brevis",
+      "iplId": 75144,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F75144.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F75144.png&brand=ipl",
+      "photo": "media/players/844e79d1.png"
+    },
+    "2cdce1be": {
+      "fullName": "Chetan Sakariya",
+      "iplId": 67822,
+      "season": null,
+      "team": "KKR",
+      "source": "https://www.kkr.in/players/chetan-sakariya-profile-68173",
+      "imageUrl": "https://www.kkr.in/static-assets/images/players/68173.png?v=112.14",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1873%2F67822.png&brand=ipl",
+      "photo": "media/players/2cdce1be.png"
+    },
+    "650d5e49": {
+      "fullName": "Rovman Powell",
+      "iplId": 20866,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F20866.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F20866.png&brand=ipl",
+      "photo": "media/players/650d5e49.png"
+    },
+    "b1ad996b": {
+      "fullName": "Mayank Yadav",
+      "iplId": 76160,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F76160.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F76160.png&brand=ipl",
+      "photo": "media/players/b1ad996b.png"
+    },
+    "3c55c703": {
+      "fullName": "Jacob Bethell",
+      "iplId": 73907,
+      "season": 2026,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2138%252F73907.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F73907.png&brand=ipl",
+      "photo": "media/players/3c55c703.png"
+    },
+    "62175638": {
+      "fullName": "Karim Janat",
+      "iplId": 42547,
+      "season": 2025,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2025",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8502%252F2879%252F42547.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F2879%2F42547.png&brand=ipl",
+      "photo": "media/players/62175638.png"
+    },
+    "4bd09374": {
+      "fullName": "Akash Madhwal",
+      "iplId": 72670,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F72670.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F72670.png&brand=ipl",
+      "photo": "media/players/4bd09374.png"
+    },
+    "3204c99f": {
+      "fullName": "Gerald Coetzee",
+      "iplId": 66452,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F66452.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F66452.png&brand=ipl",
+      "photo": "media/players/3204c99f.png"
+    },
+    "f834dcfc": {
+      "fullName": "Lungi Ngidi",
+      "iplId": 28230,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F28230.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F28230.png&brand=ipl",
+      "photo": "media/players/f834dcfc.png"
+    },
+    "e3851766": {
+      "fullName": "Kunal Rathore",
+      "iplId": 78776,
+      "season": 2025,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2025",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8502%252F1558%252F78776.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1558%2F78776.png&brand=ipl",
+      "photo": "media/players/e3851766.png"
+    },
+    "50c09020": {
+      "fullName": "Ashok Sharma",
+      "iplId": 76540,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F76540.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F76540.png&brand=ipl",
+      "photo": "media/players/50c09020.png"
+    },
+    "b483905d": {
+      "fullName": "Akash Singh",
+      "iplId": 69004,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F69004.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F69004.png&brand=ipl",
+      "photo": "media/players/b483905d.png"
+    },
+    "ce794613": {
+      "fullName": "Thangarasu Natarajan",
+      "iplId": 37001,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F37001.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F37001.png&brand=ipl",
+      "photo": "media/players/ce794613.png"
+    },
+    "dc9dd038": {
+      "fullName": "Sachin Baby",
+      "iplId": 18579,
+      "season": 2025,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2025",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8502%252F1153%252F18579.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1153%2F18579.png&brand=ipl",
+      "photo": "media/players/dc9dd038.png"
+    },
+    "cf59b3f0": {
+      "fullName": "Urvil Patel",
+      "iplId": 67543,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F67543.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F67543.png&brand=ipl",
+      "photo": "media/players/cf59b3f0.png"
+    },
+    "fb5f69e4": {
+      "fullName": "Madhav Tiwari",
+      "iplId": 87978,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F87978.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F87978.png&brand=ipl",
+      "photo": "media/players/fb5f69e4.png"
+    },
+    "f2c936d7": {
+      "fullName": "Mitch Owen",
+      "iplId": 73856,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F73856.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F73856.png&brand=ipl",
+      "photo": "media/players/f2c936d7.png"
+    },
+    "107c26fb": {
+      "fullName": "Kwena Maphaka",
+      "iplId": 76217,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F76217.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F76217.png&brand=ipl",
+      "photo": "media/players/107c26fb.png"
+    },
+    "0a8fce53": {
+      "fullName": "Mustafizur Rahman",
+      "iplId": 19402,
+      "season": null,
+      "team": "KKR",
+      "source": "https://www.delhicapitals.in/players/63881-mustafizur-rahman-profile",
+      "imageUrl": "https://www.delhicapitals.in/static-assets/images/players/ipl/63881.png?v=2.65",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F19402.png&brand=ipl",
+      "photo": "media/players/0a8fce53.png"
+    },
+    "cb9b8664": {
+      "fullName": "Will O'Rourke",
+      "iplId": 73001,
+      "season": 2025,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2025",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8502%252F2880%252F73001.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F2880%2F73001.png&brand=ipl",
+      "photo": "media/players/cb9b8664.png"
+    },
+    "1ac746c8": {
+      "fullName": "Atharva Taide",
+      "iplId": 68291,
+      "season": 2025,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2025",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8502%252F1153%252F68291.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1153%2F68291.png&brand=ipl",
+      "photo": "media/players/1ac746c8.png"
+    },
+    "25228673": {
+      "fullName": "Harsh Dubey",
+      "iplId": 74025,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F74025.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F74025.png&brand=ipl",
+      "photo": "media/players/25228673.png"
+    },
+    "00ea847a": {
+      "fullName": "Mayank Agarwal",
+      "iplId": 16946,
+      "season": 2025,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2025",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8502%252F2138%252F16946.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F2138%2F16946.png&brand=ipl",
+      "photo": "media/players/00ea847a.png"
+    },
+    "68c56d09": {
+      "fullName": "Kyle Jamieson",
+      "iplId": 33186,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F33186.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F33186.png&brand=ipl",
+      "photo": "media/players/68c56d09.png"
+    },
+    "35f173a0": {
+      "fullName": "Matthew Breetzke",
+      "iplId": 32332,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F32332.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F32332.png&brand=ipl",
+      "photo": "media/players/35f173a0.png"
+    },
+    "ee1b6c27": {
+      "fullName": "Nuwan Thushara",
+      "iplId": 51461,
+      "season": 2026,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2138%252F51461.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F51461.png&brand=ipl",
+      "photo": "media/players/ee1b6c27.png"
+    },
+    "d621b427": {
+      "fullName": "Musheer Khan",
+      "iplId": 79510,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F79510.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F79510.png&brand=ipl",
+      "photo": "media/players/d621b427.png"
+    },
+    "abb83e27": {
+      "fullName": "Jonny Bairstow",
+      "iplId": 13284,
+      "season": null,
+      "team": "MI",
+      "source": "https://www.punjabkingsipl.in/players/19394-jonny-bairstow-profile",
+      "imageUrl": "https://www.punjabkingsipl.in/static-assets/images/players/19394.png?v=6.68",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1854%2F13284.png&brand=ipl",
+      "photo": "media/players/abb83e27.png"
+    },
+    "402f8494": {
+      "fullName": "Richard Gleeson",
+      "iplId": 27711,
+      "season": null,
+      "team": "RCB",
+      "source": "https://www.royalchallengers.com/rcb-squad/richard-gleeson",
+      "imageUrl": "https://www.royalchallengers.com/PRRCB01/public/2026-05/Richard%20Gleeson.png",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F27711.png&brand=ipl",
+      "photo": "media/players/402f8494.png"
+    },
+    "5d1e7582": {
+      "fullName": "Kusal Mendis",
+      "iplId": 27001,
+      "season": null,
+      "team": "GT",
+      "source": "https://www.gujarattitansipl.com/players/kusal-mendis-63882-profile",
+      "imageUrl": "https://www.gujarattitansipl.com/static-assets/images/players/63882.png?v=6.76",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F2879%2F27001.png&brand=ipl",
+      "photo": "media/players/5d1e7582.png"
+    },
+    "8db7f47f": {
+      "fullName": "Reece Topley",
+      "iplId": 11258,
+      "season": 2025,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2025",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8502%252F1854%252F11258.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1854%2F11258.png&brand=ipl",
+      "photo": "media/players/8db7f47f.png"
+    },
+    "3c28853f": {
+      "fullName": "Sediq Atal",
+      "iplId": 72122,
+      "season": null,
+      "team": "DC",
+      "source": "https://www.delhicapitals.in/players/70227-sediqullah-atal-profile",
+      "imageUrl": "https://www.delhicapitals.in/static-assets/images/players/ipl/70227.png?v=2.65",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8502%2F1396%2F72122.png&brand=ipl",
+      "photo": "media/players/3c28853f.png"
+    },
+    "d7423da1": {
+      "fullName": "Salil Arora",
+      "iplId": 72140,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F72140.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F72140.png&brand=ipl",
+      "photo": "media/players/d7423da1.png"
+    },
+    "6c79c098": {
+      "fullName": "David Payne",
+      "iplId": 11256,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F11256.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F11256.png&brand=ipl",
+      "photo": "media/players/6c79c098.png"
+    },
+    "dadbdb68": {
+      "fullName": "Jacob Duffy",
+      "iplId": 15670,
+      "season": 2026,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2138%252F15670.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F15670.png&brand=ipl",
+      "photo": "media/players/dadbdb68.png"
+    },
+    "82c10dac": {
+      "fullName": "Abhinandan Singh",
+      "iplId": 86886,
+      "season": 2026,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2138%252F86886.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F86886.png&brand=ipl",
+      "photo": "media/players/82c10dac.png"
+    },
+    "5d2eea49": {
+      "fullName": "Kartik Tyagi",
+      "iplId": 66831,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F66831.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F66831.png&brand=ipl",
+      "photo": "media/players/5d2eea49.png"
+    },
+    "bf74b130": {
+      "fullName": "Finn Allen",
+      "iplId": 26170,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F26170.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F26170.png&brand=ipl",
+      "photo": "media/players/bf74b130.png"
+    },
+    "eaa76d3c": {
+      "fullName": "Cameron Green",
+      "iplId": 65397,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F65397.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F65397.png&brand=ipl",
+      "photo": "media/players/eaa76d3c.png"
+    },
+    "449f4e3c": {
+      "fullName": "Blessing Muzarabani",
+      "iplId": 66839,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F66839.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F66839.png&brand=ipl",
+      "photo": "media/players/449f4e3c.png"
+    },
+    "a9fd84fb": {
+      "fullName": "Mayank Markande",
+      "iplId": 67641,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F67641.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F67641.png&brand=ipl",
+      "photo": "media/players/a9fd84fb.png"
+    },
+    "9ca68676": {
+      "fullName": "AM Ghazanfar",
+      "iplId": 78206,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F78206.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F78206.png&brand=ipl",
+      "photo": "media/players/9ca68676.png"
+    },
+    "a90e53ec": {
+      "fullName": "Matt Short",
+      "iplId": 20067,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F20067.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F20067.png&brand=ipl",
+      "photo": "media/players/a90e53ec.png"
+    },
+    "f088b960": {
+      "fullName": "Sarfaraz Khan",
+      "iplId": 20224,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F20224.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F20224.png&brand=ipl",
+      "photo": "media/players/f088b960.png"
+    },
+    "7b679de5": {
+      "fullName": "Kartik Sharma",
+      "iplId": 87338,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F87338.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F87338.png&brand=ipl",
+      "photo": "media/players/7b679de5.png"
+    },
+    "e84ac20c": {
+      "fullName": "Matt Henry",
+      "iplId": 18052,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F18052.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F18052.png&brand=ipl",
+      "photo": "media/players/e84ac20c.png"
+    },
+    "465aa633": {
+      "fullName": "Nandre Burger",
+      "iplId": 52827,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F52827.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F52827.png&brand=ipl",
+      "photo": "media/players/465aa633.png"
+    },
+    "133bbd61": {
+      "fullName": "Brijesh Sharma",
+      "iplId": 90896,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F90896.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F90896.png&brand=ipl",
+      "photo": "media/players/133bbd61.png"
+    },
+    "9a46c4e5": {
+      "fullName": "Glenn Phillips",
+      "iplId": 26160,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F26160.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F26160.png&brand=ipl",
+      "photo": "media/players/9a46c4e5.png"
+    },
+    "fe366f34": {
+      "fullName": "Cooper Connolly",
+      "iplId": 73472,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F73472.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F73472.png&brand=ipl",
+      "photo": "media/players/fe366f34.png"
+    },
+    "1c84109e": {
+      "fullName": "Mukul Choudhary",
+      "iplId": 79805,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F79805.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F79805.png&brand=ipl",
+      "photo": "media/players/1c84109e.png"
+    },
+    "c33d8116": {
+      "fullName": "Mohsin Khan",
+      "iplId": 67617,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F67617.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F67617.png&brand=ipl",
+      "photo": "media/players/c33d8116.png"
+    },
+    "8ee36b18": {
+      "fullName": "Pathum Nissanka",
+      "iplId": 34256,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F34256.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F34256.png&brand=ipl",
+      "photo": "media/players/8ee36b18.png"
+    },
+    "7b44eb3e": {
+      "fullName": "Shivang Kumar",
+      "iplId": 90837,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F90837.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F90837.png&brand=ipl",
+      "photo": "media/players/7b44eb3e.png"
+    },
+    "e148e6bd": {
+      "fullName": "Prashant Veer",
+      "iplId": 82907,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F82907.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F82907.png&brand=ipl",
+      "photo": "media/players/e148e6bd.png"
+    },
+    "57ca01b3": {
+      "fullName": "Kumar Kushagra",
+      "iplId": 72805,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F72805.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F72805.png&brand=ipl",
+      "photo": "media/players/57ca01b3.png"
+    },
+    "21d4e29b": {
+      "fullName": "Navdeep Saini",
+      "iplId": 16790,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F16790.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F16790.png&brand=ipl",
+      "photo": "media/players/21d4e29b.png"
+    },
+    "4d7f517e": {
+      "fullName": "Akeal Hosein",
+      "iplId": 24868,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F24868.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F24868.png&brand=ipl",
+      "photo": "media/players/4d7f517e.png"
+    },
+    "cc61ee8f": {
+      "fullName": "Gurjapneet Singh",
+      "iplId": 74631,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F74631.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F74631.png&brand=ipl",
+      "photo": "media/players/cc61ee8f.png"
+    },
+    "7c3c0337": {
+      "fullName": "Auqib Nabi",
+      "iplId": 68788,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F68788.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F68788.png&brand=ipl",
+      "photo": "media/players/7c3c0337.png"
+    },
+    "e5437608": {
+      "fullName": "George Linde",
+      "iplId": 20680,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F20680.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F20680.png&brand=ipl",
+      "photo": "media/players/e5437608.png"
+    },
+    "280fff14": {
+      "fullName": "Sakib Hussain",
+      "iplId": 78832,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F78832.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F78832.png&brand=ipl",
+      "photo": "media/players/280fff14.png"
+    },
+    "ece7b6b3": {
+      "fullName": "Praful Hinge",
+      "iplId": 87731,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F87731.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F87731.png&brand=ipl",
+      "photo": "media/players/ece7b6b3.png"
+    },
+    "60aa2db3": {
+      "fullName": "Lhuan-dr\u00e9 Pretorius",
+      "iplId": 81719,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F81719.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F81719.png&brand=ipl",
+      "photo": "media/players/60aa2db3.png"
+    },
+    "2b801189": {
+      "fullName": "Mayank Rawat",
+      "iplId": 65550,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F65550.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F65550.png&brand=ipl",
+      "photo": "media/players/2b801189.png"
+    },
+    "4663bd23": {
+      "fullName": "Tim Seifert",
+      "iplId": 20009,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F20009.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F20009.png&brand=ipl",
+      "photo": "media/players/4663bd23.png"
+    },
+    "02dfebbe": {
+      "fullName": "Yash Punja",
+      "iplId": 92045,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F92045.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F92045.png&brand=ipl",
+      "photo": "media/players/02dfebbe.png"
+    },
+    "9e6032fa": {
+      "fullName": "Danish Malewar",
+      "iplId": 87528,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F87528.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F87528.png&brand=ipl",
+      "photo": "media/players/9e6032fa.png"
+    },
+    "e48a4814": {
+      "fullName": "Krish Bhagat",
+      "iplId": 87066,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F87066.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F87066.png&brand=ipl",
+      "photo": "media/players/e48a4814.png"
+    },
+    "de7d833e": {
+      "fullName": "Dilshan Madushanka",
+      "iplId": 69841,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F69841.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F69841.png&brand=ipl",
+      "photo": "media/players/de7d833e.png"
+    },
+    "548516a6": {
+      "fullName": "Ravi Singh",
+      "iplId": 86608,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F86608.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F86608.png&brand=ipl",
+      "photo": "media/players/548516a6.png"
+    },
+    "0f721006": {
+      "fullName": "Jason Holder",
+      "iplId": 12693,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F12693.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F12693.png&brand=ipl",
+      "photo": "media/players/0f721006.png"
+    },
+    "025c4400": {
+      "fullName": "Manav Suthar",
+      "iplId": 70453,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F70453.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F70453.png&brand=ipl",
+      "photo": "media/players/025c4400.png"
+    },
+    "926c7443": {
+      "fullName": "Sahil Parakh",
+      "iplId": 86350,
+      "season": 2026,
+      "team": "DC",
+      "source": "https://www.iplt20.com/teams/delhi-capitals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1396%252F86350.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1396%2F86350.png&brand=ipl",
+      "photo": "media/players/926c7443.png"
+    },
+    "3ff033bb": {
+      "fullName": "Dasun Shanaka",
+      "iplId": 16094,
+      "season": null,
+      "team": "RR",
+      "source": "https://www.rajasthanroyals.com/rr-players/dasun-shanaka-ipl-profile-59067",
+      "imageUrl": "https://www.rajasthanroyals.com/static-assets/images/players/59067.png?v=7.95",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F16094.png&brand=ipl",
+      "photo": "media/players/3ff033bb.png"
+    },
+    "5b615e7c": {
+      "fullName": "Raghu Sharma",
+      "iplId": 66897,
+      "season": 2026,
+      "team": "MI",
+      "source": "https://www.iplt20.com/teams/mumbai-indians/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1854%252F66897.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1854%2F66897.png&brand=ipl",
+      "photo": "media/players/5b615e7c.png"
+    },
+    "dee07622": {
+      "fullName": "Ramakrishna Ghosh",
+      "iplId": 78758,
+      "season": 2026,
+      "team": "CSK",
+      "source": "https://www.iplt20.com/teams/chennai-super-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1622%252F78758.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1622%2F78758.png&brand=ipl",
+      "photo": "media/players/dee07622.png"
+    },
+    "c1e53c3f": {
+      "fullName": "Ravichandran Smaran",
+      "iplId": 83039,
+      "season": 2026,
+      "team": "SRH",
+      "source": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1153%252F83039.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1153%2F83039.png&brand=ipl",
+      "photo": "media/players/c1e53c3f.png"
+    },
+    "3cea23da": {
+      "fullName": "Nishant Sindhu",
+      "iplId": 76212,
+      "season": 2026,
+      "team": "GT",
+      "source": "https://www.iplt20.com/teams/gujarat-titans/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2879%252F76212.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2879%2F76212.png&brand=ipl",
+      "photo": "media/players/3cea23da.png"
+    },
+    "d8d67045": {
+      "fullName": "Akshat Raghuwanshi",
+      "iplId": 76593,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F76593.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F76593.png&brand=ipl",
+      "photo": "media/players/d8d67045.png"
+    },
+    "2d140b79": {
+      "fullName": "Arshin Kulkarni",
+      "iplId": 82909,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F82909.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F82909.png&brand=ipl",
+      "photo": "media/players/2d140b79.png"
+    },
+    "e1b9f3a9": {
+      "fullName": "Ben Dwarshuis",
+      "iplId": 46139,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F46139.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F46139.png&brand=ipl",
+      "photo": "media/players/e1b9f3a9.png"
+    },
+    "11061889": {
+      "fullName": "Saurabh Dubey",
+      "iplId": 72721,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F72721.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F72721.png&brand=ipl",
+      "photo": "media/players/11061889.png"
+    },
+    "0494fa6e": {
+      "fullName": "Vishnu Vinod",
+      "iplId": 34672,
+      "season": 2026,
+      "team": "PBKS",
+      "source": "https://www.iplt20.com/teams/punjab-kings/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2040%252F34672.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2040%2F34672.png&brand=ipl",
+      "photo": "media/players/0494fa6e.png"
+    },
+    "350bb1b1": {
+      "fullName": "Adam Milne",
+      "iplId": 20007,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F20007.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F20007.png&brand=ipl",
+      "photo": "media/players/350bb1b1.png"
+    },
+    "92500ad5": {
+      "fullName": "Sushant Mishra",
+      "iplId": 71452,
+      "season": 2026,
+      "team": "RR",
+      "source": "https://www.iplt20.com/teams/rajasthan-royals/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1558%252F71452.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1558%2F71452.png&brand=ipl",
+      "photo": "media/players/92500ad5.png"
+    },
+    "f12fe2a1": {
+      "fullName": "Tejasvi Dahiya",
+      "iplId": 86769,
+      "season": 2026,
+      "team": "KKR",
+      "source": "https://www.iplt20.com/teams/kolkata-knight-riders/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F1873%252F86769.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F1873%2F86769.png&brand=ipl",
+      "photo": "media/players/f12fe2a1.png"
+    },
+    "ff154ecd": {
+      "fullName": "Jordan Cox",
+      "iplId": 69894,
+      "season": 2026,
+      "team": "RCB",
+      "source": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2138%252F69894.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2138%2F69894.png&brand=ipl",
+      "photo": "media/players/ff154ecd.png"
+    },
+    "44aac2f0": {
+      "fullName": "Arjun Tendulkar",
+      "iplId": 68286,
+      "season": 2026,
+      "team": "LSG",
+      "source": "https://www.iplt20.com/teams/lucknow-super-giants/squad?season=2026",
+      "imageUrl": "https://www.iplt20.com/_next/image?url=%2Fapi%2Fteam-assets%3Fpathname%3Dplayer%252F8903%252F2880%252F68286.png%26brand%3Dipl&w=384&q=75",
+      "originalImageUrl": "https://www.iplt20.com/api/team-assets?pathname=player%2F8903%2F2880%2F68286.png&brand=ipl",
+      "photo": "media/players/44aac2f0.png"
+    }
+  },
+  "teams": {
+    "CSK": {
+      "logo": "media/teams/CSK.svg",
+      "imageUrl": "https://www.iplt20.com/api/team-assets?pathname=static%2Fteams%2F1622%2Ficon-light.svg"
+    },
+    "DC": {
+      "logo": "media/teams/DC.svg",
+      "imageUrl": "https://www.iplt20.com/api/team-assets?pathname=static%2Fteams%2F1396%2Ficon-light.svg"
+    },
+    "GT": {
+      "logo": "media/teams/GT.svg",
+      "imageUrl": "https://www.iplt20.com/api/team-assets?pathname=static%2Fteams%2F2879%2Ficon-light.svg"
+    },
+    "KKR": {
+      "logo": "media/teams/KKR.svg",
+      "imageUrl": "https://www.iplt20.com/api/team-assets?pathname=static%2Fteams%2F1873%2Ficon-light.svg"
+    },
+    "LSG": {
+      "logo": "media/teams/LSG.svg",
+      "imageUrl": "https://www.iplt20.com/api/team-assets?pathname=static%2Fteams%2F2880%2Ficon-light.svg"
+    },
+    "MI": {
+      "logo": "media/teams/MI.svg",
+      "imageUrl": "https://www.iplt20.com/api/team-assets?pathname=static%2Fteams%2F1854%2Ficon-light.svg"
+    },
+    "PBKS": {
+      "logo": "media/teams/PBKS.svg",
+      "imageUrl": "https://www.iplt20.com/api/team-assets?pathname=static%2Fteams%2F2040%2Ficon-light.svg"
+    },
+    "RR": {
+      "logo": "media/teams/RR.svg",
+      "imageUrl": "https://www.iplt20.com/api/team-assets?pathname=static%2Fteams%2F1558%2Ficon-light.svg"
+    },
+    "RCB": {
+      "logo": "media/teams/RCB.svg",
+      "imageUrl": "https://www.iplt20.com/api/team-assets?pathname=static%2Fteams%2F2138%2Ficon-light.svg"
+    },
+    "SRH": {
+      "logo": "media/teams/SRH.svg",
+      "imageUrl": "https://www.iplt20.com/api/team-assets?pathname=static%2Fteams%2F1153%2Ficon-light.svg"
+    }
+  }
+}

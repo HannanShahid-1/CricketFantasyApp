@@ -43,7 +43,7 @@ export function DraftRoom() {
     if (taken.has(p.idx)) return false
     if (role === 'AR' ? !(p.role === 'ARB' || p.role === 'ARW') : role !== 'ALL' && p.role !== role) return false
     if (team !== 'ALL' && p.team !== team) return false
-    if (q && !p.name.toLowerCase().includes(q.toLowerCase())) return false
+    if (q && !`${p.name} ${p.fullName} ${p.rawName}`.toLowerCase().includes(q.toLowerCase())) return false
     return true
   })
 
