@@ -1,6 +1,9 @@
-import { ArrowLeftRight, Plus, Trash2 } from 'lucide-react'
+import { ArrowLeftRight, ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react'
 import { Fragment, useState } from 'react'
-import { ROLE_NAME, restOfSeason, seasonToDate } from '../../engine/data'
+import { ROLE_NAME, ROLE_LABEL, matchProjection, seasonToDate } from '../../engine/data'
+import { playerOwnership, playerRanks, playerReports, playerSeasonStats } from '../../engine/playerInsights'
+import { fantasyAdvice } from '../../engine/fantasyAdvice'
+import { scoutingProfile } from '../../engine/playerProfile'
 import { playerAge } from '../../engine/playerAge'
 import { addMode, currentWeek, isLocked, rosteredBy, weekMatches } from '../../engine/league'
 import { batLine, bowlLine, fieldLine, fmt } from '../../engine/scoring'
@@ -14,6 +17,7 @@ export function PlayerModal({ pid }: { pid: number }) {
   const d = getData()
   const league = useApp((s) => s.league)
   const { openPlayer, openAdd, openTrade, drop, notify, openMatch } = useApp(useShallow((s) => ({ openPlayer: s.openPlayer, openAdd: s.openAdd, openTrade: s.openTrade, drop: s.drop, notify: s.notify, openMatch: s.openMatch })))
+  const [selectedWeek, setSelectedWeek] = useState<number | null>(null)
   const [open, setOpen] = useState<number | null>(null)
   const p = d.players[pid]
   const played = league?.phase === 'draft' || !league ? 0 : league.played
@@ -25,10 +29,18 @@ export function PlayerModal({ pid }: { pid: number }) {
   const age = p.bio ? playerAge(p.bio.birthDate) : null
   const close = () => openPlayer(null)
 
-  // rank among same role this season (none until he has played)
-  const rank = s.apps ? 1 + d.pool.filter((x) => x.role === p.role && seasonToDate(x, played).pts > s.pts).length : 0
+  const ranks = playerRanks(d, p, played)
+  const ownership = playerOwnership(league, pid)
+  const stats = playerSeasonStats(d, p, played)
+  const reports = playerReports(d, p, played, league?.teams.length ?? 8)
+  const profile = scoutingProfile(d, p, played)
+  const advice = fantasyAdvice(d, p, played, league?.teams.length ?? 8)
   const week = league?.phase === 'season' ? currentWeek(d, league) : null
+  const displayWeek = selectedWeek ?? week ?? d.gameweeks.at(-1)?.gw ?? 1
   const weekMis = week !== null ? weekMatches(d, pid, week) : []
+  const displayMis = weekMatches(d, pid, displayWeek)
+  const displayGw = d.gameweeks.find((g) => g.gw === displayWeek)
+  const avg = s.apps ? s.avg : null
 
   const allMis = d.teamMis[p.team] ?? []
   const inSeason = league && league.phase !== 'draft'
@@ -121,32 +133,79 @@ export function PlayerModal({ pid }: { pid: number }) {
             <MatchPicker pid={pid} />
           </div>
         )}
-        <div className="tiles" style={{ marginBottom: 18 }}>
-          <div className="tile">
-            <div className="v turf">{fmt(s.pts, 1)}</div>
-            <div className="k">Season pts</div>
+        <section className="player-section">
+          <div className="player-metrics">
+            <div><h3>Player rank · {ranks.season}</h3><div className="player-metric-pair">
+              <div><strong>{ranks.role ? `#${ranks.role}` : '—'}</strong><span>{ROLE_LABEL[p.role]}</span></div>
+              <div><strong>{ranks.overall ? `#${ranks.overall}` : '—'}</strong><span>Overall</span></div>
+            </div></div>
+            <div><h3>Ownership · this league</h3><div className="player-metric-pair">
+              <div><strong>{ownership.rostered === null ? '—' : `${ownership.rostered}%`}</strong><span>Rostered</span></div>
+              <div><strong>{ownership.started === null ? '—' : `${ownership.started}%`}</strong><span>Started</span></div>
+            </div></div>
+            <div><h3>FPTS / game · {d.raw.simSeason}</h3><div className="player-metric-pair"><div><strong>{avg === null ? '—' : fmt(avg, 1)}</strong><span>{s.apps} appearances</span></div></div></div>
           </div>
-          <div className="tile">
-            <div className="v">{s.apps ? fmt(s.avg, 1) : '–'}</div>
-            <div className="k">Pts / match</div>
+          <p className="player-footnote">Ranks use total FPTS within each primary role and overall; ties share a rank. Ownership is 0% or 100% in this single league, not across the platform.</p>
+        </section>
+
+        <section className="player-section">
+          <h3 className="up dim">Season stats · {stats.season}</h3>
+          <dl className="player-stat-strip">
+            <div><dt>Matches</dt><dd>{stats.apps}</dd></div>
+            {stats.stats.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
+            <div><dt>Total FPTS</dt><dd>{fmt(s.pts, 1)}</dd></div>
+          </dl>
+          <p className="player-footnote">Cricsheet match stats · all appearances. Fantasy FPTS include batting, bowling, fielding and appearance points.</p>
+        </section>
+
+        <section className="player-section">
+          <div className="row" style={{ justifyContent: 'space-between', gap: 10 }}>
+            <h3 className="up dim">FPTS projections <span className="player-experimental">Rough estimates</span></h3>
+            <div className="row" style={{ gap: 8 }}>
+              <button aria-label="Previous projection week" className="btn xs ghost" disabled={displayWeek <= 1} onClick={() => setSelectedWeek(displayWeek - 1)}><ChevronLeft size={17} /></button>
+              <div className="player-week-title">{weekLabel(displayWeek)}<small>{displayGw ? `${fmtDate(displayGw.start)} – ${fmtDate(displayGw.end)}` : ''}</small></div>
+              <button aria-label="Next projection week" className="btn xs ghost" disabled={displayWeek >= d.gameweeks.length} onClick={() => setSelectedWeek(displayWeek + 1)}><ChevronRight size={17} /></button>
+            </div>
           </div>
-          <div className="tile">
-            <div className="v">{s.apps}</div>
-            <div className="k">Matches</div>
+          <div className="player-projection-grid">
+            {displayMis.length ? displayMis.map((mi) => {
+              const m = d.matches[mi], done = mi < played, g = p.games.get(mi)
+              const forecast = matchProjection(d, p, mi, Math.min(played, mi))
+              return <article className="player-projection" key={mi}>
+                <div className="row" style={{ justifyContent: 'center', gap: 6 }}><span>vs</span><TeamChip code={forecast.opponent} /></div>
+                <div className="player-projection-box">
+                  <div><span>PROJ</span><strong>{fmt(forecast.total, 1)}</strong></div>
+                  <small>{fmtDate(m.raw.date)} · {m.raw.time}</small>
+                  <details className="fixture-forecast-details"><summary>Why this forecast?</summary>
+                    <div><span>Player baseline</span><strong>{fmt(forecast.base * forecast.chance, 2)}</strong></div>
+                    {forecast.components.map((c) => <div key={c.label}><span>{c.label}</span><strong>{c.points >= 0 ? '+' : ''}{fmt(c.points, 2)}</strong></div>)}
+                    <p>{Math.round(forecast.chance * 100)}% estimated playing probability, already included. {forecast.venueSamples} earlier role appearances at this venue; {forecast.opponentSamples} against this opponent. Small samples are discounted.</p>
+                  </details>
+                  <div className={done ? 'turf' : 'dim'}><span>FPTS</span><strong>{done ? g ? fmt(g.pts.total, 1) : 'DNP' : '—'}</strong></div>
+                </div>
+              </article>
+            }) : <p className="dim">No match scheduled this week.</p>}
           </div>
-          <div className="tile">
-            <div className="v">{rank ? `#${rank}` : '–'}</div>
-            <div className="k">Rank at role</div>
+          <details className="player-model"><summary>How these projections work</summary><p>Player history and estimated availability, with fixture-specific adjustments for venue, opponent results against the same role, recent form and batting/bowling workload. These rough estimates use fixed, conservative weights for the historical signals. Small samples are discounted, and the combined change is capped at ±25%. Upcoming opponents’ XIs, injuries and individual batter–bowler matchups are not known. This is a rough matchup estimate, not a calibrated prediction. It is not proven more accurate than the simpler player-average model. These are estimates, not guaranteed scores. Identical estimates can still occur when evidence is similar or missing.</p><p>Past projections are reconstructed using only results available before that match; future-week forecasts update as the replay progresses. Only your selected match counts toward the weekly team score. No location is inferred from fixture order, so opponents are shown as “vs”.</p></details>
+        </section>
+
+        <section className="player-section">
+          <h3 className="up dim">Player updates</h3>
+          <p className="player-footnote">Automated summaries · Cricsheet match data · replay, not live news.</p>
+          <div className="player-scout">
+            <div className="player-report-meta">Scouting profile · {profile.sampleSize} known appearances{profile.limited ? ' · Limited history' : ''}</div>
+            <strong>{profile.identity}</strong>
+            <div className="row wrap" style={{ gap: 6, marginTop: 10 }}><span className="chip turf">{advice.recommendation}</span>{advice.tier && <span className="chip">{advice.tier}</span>}</div>
+            <p>{advice.opinion}</p>
+            <details><summary>What this is based on</summary><p>{advice.explanation}</p><ul>{profile.evidence.length ? profile.evidence.map((fact) => <li key={fact}>{fact}</li>) : <li>No earlier appearances available.</li>}</ul><p>Usage is inferred from completed deliveries, not an official position label. First ball faced does not establish exact batting order; bowling phases refer to overs 1–6 and 17–20. No upcoming XI, injury or selection news is inferred.</p></details>
           </div>
-          <div className="tile">
-            <div className="v">{fmt(restOfSeason(d, p, played), 0)}</div>
-            <div className="k">ROS projection</div>
-          </div>
-          <div className="tile">
-            <div className="v">{p.s25.apps ? fmt(p.s25.avg, 1) : '–'}</div>
-            <div className="k">{Number(d.raw.simSeason) - 1} avg ({p.s25.apps} GP)</div>
-          </div>
-        </div>
+          <div className="player-reports">{reports.map((r) => <article className="player-report" key={r.key}>
+            <div className="player-report-meta">{r.kind} · {fmtDate(r.date)} · {r.kind === 'Preview' ? 'As of the replay clock' : 'Final scorecard'}</div>
+            <h4>{r.title}</h4><p>{r.summary}</p>
+            <div className="player-report-analysis"><strong>Fantasy outlook: </strong>{r.analysis}</div>
+            {r.kind === 'Recap' && <button className="btn xs ghost" onClick={() => { close(); openMatch(r.mi) }}>Source scorecard →</button>}
+          </article>)}</div>
+        </section>
 
         <div className="up dim" style={{ marginBottom: 8 }}>Game log · IPL {d.raw.simSeason}</div>
         <div className="card" style={{ overflow: 'hidden' }}>
@@ -159,7 +218,7 @@ export function PlayerModal({ pid }: { pid: number }) {
                 <th>Batting</th>
                 <th>Bowling</th>
                 <th>Fielding</th>
-                <th className="n">Pts</th>
+                <th className="n">FPTS</th>
               </tr>
             </thead>
             <tbody>

@@ -1,6 +1,6 @@
 // League engine: pure-ish functions that mutate a League object (callers pass a fresh copy).
 import {
-  availability, perMatchProj, restOfSeason,
+  matchProjection, restOfSeason,
   type Data, type Player,
 } from './data'
 import type { SlotType } from './types'
@@ -418,7 +418,7 @@ export function playerWeek(
     const banked = pl.games.get(mi)?.pts.total ?? 0
     return { mi, banked, remaining: 0, total: banked }
   }
-  const remaining = perMatchProj(d, pl, played) * availability(d, pl, played)
+  const remaining = matchProjection(d, pl, mi, played).total
   return { mi, banked: 0, remaining, total: remaining }
 }
 
@@ -579,7 +579,7 @@ function endWeek(d: Data, l: League, week: number) {
       if (p === null || mi === null) return
       const pl = d.players[p]
       s += pl.games.get(mi)?.pts.total ?? 0
-      pj += perMatchProj(d, pl, firstMi) * availability(d, pl, firstMi)
+      pj += matchProjection(d, pl, mi, firstMi).total
     })
     scores[t.id] = Math.round(s * 100) / 100
     proj[t.id] = Math.round(pj * 100) / 100

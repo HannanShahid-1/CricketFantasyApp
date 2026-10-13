@@ -394,3 +394,100 @@ because the data version changes.
 - Reactions need a mouse (hover); not available at phone width yet. No chat during the draft.
 - Commissioner tools are minimal: approve/veto trades only; no settings screen yet.
 - Historical replay only; no live feed. See [ROADMAP.md](ROADMAP.md).
+
+
+### Player research cards and forecast audit
+
+`engine/playerInsights.ts` supplies primary-role/overall ranks (total FPTS, competition ties),
+role-specific season aggregates and deterministic pre-match/post-match reports. Ranks use the current
+season once any pool player has appeared; a player with no appearances is unranked. Before the season,
+ranks are unassigned. Stats, totals and FPTS/game always refer to the simulation season; totals start at zero
+and averages/ranks remain blank until data exists. Historical data is used only for projections and scouting.
+Batting average = runs/dismissals; strike rate = runs/balls × 100; economy = conceded/legal balls × 6;
+bowling average = conceded/wickets. Zero denominators display an em dash.
+Ownership describes this local league: 100% if owned/started anywhere, otherwise 0%; no global percentages
+are fabricated. Weekly cards show each fixture's forecast above actual total FPTS (DNP separately).
+The existing one-match selector and scoring rules are unchanged. Match times retain the schedule's time convention.
+
+`matchProjection` reconstructs forecasts with cutoff=min(replay clock, target match index), using prior-season
+history and completed results only. Target/future XIs and deliveries are never consulted. Historical projections
+are reconstructions, not persisted forecasts. A candidate personal opponent-history adjustment (20-appearance
+shrinkage, capped ±8%) was evaluated walk-forward over 2,828 player/fixture cases, including DNPs:
+baseline MAE 6.642 FPTS; candidate 6.647 FPTS. It did not improve error, so it is disabled.
+Mean actual 6.938 vs baseline forecast 7.128 across all roster candidates, not just starters. This is one-season
+validation, not proof of accuracy across future seasons or individual roles. There is no opposition-XI,
+batter-v-bowler, weather, injury or pitch adjustment. Do not add arbitrary boosts to make fixtures differ.
+Reports use confirmed historical stat lines; they do not invent injuries, selection reasons or external reporting.
+They are labeled automated summaries, not LLM output. Tests cover leakage, walk-forward forecast evaluation,
+rank/fallback semantics and report chronology. No external AI key or service is required.
+
+### Individual scouting profiles
+
+`engine/playerProfile.ts` derives a profile for every pool player from earlier appearances only. It caches
+per-match observations per Data instance, then applies the replay cutoff when selecting evidence. The latest
+up-to-eight appearances determine usage (current-season-only once three are available); all earlier appearances
+establish personal FPTS average/median and variability. Form compares the last three current-season appearances
+with at least five earlier appearances. Fewer than five total games is explicitly labeled limited history.
+
+Batting usage uses the over of the first recorded ball faced, not an assumed batting order: early = overs 1–2,
+late = over 13 onward, otherwise middle, with at least three batting appearances and 60% agreement for early/late. A substantial batting workload is
+required (at least 6 balls per batting appearance, 10 for a primary BOWL player), so tail-end cameos do not
+mislabel a specialist bowler as an all-rounder. Regular bowling requires at least one over per appearance.
+Bowling usage uses shares of legal balls in overs 1–6 and 17–20; these are fixed T20 phase proxies, not confirmed
+powerplay boundaries in shortened games. No inferred label changes the player's fantasy role or eligibility.
+
+Previews include observed usage, personal standards, form and variability. Recaps describe the actual stat line,
+compare FPTS to the pre-match personal standard, and discuss observed workload/strike rate/economy. Recap analysis
+is frozen at its own match-end cutoff, so later results cannot rewrite the historical outlook. Selection,
+fitness, injuries and exact batting order are not inferred. This is deterministic, fact-based prose, not an LLM
+service. Tests cover every player, established batter/bowler examples, own-standard comparisons, sparse samples,
+future-information exclusion and stability of past reports. No paid data or AI service is needed for this feature.
+
+
+### Matchup-aware rough estimates (supersedes the initial opponent candidate above)
+
+`engine/matchupForecast.ts` supplies five contextual signals: shrunk role-specific venue/opponent historical
+residuals, recent fantasy form, batting workload and bowling workload. Venue/opponent context uses residuals
+from the player's baseline rather than raw scores; 20 neutral appearances shrink sparse groups. Form/workload
+requires five earlier appearances. All inference snapshots exclude the target match and unreplayed matches.
+No future XI, delivery, result, weather, injury, toss or individual batter–bowler input is used. Fixed player
+roles/roster membership come from the existing dataset and remain a prototype limitation.
+
+The default is the user's requested rough-estimate preset, using fixed signal weights
+[venue=.65, opponent=.65, form=.45, batting workload=.25, bowling workload=.25], not learned confidence values.
+The combined change is capped at ±25% of the per-appearance baseline, then availability is applied. There is
+no random variation or minimum gap between fixtures. Similar/missing evidence can legitimately produce similar
+numbers. “Why this forecast?” reconciles the baseline plus capped, availability-adjusted contributions with the
+total and shows source context counts and estimated playing probability.
+
+A prior-season-only ridge reference (penalty=50) is retained via `matchupAdjustment`'s optional learned mode.
+Its out-of-season walk-forward MAE was 6.639574 vs baseline 6.641946 FPTS: effectively negligible improvement.
+The default rough preset, chosen following the user's request for heuristic estimates, was separately checked
+on 2,828 candidate/fixture cases including DNPs: MAE 6.569751; actual mean 6.937677 vs forecast mean 6.916747.
+First 35 matches: baseline 6.579332 vs rough 6.519843; last 35: 6.704559 vs 6.619660. These are correlated
+samples from one already-inspected season, not a pristine final holdout or proof of future superiority. UI calls
+them rough estimates and makes no accuracy guarantee. Do not tune weights to create cosmetic point gaps.
+
+`matchProjection` is shared by the player card, preview/recap estimates, live `playerWeek`, weekly frozen
+projections and generic ROS player values. Weekly frozen estimates retain their existing week-start cutoff;
+card historical projections reconstruct match-start estimates. Generic ROS assumes one first remaining fixture
+per week; selected roster fixtures are handled by `playerWeek`. Actual scoring and lock-in rules are unchanged.
+Tests cover no future leakage, sparse venues, bounded finite predictions, fixture differences, contribution
+arithmetic and selected-fixture integration, alongside full-season rule regressions.
+
+
+### Fantasy opinions and position tiers
+
+`engine/fantasyAdvice.ts` adds explicit, labeled editorial recommendations to scouting cards and reports.
+Established players (5+ known appearances) get primary-role tiers based on availability-adjusted baseline
+expected FPTS: one league's worth of players per tier (top 8 WK are WK1 in an 8-team league; next 8 WK2).
+These are not season-total ranks or official classifications. Starter recommendations consider eligible-slot
+competition (1 WK / 4 BAT / 4 BOWL per team) and playing probability; FLEX competition is not modeled. Rough
+heuristic thresholds are disclosed in code. A missed most-recent team fixture or below 55% estimated playing chance is “Wait for XI”; sparse history
+is “Unproven,” without a tier. No actual lineup action is performed.
+
+Previews give a start/bench/watchlist opinion with supporting recent form or historical variability. Recaps
+react to FPTS relative to the player's own pre-match average, then give a recommendation based on the record
+through that match. League size is passed from the card. No upcoming XI is claimed as confirmed; advice is
+conditional and does not promise points. Tests verify tier semantics, sparse history, good/poor-game reactions,
+low-availability caution and the existing no-future-information/report-stability guarantees.

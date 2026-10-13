@@ -866,3 +866,62 @@ select.input option { background: var(--panel); }
   .cc-sides { grid-template-columns: 1fr; }
   .react-bar { display: none !important; }
 }
+
+/* Player research: compact Sleeper-inspired hierarchy, scoped to the card. */
+.player-section { margin: 26px 0; }
+.player-section h3, .player-metrics h3 { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 14px; }
+.player-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 22px; }
+.player-metric-pair { display: flex; gap: 28px; }
+.player-metric-pair strong { display: block; font: 700 28px var(--display); line-height: 1.3; }
+.player-metric-pair span { display: block; font-size: 10px; color: var(--muted); text-transform: uppercase; margin-top: 5px; }
+.player-footnote { font-size: 11px; line-height: 1.6; color: var(--muted); margin: 12px 0; }
+.player-stat-strip { display: flex; flex-wrap: wrap; gap: 20px 28px; margin: 0; }
+.player-stat-strip dt { font-size: 10px; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+.player-stat-strip dd { margin: 0; font: 700 22px var(--display); }
+.player-week-title { color: var(--turf); font-weight: 700; font-size: 13px; text-align: center; }
+.player-week-title small { display: block; font-weight: 400; font-size: 10px; margin-top: 3px; }
+.player-projection-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 14px; margin-top: 18px; }
+.player-projection { min-width: 0; max-width: 320px; }
+.player-projection-box { border: 1px solid var(--line); border-radius: 14px; background: var(--panel); margin-top: 9px; overflow: hidden; }
+.player-projection-box > div { display: flex; justify-content: space-between; gap: 12px; padding: 13px 15px; font-size: 12px; }
+.player-projection-box > div:last-child { border-top: 1px solid var(--line); }
+.player-projection-box small { display: block; padding: 0 15px 12px; font-size: 11px; color: var(--muted); }
+.player-model { font-size: 11px; line-height: 1.7; color: var(--muted); margin-top: 14px; }
+.player-model summary { cursor: pointer; color: var(--sky); }
+.player-reports { display: grid; gap: 14px; }
+.player-report { background: color-mix(in srgb, var(--sky) 5%, var(--panel)); border: 1px solid var(--line); padding: 20px; border-radius: 16px; }
+.player-report-meta { font-size: 10px; color: var(--muted); margin-bottom: 10px; }
+.player-report h4 { font-size: 17px; line-height: 1.4; margin: 0 0 10px; }
+.player-report p, .player-report-analysis { font-size: 13px; line-height: 1.7; margin: 10px 0; }
+.player-report-analysis { border-left: 3px solid var(--turf); padding-left: 12px; }
+@media (max-width: 700px) {
+ .player-metrics { grid-template-columns: 1fr 1fr; gap: 22px 14px; }
+ .player-metric-pair { gap: 18px; }
+ .player-metric-pair strong { font-size: 23px; }
+ .player-projection-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+ .player-section .row > h3 { font-size: 10px; }
+ .player-report { padding: 16px; }
+ .player-report h4 { font-size: 16px; }
+ .player-modal .table { min-width: 640px; }
+ .player-modal .card:has(> .table) { overflow-x: auto !important; }
+}
+
+.player-scout { border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; margin: 14px 0; background: color-mix(in srgb, var(--turf) 5%, transparent); }
+.player-scout > strong { display: block; font-size: 14px; text-transform: capitalize; }
+.player-scout p, .player-scout li { font-size: 12px; line-height: 1.7; }
+.player-scout details { color: var(--muted); font-size: 11px; }
+.player-scout summary { color: var(--sky); cursor: pointer; }
+.player-scout ul { padding-left: 18px; }
+
+.player-experimental { font-size: 9px; color: var(--gold); display: inline-block; margin-left: 4px; letter-spacing: 0; }
+.fixture-forecast-details { padding: 0 12px 12px; font-size: 10px; color: var(--muted); }
+.fixture-forecast-details summary { color: var(--sky); cursor: pointer; }
+.fixture-forecast-details > div { display: flex; justify-content: space-between; gap: 8px; padding-top: 9px; }
+.fixture-forecast-details p { line-height: 1.6; margin-bottom: 0; }
+
+@media (max-width: 700px) {
+ .player-section > .row > h3 { flex: 1; min-width: 0; }
+ .player-section > .row > .row { flex-shrink: 0; gap: 4px !important; }
+ .player-week-title { width: 96px; flex: none; }
+ .player-experimental { display: block; margin: 5px 0 0; }
+}

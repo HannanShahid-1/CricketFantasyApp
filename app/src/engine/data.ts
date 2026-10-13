@@ -1,6 +1,7 @@
 // Loads the Cricsheet-derived data file and pre-computes stat lines, fantasy points and projections.
 import { computeLines, score, type Points, type StatLine } from './scoring'
 import type { RawData, RawMatch, RawTeam, Role, SlotType } from './types'
+import { matchupAdjustment } from './matchupForecast'
 import { playerDisplayName } from './playerNames'
 
 interface PlayerMedia {
@@ -36,6 +37,7 @@ export interface Player {
   elig: SlotType[]
   s25: { apps: number; pts: number; avg: number }
   prior: { perMatch: number; avail: number }
+  history: { opponent: string; line: StatLine; pts: number }[]
   games: Map<number, GameRow>
 }
 
@@ -148,6 +150,7 @@ export async function loadData(): Promise<Data> {
     elig: ELIGIBILITY[p.role],
     s25: { apps: 0, pts: 0, avg: 0 },
     prior: { perMatch: 0, avail: 0 },
+    history: [],
     games: new Map(),
   }))
 
@@ -159,6 +162,8 @@ export async function loadData(): Promise<Data> {
       for (const [p, l] of lines) {
         if (!l.played) continue
         const pts = score(l, players[p].role).total
+        const own = Object.entries(m.squads).find(([, ids]) => ids.includes(p))?.[0]
+        players[p].history.push({ opponent: m.teams.find((t) => t !== own) ?? '', line: l, pts })
         players[p].s25.apps++
         players[p].s25.pts += pts
       }
@@ -262,14 +267,16 @@ export function availability(d: Data, p: Player, played: number): number {
 }
 
 /** Rest-of-season value. Only one match per player counts each week, so this counts the weeks he still has
- *  a match in, not the matches. (A player's own week is scored by `playerWeek` in league.ts.) */
+ *  a match in, not the matches. Uses the first remaining fixture per week for generic player value;
+ *  actual team projections honor the selected match through `playerWeek` in league.ts.) */
 export function restOfSeason(d: Data, p: Player, played: number, lastGw = 8): number {
-  let weeks = 0
+  let total = 0
   for (const [gw, mis] of Object.entries(d.teamGw[p.team] ?? {})) {
     if (Number(gw) > lastGw) continue
-    if (mis.some((mi) => mi >= played)) weeks++
+    const mi = mis.find((mi) => mi >= played)
+    if (mi !== undefined) total += matchProjection(d, p, mi, played).total
   }
-  return perMatchProj(d, p, played) * availability(d, p, played) * weeks
+  return total
 }
 
 export function seasonToDate(p: Player, played: number) {
@@ -282,4 +289,19 @@ export function seasonToDate(p: Player, played: number) {
     }
   }
   return { pts, apps, avg: apps ? pts / apps : 0 }
+}
+
+/** Matchup-aware expected FPTS, including estimated availability. */
+export function matchProjection(d: Data, p: Player, mi: number, played: number) {
+  const cutoff = Math.min(played, mi)
+  const opponent = d.matches[mi].teams.find((t) => t !== p.team) ?? ''
+  const base = perMatchProj(d, p, cutoff)
+  const chance = availability(d, p, cutoff)
+  const matchup = matchupAdjustment(d, p, mi, cutoff, base)
+  const rawDelta = matchup.components.reduce((n, c) => n + c.points, 0)
+  const scale = rawDelta ? matchup.delta / rawDelta : 0
+  return { ...matchup, total: Math.max(0, (base + matchup.delta) * chance), base, chance,
+    adjustment: base ? matchup.delta / base : 0, opponent,
+    components: matchup.components.map((c) => ({ ...c, points: c.points * scale * chance })) }
+
 }
