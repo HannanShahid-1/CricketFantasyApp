@@ -5,9 +5,9 @@ import {
 } from './engine/chat'
 import type { Data } from './engine/data'
 import {
-  bestLineup, botTradeVerdict, chooseDraftPick, createLeague, currentWeek, dropPlayer,
-  freeAgentAdd, lineupProblem, makePick, placeClaim, playNext, proposeTrade, respondTrade, reviewTrade, say, setMatchPick,
-  teamOnClock, withdrawTrade,
+  botTradeVerdict, chooseDraftPick, createLeague, currentWeek, dropPlayer, freeAgentAdd, lineupProblem, makePick,
+  optimizeLineup, placeClaim, playNext, proposeTrade, respondTrade, reviewTrade, say, setMatchPick, teamOnClock,
+  withdrawTrade,
   type League, type LeagueOptions,
 } from './engine/league'
 
@@ -59,7 +59,7 @@ interface AppState {
   setStarters: (starters: (number | null)[]) => string | null
   /** lock in which of a player's matches counts this week (null = back to his first match) */
   lockMatch: (p: number, mi: number | null) => string | null
-  optimize: () => void
+  optimize: () => string | null
   toggleAutoSub: () => void
   toggleAutoLineup: () => void
   faAdd: (add: number, drop: number | null) => string | null
@@ -93,14 +93,28 @@ const clone = (l: League): League => structuredClone(l)
 
 type Saved = Pick<AppState, 'league' | 'tab' | 'chatChannel'>
 
-/** localStorage, but only written when something that is saved actually changed. Without this, every typing
+/** Where the league is saved: localStorage on the web. The iPhone app plugs in AsyncStorage with `setStorage`,
+ *  then calls `useApp.persist.rehydrate()`. */
+export interface KeyValueStorage {
+  getItem: (key: string) => string | null | Promise<string | null>
+  setItem: (key: string, value: string) => unknown
+  removeItem: (key: string) => unknown
+}
+let kv: KeyValueStorage | null = typeof localStorage === 'undefined' ? null : localStorage
+export const setStorage = (s: KeyValueStorage) => {
+  kv = s
+}
+
+const parse = (raw: string | null) => (raw ? JSON.parse(raw) : null)
+
+/** Saved storage, but only written when something that is saved actually changed. Without this, every typing
  *  indicator, toast or modal would re-serialise the whole league. */
 let lastSaved: Saved | null = null
 const storage: PersistStorage<Saved> = {
   getItem: (name) => {
     try {
-      const raw = localStorage.getItem(name)
-      return raw ? JSON.parse(raw) : null
+      const raw = kv?.getItem(name) ?? null
+      return raw instanceof Promise ? raw.then(parse).catch(() => null) : parse(raw)
     } catch {
       return null
     }
@@ -110,12 +124,15 @@ const storage: PersistStorage<Saved> = {
     if (lastSaved && lastSaved.league === s.league && lastSaved.tab === s.tab && lastSaved.chatChannel === s.chatChannel) return
     lastSaved = s
     try {
-      localStorage.setItem(name, JSON.stringify(value))
+      const r = kv?.setItem(name, JSON.stringify(value))
+      if (r instanceof Promise) r.catch(() => {})
     } catch {
       // storage full or blocked: the league keeps working for this session
     }
   },
-  removeItem: (name) => localStorage.removeItem(name),
+  removeItem: (name) => {
+    kv?.removeItem(name)
+  },
 }
 
 export const useApp = create<AppState>()(
@@ -194,10 +211,13 @@ export const useApp = create<AppState>()(
           })
           return err
         },
-        optimize: () =>
+        optimize: () => {
+          let err: string | null = null
           mutate((l, d) => {
-            l.teams[0].starters = bestLineup(d, l, l.teams[0], currentWeek(d, l), true).starters
-          }),
+            err = optimizeLineup(d, l, ME)
+          })
+          return err
+        },
         toggleAutoSub: () => mutate((l) => void (l.teams[0].autoSub = !l.teams[0].autoSub)),
         toggleAutoLineup: () => mutate((l) => void (l.teams[0].autoLineup = !l.teams[0].autoLineup)),
 

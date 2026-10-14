@@ -214,8 +214,8 @@ function Scoreboard({ m: raw }: { m: Matchup }) {
           {m.label && <span className="chip gold">{m.label}</span>}
           {final ? <span className="chip">FINAL</span> : live ? <span className="chip live">LIVE</span> : <span className="chip">UPCOMING</span>}
           <div className="wp-bar">
-            <i style={{ width: `${pA * 100}%`, background: A.color }} />
-            <i style={{ width: `${(1 - pA) * 100}%`, background: B.color }} />
+            <i style={{ width: `${pA * 100}%`, ['--c' as string]: A.color }} />
+            <i style={{ width: `${(1 - pA) * 100}%`, ['--c' as string]: B.color }} />
           </div>
           <div className="row" style={{ gap: 18, fontSize: 12 }}>
             <span className="num">{Math.round(pA * 100)}%</span>

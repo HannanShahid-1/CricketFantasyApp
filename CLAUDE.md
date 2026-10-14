@@ -24,6 +24,7 @@ A change is done when tests, build and lint pass and the affected screens were c
   Never allow a choice made with hindsight (core design principle).
 - New `League` fields need a default in `upgradeLeague()`.
 - Components: select from the store (`useApp((s) => s.x)` or `useShallow`); never a bare `useApp()`.
+- Colours, fonts and radii are theme tokens (`app/src/themes/`): never literal colours in CSS or components.
 - Use constants (`SLOTS`, `ROSTER_SIZE`, `REG_WEEKS`, `LAST_WEEK`, `TRADE_DEADLINE_WEEK`, `FAAB_BUDGET`), not literals.
 - `app/src/bots.ts` simulates other managers and is prototype-only; don't put game rules in it.
 - Preserve each file's line endings: several files are CRLF (`git ls-files | xargs grep -l $'\r$'`).

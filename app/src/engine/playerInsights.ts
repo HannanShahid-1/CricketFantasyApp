@@ -49,7 +49,7 @@ export function playerReports(d: Data, p: Player, played: number, leagueSize = 8
     const identity = profile.identity.startsWith('Role still') ? 'His specialist role is not established in the available history.' : `His recent usage: ${profile.identity}.`
     reports.push({ key: `preview-${next}`, kind: 'Preview', date: m.raw.date, mi: next,
       title: `${p.fullName} · Next up: ${projection.opponent}`,
-      summary: `${p.name} faces ${projection.opponent} on ${m.raw.date} at ${m.raw.venue}. His forecast is ${fmt(projection.total, 1)} total FPTS, including estimated playing probability.`,
+      summary: `${p.name} faces ${projection.opponent} at ${m.raw.venue}. His forecast is ${fmt(projection.total, 1)} total FPTS, including estimated playing probability.`,
       analysis: `${advice.opinion} ${identity}` })
   }
   for (const mi of mis.filter((x) => x < played).reverse().slice(0, 3)) {
@@ -73,11 +73,14 @@ export function playerReports(d: Data, p: Player, played: number, leagueSize = 8
         ? `He faced ${g.line.b} deliveries compared with his recent average of ${fmt(before.ballsPerInnings, 1)}, limiting his time at the crease.`
         : g.line.bb >= 12 ? `His bowling economy was ${fmt(g.line.rc * 6 / g.line.bb, 1)} runs per over.`
           : g.line.b >= 10 ? `He scored at a strike rate of ${fmt(g.line.r * 100 / g.line.b, 1)}.` : '' 
-    const details = [g.line.batted ? `${g.line.r}${g.line.out ? '' : '*'} runs off ${g.line.b} balls` : 'did not bat', bowlLine(g.line) ? `${g.line.w}/${g.line.rc} from ${oversStr(g.line.bb)} overs` : null, fieldLine(g.line)].filter(Boolean).join('; ')
+    const overs = oversStr(g.line.bb)
+    const other = [bowlLine(g.line) ? `${g.line.w}/${g.line.rc} from ${overs} ${overs === '1' ? 'over' : 'overs'}` : null, fieldLine(g.line)].filter(Boolean).join('; ')
+    const batting = `${g.line.r}${g.line.out ? '' : '*'} runs off ${g.line.b} ${g.line.b === 1 ? 'ball' : 'balls'}`
+    const details = g.line.batted ? `recorded ${[batting, other].filter(Boolean).join('; ')}` : other ? `did not bat but recorded ${other}` : 'did not bat'
     reports.push({ key: `recap-${mi}`, kind: 'Recap', mi, date: m.raw.date,
       title: `${p.fullName} · ${headline}`,
-      summary: `${p.name} recorded ${details} against ${opponent}, finishing with ${fmt(g.pts.total, 1)} total FPTS${m.raw.winner ? ` in ${p.team}'s ${m.raw.winner === p.team ? 'win' : 'loss'}` : ''}.`,
-      analysis: `${gameVerdict(d, p, mi, g.pts.total, leagueSize)} ${workload} The pre-match estimate was ${fmt(forecast, 1)} FPTS.` })
+      summary: `${p.name} ${details} against ${opponent}, finishing with ${fmt(g.pts.total, 1)} total FPTS${m.raw.winner ? ` in ${p.team}'s ${m.raw.winner === p.team ? 'win' : 'loss'}` : ''}.`,
+      analysis: [gameVerdict(d, p, mi, g.pts.total, leagueSize), workload, `The pre-match estimate was ${fmt(forecast, 1)} FPTS.`].filter(Boolean).join(' ') })
   }
   return reports
 }

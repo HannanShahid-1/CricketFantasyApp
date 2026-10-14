@@ -6,6 +6,7 @@ import { currentWeek, isLocked, managerName, PERSONA_LABEL, TRADE_DEADLINE_WEEK,
 import { fmt } from '../../engine/scoring'
 import { getData, ME, useApp } from '../../store'
 import { FTeamAvatar, Modal, PlayerAvatar, RoleTag, TeamChip } from '../common'
+import { pendingOffers } from '../transactions'
 import { useShallow } from 'zustand/react/shallow'
 
 export function TradeModal({ initial }: { initial: number }) {
@@ -27,7 +28,7 @@ export function TradeModal({ initial }: { initial: number }) {
     set(list.includes(p) ? list.filter((x) => x !== p) : [...list, p])
   }
   const problem = give.length || get.length ? tradeProblem(d, league, ME, other, give, get) : null
-  const pending = league.trades.filter((t) => t.status === 'pending' && t.from === ME && t.to === other).length
+  const pending = pendingOffers(league, ME, other)
   const send = () => {
     const err = proposeTrade(other, give, get, note)
     if (err) return notify(err, 'bad')
@@ -56,17 +57,19 @@ export function TradeModal({ initial }: { initial: number }) {
               <div
                 key={p}
                 className="row"
-                style={{ padding: '8px 14px', borderBottom: '1px solid var(--line)', cursor: lk ? 'not-allowed' : 'pointer', opacity: lk ? 0.45 : 1, background: on ? 'rgba(196,239,106,.08)' : undefined }}
-                onClick={() => !lk && onToggle(p)}
+                style={{ padding: '8px 14px', borderBottom: '1px solid var(--line)', cursor: 'pointer', background: on ? 'color-mix(in srgb, var(--accent) 8%, transparent)' : undefined }}
+                onClick={() => onToggle(p)}
               >
-                <span style={{ width: 18, height: 18, borderRadius: 6, border: '1.5px solid var(--line-2)', display: 'grid', placeItems: 'center', background: on ? 'var(--turf)' : 'transparent' }}>
-                  {on && <Check size={12} color="#10200a" />}
+                <span style={{ width: 18, height: 18, borderRadius: 6, border: '1.5px solid var(--line-2)', display: 'grid', placeItems: 'center', background: on ? 'var(--accent)' : 'transparent' }}>
+                  {on && <Check size={12} color="var(--accent-ink)" />}
                 </span>
                 <PlayerAvatar p={pl} size="sm" />
                 <div className="grow" style={{ minWidth: 0 }}>
                   <div className="pname ellipsis" style={{ fontSize: 13 }}>{pl.name}</div>
                   <div className="pmeta" style={{ marginTop: 1 }}>
                     <TeamChip code={pl.team} /> <RoleTag p={pl} />
+                    {/* already played this week: still tradable, his points this week stay where he played */}
+                    {lk && <span className="muted"> · played</span>}
                   </div>
                 </div>
                 <span className="num muted">{fmt(ros(p), 0)}</span>
@@ -84,7 +87,7 @@ export function TradeModal({ initial }: { initial: number }) {
       onClose={close}
       header={
         <div className="row" style={{ gap: 12 }}>
-          <ArrowLeftRight size={20} className="turf" />
+          <ArrowLeftRight size={20} className="accent" />
           <div>
             <div className="display" style={{ fontSize: 20, fontWeight: 700 }}>Propose a trade</div>
             <div className="dim" style={{ fontSize: 12 }}>
@@ -125,7 +128,7 @@ export function TradeModal({ initial }: { initial: number }) {
           <ArrowLeftRight className="dim" />
           <div>
             <div className="up dim">You get</div>
-            <div className="num turf" style={{ fontSize: 22, fontWeight: 700 }}>{fmt(getV, 0)}</div>
+            <div className="num accent" style={{ fontSize: 22, fontWeight: 700 }}>{fmt(getV, 0)}</div>
           </div>
           <input
             className="input grow"

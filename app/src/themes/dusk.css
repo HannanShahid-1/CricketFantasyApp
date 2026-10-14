@@ -1,0 +1,59 @@
+/* Dusk — quiet and minimal: warm graphite, soft off-white text, one iris accent, muted role and team
+   colours. Inter body, Chakra Petch titles and numbers. */
+:root[data-theme='dusk'] {
+  color-scheme: dark;
+
+  --bg: #131312;
+  --panel: #181817;
+  --panel-2: #1c1c1b;
+  --panel-3: #242422;
+  --tint: #ebe7df;
+  --shade: #000;
+  --line: rgba(235, 231, 223, 0.065);
+  --line-2: rgba(235, 231, 223, 0.11);
+  --scrim: rgba(10, 10, 9, 0.62);
+
+  --text: #e3e0d9;
+  --muted: #908c85;
+  --dim: #625f5a;
+  --hi: #ebe8e1;
+  --ink: #181816;
+  --team-ink: #141413;
+
+  --accent: #a9a6f2;
+  --accent-ink: #17162b;
+  --accent-hover: #bbb8f6;
+  --live: #dc5f57;
+  --live-2: #e98a81;
+  --live-ink: #fff;
+  --gold: #d3af6d;
+  --sky: #91b6da;
+  --win: #95c4a5;
+  --loss: #e3968c;
+  --seam: rgba(235, 231, 223, 0.12);
+
+  --wk: #d3af6d;
+  --bat: #91b6da;
+  --bowl: #8cc0b3;
+  --flex: #c6abe6;
+  --ar: #b5a7e4;
+
+  --team-sat: 68%;
+  --badge-outline: 30%;
+  --hero-lift: 0%;
+
+  --r-sm: 7px;
+  --r: 11px;
+  --r-lg: 16px;
+
+  --font: 'Inter Variable', system-ui, -apple-system, Segoe UI, sans-serif;
+  --display: 'Chakra Petch', 'Inter Variable', system-ui, sans-serif;
+  --num: var(--display);
+  --num-weight: 700;
+  --num-tracking: 0;
+  --title-font: var(--display);
+  --title-weight: 700;
+  --title-tracking: 0.02em;
+  --title-scale: 1;
+  --title-em: normal;
+}

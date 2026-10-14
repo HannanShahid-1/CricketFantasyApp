@@ -103,7 +103,8 @@ app/                      the React + TypeScript (Vite) app
       views/              one file per sidebar screen (Matchup, Team, Players, Chat, Standings, …)
       modals/             Player card, Add/claim, Trade, Match scorecard, Live match
       chat/               chat cards (trades, results, waivers…) + preview text helpers
-    styles.css            the whole design system (tokens at the top; sections per feature)
+    styles.css            layout and components, sections per feature; colours/fonts/radii are theme tokens
+    themes/               one CSS file of tokens per theme + themes.ts (registry, default, switcher)
 ```
 
 ## 4. Architecture
@@ -174,7 +175,7 @@ Defined in `engine/league.ts`. Everything here is plain JSON (it's saved to `loc
 
 | Field | Meaning |
 |---|---|
-| `teams[]` (`FTeam`) | `id` (0 = you), `name`, `owner`, `isUser`, AI `persona`, `color`, `roster` (15 player idx), `starters` (11 slots, idx or null), `faab`, `autoSub`, `autoLineup`, `picks` (this week's locked-in matches). |
+| `teams[]` (`FTeam`) | `id` (0 = you), `name`, `owner`, `isUser`, AI `persona`, `color`, `roster` (15 player idx; more after an uneven trade until the team drops down), `starters` (11 slots, idx or null), `faab`, `autoSub`, `autoLineup`, `picks` (this week's locked-in matches), `offRoster` (starters traded away this week who stay in the lineup; see trades). |
 | `phase` | `'draft' → 'season' → 'complete'`. |
 | `draft` | snake `order`, `picks[]`, `rounds` (15), pick `timer`, AI `speed`, your `queue`. |
 | `played` | Matches played so far (the sim clock). `currentWeek(d, l)` is derived from it. |
@@ -202,6 +203,7 @@ Defined in `engine/league.ts`. Everything here is plain JSON (it's saved to `loc
 | Draft: snake order, AI personas, noise, positional sanity | `teamAtPick`, `chooseDraftPick`, `preseasonValue` |
 | FAAB $100, free agents vs waivers | `FAAB_BUDGET`, `addMode`, `freeAgentAdd`, `placeClaim`, `processWaivers` |
 | Trade deadline: start of week 5 | `TRADE_DEADLINE_WEEK`, `tradeProblem` |
+| Roster limit 15, enforced lazily after uneven trades | `overLimit`, `trimRoster` (see trades) |
 
 ### One match counts (lock-in)
 
@@ -217,8 +219,8 @@ must choose **before his first match of the week starts**. All in `league.ts`:
 | `lineupProblem` | Rejects lineups that move a slot-locked starter or bring in a player whose counting match already started (the hindsight exploit). The store's `setStarters` uses it. |
 | `playerWeek(...)` | Points (or projection) from the counted match only. **Use this for anything "this week".** |
 
-`isLocked(d, l, p)` is different: "any of his matches this week has begun". It gates drops, trades, free-agent adds
-and the pick deadline.
+`isLocked(d, l, p)` is different: "any of his matches this week has begun". It gates drops, free-agent adds and the
+pick deadline. It does **not** gate trades (see below).
 
 **Auto-sub** (`autoSubs`, at each match's toss): if a starter's counting match is this one and he isn't in the XI, the
 best eligible bench player whose own counting match hasn't started takes the slot.
@@ -234,6 +236,28 @@ any step ─▶ failed (no longer legal when processed, e.g. a player moved)
 ```
 
 `proposeTrade`, `respondTrade`, `withdrawTrade`, `reviewTrade`, `processTrade`, `endReviewPeriod`, `expireOffers`.
+
+**What can be traded** (`tradeProblem`): any number of players each way (at least one per side), as long as both
+teams can still field a legal lineup. Players who have already played this week can be traded too, the way Sleeper
+does it:
+
+- **Off roster** (`moveTraded`, `isOffRoster`): a starter whose counting match has started stays in his old team's
+  lineup for the rest of the week, off its roster (`team.offRoster`). His points count there and his slot stays locked,
+  so a bad score can't be traded out of the lineup. He's on the new team's roster straight away, but the new team
+  can't start him until next week (the normal slot lock: his counting match there has started). `endWeek` scores the
+  week, then removes off-roster starters and refills their slots from the bench (`fillEmptySlots`). Traded back the
+  same week, he's an ordinary starter again.
+- Everyone else leaves the old lineup when the trade processes; empty slots are refilled from the bench (or the whole
+  lineup re-optimised for AI teams and "Auto-set weekly").
+
+**Roster limit after uneven trades** (Sleeper's "lazy enforcement"): a trade can leave a team over `ROSTER_SIZE`.
+While over (`overLimit`), it can drop, trade and score, but `lineupProblem`, `optimizeLineup`, `freeAgentAdd` and
+`placeClaim` refuse with `overLimitMessage`, so the drop happens first. AI teams drop down straight away
+(`trimRoster`: bench before starters, lowest rest-of-season value first, never a locked player, always leaving a legal
+lineup). Anyone still over when the week ends is trimmed the same way before waivers run, so no team starts a week
+over the limit. `botTradeVerdict` subtracts the value of the players an AI team would have to cut, so piling junk on
+one side doesn't buy a star. `ui/transactions.ts` (`tradeImpact`, `tradeBalance`) explains a deal's consequences in
+the trade screens.
 Every step is posted to the two managers' DM; review and outcome go to the league chat. AI managers answer offers with
 `botTradeVerdict` (accept if they gain enough projected value, varying by persona) and, at some week ends, offer you
 trades or trade with each other (`botTradeActivity`). Details: [CHAT.md](CHAT.md).
@@ -295,8 +319,21 @@ re-renders the component on every store change.
 ≤ 860px chat stacks under the matchup; ≤ 820px phone layout (top nav, single-column chat with back button).
 The scoreboard compacts with a container query when its slot is narrow.
 
-**Design system:** colour tokens at the top of `styles.css` (`--turf` primary green, `--ball` red, `--gold`, `--sky`,
-role colours). Fonts: Inter Variable (body), Chakra Petch (display/numbers). Icons: `lucide-react`.
+**Design system (themes):** every colour, font and radius is a CSS token set by the active theme
+(`<html data-theme="…">`). Each theme is one file in `src/themes/`; `floodlit.css` (the original green look) lists
+every token with a comment, so copy it to start a new theme, then import and list it in `themes.ts`.
+`DEFAULT_THEME` in `themes.ts` picks the default (set it to `'floodlit'` to revert the redesign).
+
+- Themes: **Dusk** (default; warm graphite, iris accent), **Scorebook** (light paper, ink-blue accent),
+  **Floodlit** (original). All three use Inter (body) and Chakra Petch (titles, numbers).
+- Switching: the sidebar button or Option/Alt+T cycles and remembers the choice (`localStorage` `seam-theme`);
+  `?theme=floodlit` previews one without saving, so two tabs can compare side by side.
+- Key tokens: `--accent` (primary), `--live` (live/alerts), `--hi`/`--ink` (strongest emphasis and the text on it),
+  `--tint`/`--shade` (bases for translucent fills and wells), role colours, `--num`/`--title-font` and friends.
+- In CSS and components use tokens, never literal colours. Tints are `color-mix(in srgb, var(--accent) 12%,
+  transparent)`. Team colours (`--c`, `--tc`, `--ta`) are muted by `--team-sat`. The player-card hero is the one
+  deliberately team-branded block.
+- Icons: `lucide-react`.
 
 ## 10. AI managers (`bots.ts`)
 
@@ -323,6 +360,9 @@ plays whole seasons, so it checks rules end to end:
 - one-match lock-in: default, locking, freezing after the first match, switching back, weekly reset, every hindsight
   exploit blocked, invalid picks rejected;
 - trade lifecycle: approve, veto, auto-approve at the next match, withdraw, decline, expiry, chat trail, deadline;
+- off-roster trades (points stay, slot frozen, new team waits a week, traded back) and uneven trades (over-limit
+  freeze, drop, week-end trim, AI drop-down and valuation), plus random uneven trades through whole seasons checking
+  that no player ever counts for two teams in a week;
 - chat unread counts / read cursors / reactions;
 - a scoring edge case (no-ball + leg-byes).
 

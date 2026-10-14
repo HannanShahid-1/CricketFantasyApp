@@ -37,6 +37,11 @@ export interface FTeam {
   autoLineup?: boolean
   /** matches locked in for the current week: player → IPL match index (absent = his first match counts) */
   picks?: { week: number; byPlayer: Record<number, number> }
+  /**
+   * Starters traded away this week after the match that counts for them had started. They stay in this week's
+   * lineup (their points count here) but are no longer on the roster; they leave the lineup when the week ends.
+   */
+  offRoster?: { week: number; players: number[] }
 }
 
 export interface Pick {
@@ -347,6 +352,23 @@ export function isLocked(d: Data, l: League, p: number, week = currentWeek(d, l)
   return mis.some((mi) => mi < l.played)
 }
 
+/** Traded away this week, but still in this week's lineup because his counting match had started (Sleeper's
+ *  "Off Roster"): his points count for this team, he can't be moved, and he leaves the lineup at week end. */
+export function isOffRoster(l: League, teamId: number, p: number): boolean {
+  const t = l.teams[teamId]
+  return !!t.offRoster?.players.includes(p) && !t.roster.includes(p) && t.starters.includes(p)
+}
+
+/** How many players a team is over the roster limit (an uneven trade can put it there). */
+export function overLimit(l: League, teamId: number): number {
+  return Math.max(0, l.teams[teamId].roster.length - ROSTER_SIZE)
+}
+
+/** Why a team over the roster limit can't make a move until it drops someone. */
+export function overLimitMessage(n: number): string {
+  return `You're ${n} over the ${ROSTER_SIZE}-player limit: drop ${n === 1 ? 'a player' : `${n} players`} first.`
+}
+
 // ---------------------------------------------------------------- one match counts
 // Only one of a player's matches counts each week. By default it's his first match. A manager can lock in a
 // later one, but only before his first match of the week starts, so nobody picks with hindsight. In the
@@ -427,6 +449,9 @@ export function lineupProblem(d: Data, l: League, teamId: number, next: (number 
   const team = l.teams[teamId]
   const cur = team.starters
   if (next.length !== SLOTS.length) return 'Invalid lineup.'
+  // over the limit after an uneven trade: the lineup is frozen until you drop (Sleeper's rule)
+  const over = overLimit(l, teamId)
+  if (over) return overLimitMessage(over)
   for (let i = 0; i < SLOTS.length; i++) {
     const was = cur[i]
     if (was !== null && next[i] !== was && slotLocked(d, l, teamId, was)) return `${d.players[was].name} is locked: the match that counts for him has started.`
@@ -438,7 +463,8 @@ export function lineupProblem(d: Data, l: League, teamId: number, next: (number 
     const name = d.players[p].name
     if (seen.has(p)) return `${name} is in the lineup twice.`
     seen.add(p)
-    if (!team.roster.includes(p)) return `${name} is not on your roster.`
+    // an off-roster starter can only stay where he is (the slot-lock check above keeps him there)
+    if (!team.roster.includes(p) && !(cur[i] === p && isOffRoster(l, teamId, p))) return `${name} is not on your roster.`
     if (!d.players[p].elig.includes(SLOTS[i])) return `${name} can't play ${SLOTS[i]}.`
     if (!cur.includes(p) && slotLocked(d, l, teamId, p)) return `${name} can't come in: the match that counts for him has already started.`
   }
@@ -447,8 +473,11 @@ export function lineupProblem(d: Data, l: League, teamId: number, next: (number 
 
 // ---------------------------------------------------------------- lineups
 
-/** Max-weight lineup. Greedy over a transversal matroid with augmenting paths = optimal. */
-export function bestLineup(d: Data, l: League, team: FTeam, week: number, respectLocks = false): { starters: (number | null)[] } {
+/** Max-weight lineup. Greedy over a transversal matroid with augmenting paths = optimal. Players in `keep` go first,
+ *  so they all stay in the XI when they can (possibly in another slot). */
+export function bestLineup(
+  d: Data, l: League, team: FTeam, week: number, respectLocks = false, keep?: Set<number>,
+): { starters: (number | null)[] } {
   const starters: (number | null)[] = SLOTS.map(() => null)
   const fixed = new Set<number>()
   const lockedBench = new Set<number>()
@@ -462,7 +491,7 @@ export function bestLineup(d: Data, l: League, team: FTeam, week: number, respec
     for (const p of team.roster) if (!team.starters.includes(p) && slotLocked(d, l, team.id, p, week)) lockedBench.add(p)
   }
   const used = new Set(starters.filter((x): x is number => x !== null))
-  const value = new Map(team.roster.map((p) => [p, playerWeek(d, l, team.id, p, week).total + 0.001 * preseasonValue(d.players[p])]))
+  const value = new Map(team.roster.map((p) => [p, playerWeek(d, l, team.id, p, week).total + 0.001 * preseasonValue(d.players[p]) + (keep?.has(p) ? 1e6 : 0)]))
   const cands = team.roster.filter((p) => !used.has(p) && !lockedBench.has(p)).sort((a, b) => value.get(b)! - value.get(a)!)
 
   const assign: (number | null)[] = [...starters]
@@ -501,6 +530,24 @@ export function canFillLineup(d: Data, roster: number[]): boolean {
   }
   for (const p of roster) tryAssign(p, new Set())
   return assign.every((x) => x !== null)
+}
+
+/** Fill empty lineup slots from the bench (best projection first). Everyone already starting stays in the XI, though
+ *  one might shift slot to make room; locked players don't move, and only players whose counting match hasn't
+ *  started can come in. */
+export function fillEmptySlots(d: Data, l: League, team: FTeam, week: number) {
+  if (!team.starters.includes(null)) return
+  const keep = new Set(team.starters.filter((p): p is number => p !== null))
+  team.starters = bestLineup(d, l, team, week, true, keep).starters
+}
+
+/** Best XI by projection around locked players (My Team's "Optimise lineup"). */
+export function optimizeLineup(d: Data, l: League, teamId: number): string | null {
+  const over = overLimit(l, teamId)
+  if (over) return overLimitMessage(over)
+  const team = l.teams[teamId]
+  team.starters = bestLineup(d, l, team, currentWeek(d, l), true).starters
+  return null
 }
 
 // ---------------------------------------------------------------- sim
@@ -592,6 +639,12 @@ function endWeek(d: Data, l: League, week: number) {
     median = n % 2 ? xs[(n - 1) / 2] : (xs[n / 2 - 1] + xs[n / 2]) / 2
   }
   l.results[week] = { week, scores, proj, starters, median, counted }
+  // the week is scored: off-roster starters leave the lineup (their slots are refilled below)
+  for (const t of l.teams) {
+    const gone = t.offRoster?.players ?? []
+    t.starters = t.starters.map((p) => (p !== null && gone.includes(p) && !t.roster.includes(p) ? null : p))
+    t.offRoster = undefined
+  }
   const stamp = { date: d.matches[l.played - 1].raw.date, week }
   say(d, l, LEAGUE_CHANNEL, null, { event: { type: 'week-result', week } }, stamp)
 
@@ -608,8 +661,13 @@ function endWeek(d: Data, l: League, week: number) {
     return
   }
   expireOffers(d, l, week)
+  // nobody starts a week over the roster limit: whoever hasn't dropped down yet loses their lowest-value players
+  for (const t of l.teams) if (overLimit(l, t.id)) trimRoster(d, l, t, 'Over the roster limit at the end of the week', stamp)
   processWaivers(d, l, week, stamp)
-  for (const t of l.teams) if (!t.isUser || t.autoLineup) t.starters = bestLineup(d, l, t, week + 1).starters
+  for (const t of l.teams) {
+    if (!t.isUser || t.autoLineup) t.starters = bestLineup(d, l, t, week + 1).starters
+    else fillEmptySlots(d, l, t, week + 1)
+  }
   botTradeActivity(d, l, week)
 }
 
@@ -739,6 +797,7 @@ function removeFromTeam(team: FTeam, p: number) {
 
 export function freeAgentAdd(d: Data, l: League, teamId: number, add: number, drop: number | null): string | null {
   const team = l.teams[teamId]
+  if (overLimit(l, teamId)) return overLimitMessage(overLimit(l, teamId))
   if (addMode(d, l, add) !== 'free') return 'Player is not a free agent right now'
   if (drop !== null && isLocked(d, l, drop)) return 'That player is locked for this week'
   if (drop === null && team.roster.length >= ROSTER_SIZE) return 'Roster full — choose a player to drop'
@@ -756,6 +815,7 @@ export function freeAgentAdd(d: Data, l: League, teamId: number, add: number, dr
 
 export function placeClaim(l: League, teamId: number, add: number, drop: number | null, bid: number): string | null {
   const team = l.teams[teamId]
+  if (overLimit(l, teamId)) return overLimitMessage(overLimit(l, teamId))
   if (bid < 0 || bid > team.faab) return `Bid must be between $0 and $${team.faab}`
   l.claims = l.claims.filter((c) => !(c.teamId === teamId && c.add === add))
   l.claims.push({ id: l.nextId++, teamId, add, drop, bid })
@@ -840,6 +900,31 @@ export function dropPlayer(d: Data, l: League, teamId: number, p: number): strin
   return null
 }
 
+/**
+ * Drop a team's least valuable players until it's back at the roster limit: bench before starters, never a locked
+ * player, and always leaving a legal lineup. Used for AI managers after an uneven trade and for anyone still over
+ * the limit when the week ends. Returns who was dropped.
+ */
+function trimRoster(d: Data, l: League, team: FTeam, why: string, stamp?: { date: string; week: number }): number[] {
+  const starts = (p: number) => Number(team.starters.includes(p))
+  const order = [...team.roster].sort((a, b) => starts(a) - starts(b) || ros(d, l, a) - ros(d, l, b))
+  const dropped: number[] = []
+  for (const p of order) {
+    if (team.roster.length <= ROSTER_SIZE) break
+    if (isLocked(d, l, p) || !canFillLineup(d, team.roster.filter((x) => x !== p))) continue
+    removeFromTeam(team, p)
+    l.onWaivers.push(p)
+    l.claims = l.claims.filter((c) => !(c.teamId === team.id && c.drop === p))
+    dropped.push(p)
+  }
+  if (dropped.length) {
+    log(l, { week: currentWeek(d, l), type: 'drop', teamId: team.id, adds: [], drops: dropped, note: why })
+    say(d, l, LEAGUE_CHANNEL, null, { event: { type: 'txn', teamId: team.id, adds: [], drops: dropped } }, stamp)
+    fillEmptySlots(d, l, team, currentWeek(d, l))
+  }
+  return dropped
+}
+
 // ---------------------------------------------------------------- trades
 // Lifecycle: pending → accepted → review (commissioner) → approved | vetoed.
 // Also: declined, withdrawn, expired (end of week), failed (no longer legal when processed).
@@ -857,9 +942,10 @@ export function tradeProblem(
   const B = l.teams[to]
   if (l.phase !== 'season') return 'Trades are closed.'
   if (!opts.ignoreDeadline && currentWeek(d, l) >= TRADE_DEADLINE_WEEK) return `The trade deadline has passed (start of Week ${TRADE_DEADLINE_WEEK}).`
-  if (!give.length || give.length !== get.length) return 'Pick the same number of players on each side.'
+  // uneven deals are fine: a team that ends up over the roster limit has to drop down (see overLimit)
+  if (!give.length || !get.length) return 'Each side of a trade needs at least one player.'
   if (give.some((p) => !A.roster.includes(p)) || get.some((p) => !B.roster.includes(p))) return 'A player in this deal is no longer on the same roster.'
-  if ([...give, ...get].some((p) => isLocked(d, l, p))) return 'One of these players is locked for this week.'
+  // players who have already played this week can be traded too: see moveTraded
   if (!canFillLineup(d, B.roster.filter((x) => !get.includes(x)).concat(give))) return `${B.isUser ? "You" : B.name} can't field a legal lineup after this deal.`
   if (!canFillLineup(d, A.roster.filter((x) => !give.includes(x)).concat(get))) return `${A.isUser ? "You" : A.name} can't field a legal lineup after this deal.`
   return null
@@ -950,16 +1036,40 @@ function processTrade(d: Data, l: League, t: TradeOffer, by: number | null): str
   }
   const A = l.teams[t.from]
   const B = l.teams[t.to]
-  for (const p of t.give) removeFromTeam(A, p)
-  for (const p of t.get) removeFromTeam(B, p)
-  A.roster.push(...t.get)
-  B.roster.push(...t.give)
   const week = currentWeek(d, l)
-  for (const team of [A, B]) if (!team.isUser || team.autoLineup) team.starters = bestLineup(d, l, team, week, true).starters
+  moveTraded(d, l, A, B, t.give, week)
+  moveTraded(d, l, B, A, t.get, week)
+  for (const team of [A, B]) {
+    if (!team.isUser || team.autoLineup) team.starters = bestLineup(d, l, team, week, true).starters
+    else fillEmptySlots(d, l, team, week)
+  }
   log(l, { week, type: 'trade', teamId: t.from, otherTeamId: t.to, adds: t.get, drops: t.give })
   resolve(t, 'approved', by === null ? 'Review period ended' : 'Approved by the commissioner')
   tradeEvent(d, l, t, 'approved', by, { league: true })
+  // AI managers get back under the roster limit straight away; people choose who to drop
+  for (const team of [A, B]) if (!team.isUser && overLimit(l, team.id)) trimRoster(d, l, team, 'Over the roster limit after a trade')
   return null
+}
+
+/**
+ * Hand traded players to their new team. A starter whose counting match has started stays in his old team's lineup
+ * for the rest of the week, off the roster, so the points he scored there still count there and his slot can't be
+ * reused. Everyone else leaves the old lineup now. The new team can't start anyone whose counting match has started
+ * until next week: the usual slot lock (no hindsight).
+ */
+function moveTraded(d: Data, l: League, from: FTeam, to: FTeam, ps: number[], week: number) {
+  for (const p of ps) {
+    if (from.starters.includes(p) && slotLocked(d, l, from.id, p, week)) {
+      from.roster = from.roster.filter((x) => x !== p)
+      if (from.offRoster?.week !== week) from.offRoster = { week, players: [] }
+      from.offRoster.players.push(p)
+    } else {
+      removeFromTeam(from, p)
+    }
+    to.roster.push(p)
+    // traded back to a team he's off the roster of this week: he's simply theirs again
+    if (to.offRoster) to.offRoster.players = to.offRoster.players.filter((x) => x !== p)
+  }
 }
 
 /** Accepted trades the commissioner hasn't ruled on go through when the next match starts. */
@@ -982,7 +1092,10 @@ const ACCEPT_LINES = ['Pleasure doing business 🤝', 'Deal. Good luck with them
 export function botTradeVerdict(d: Data, l: League, t: TradeOffer): { accept: boolean; text: string } {
   if (tradeProblem(d, l, t.from, t.to, t.give, t.get)) return { accept: false, text: "Can't make that one work right now, sorry." }
   const bot = l.teams[t.to]
-  const gets = tradeValue(d, l, t.give)
+  // taking more players than it gives means cutting its least valuable ones to get back to the roster limit
+  const after = bot.roster.filter((x) => !t.get.includes(x)).concat(t.give)
+  const cut = after.map((p) => ros(d, l, p)).sort((a, b) => a - b).slice(0, Math.max(0, after.length - ROSTER_SIZE))
+  const gets = tradeValue(d, l, t.give) - cut.reduce((a, v) => a + v, 0)
   const gives = tradeValue(d, l, t.get)
   const need = bot.persona === 'steady' ? 1.12 : bot.persona === 'upside' ? 0.98 : 1.05
   if (gets >= gives * need) return { accept: true, text: pickOne(ACCEPT_LINES) }

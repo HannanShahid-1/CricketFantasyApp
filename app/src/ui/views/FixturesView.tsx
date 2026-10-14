@@ -56,7 +56,7 @@ export function FixturesView() {
                 })}
                 <div className="dim ellipsis" style={{ fontSize: 11.5 }}>
                   {done ? m.raw.result : m.raw.venue}
-                  {mine > 0 && <span className="turf"> · {mine} of your players {done ? 'played' : 'in this match'}</span>}
+                  {mine > 0 && <span className="accent"> · {mine} of your players {done ? 'played' : 'in this match'}</span>}
                 </div>
               </div>
               <div className="row">

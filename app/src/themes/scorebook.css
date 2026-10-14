@@ -1,0 +1,59 @@
+/* Scorebook — light and minimal, like a scorer's book: cream paper, pencil-grey text, ink-blue accent,
+   the ball's red stitching as the only flourish. Inter body, Chakra Petch titles and numbers. */
+:root[data-theme='scorebook'] {
+  color-scheme: light;
+
+  --bg: #efebe2;
+  --panel: #f8f6f0;
+  --panel-2: #f3f0e8;
+  --panel-3: #fffdf8;                  /* raised: selected segment, message bubbles, toasts */
+  --tint: #3b3629;
+  --shade: #a89c84;
+  --line: rgba(59, 54, 41, 0.1);
+  --line-2: rgba(59, 54, 41, 0.17);
+  --scrim: rgba(40, 36, 28, 0.32);
+
+  --text: #25231e;
+  --muted: #6e695f;
+  --dim: #9b968b;
+  --hi: #1f1d19;
+  --ink: #f8f6f0;
+  --team-ink: #1f1d19;
+
+  --accent: #2d4f8a;
+  --accent-ink: #f8f6f0;
+  --accent-hover: #3a5f9e;
+  --live: #c9402f;
+  --live-2: #b83a2b;
+  --live-ink: #fff;
+  --gold: #9c7420;
+  --sky: #3a6ea3;
+  --win: #3b7650;
+  --loss: #b0463a;
+  --seam: rgba(201, 64, 47, 0.4);
+
+  --wk: #9c7420;
+  --bat: #3a6ea3;
+  --bowl: #2f7a6c;
+  --flex: #8556a6;
+  --ar: #6f5bb0;
+
+  --team-sat: 55%;
+  --badge-outline: 35%;
+  --hero-lift: 55%;
+
+  --r-sm: 6px;
+  --r: 10px;
+  --r-lg: 14px;
+
+  --font: 'Inter Variable', system-ui, -apple-system, Segoe UI, sans-serif;
+  --display: 'Chakra Petch', 'Inter Variable', system-ui, sans-serif;
+  --num: var(--display);
+  --num-weight: 700;
+  --num-tracking: 0;
+  --title-font: var(--display);
+  --title-weight: 700;
+  --title-tracking: 0.02em;
+  --title-scale: 1;
+  --title-em: normal;
+}

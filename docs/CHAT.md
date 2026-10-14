@@ -28,6 +28,8 @@ any step ─► failed (deal is no longer legal, e.g. a player was dropped or tr
 ```
 
 - The league setting `tradeReview` is `'commissioner'` by default. With `'none'`, accepted trades process immediately.
+- Trades can be uneven (a team may end up over the roster limit and has to drop down) and can include players who have
+  already played this week (their points stay with the team they played for). Rules: DEVELOPER_GUIDE.md, section 7.
 - The league creator is the commissioner (`league.commissionerId`). Only the commissioner can approve or veto.
 - AI managers send you offers and make trades with each other at the end of some weeks, so commissioner review gets used in a single-player league.
 

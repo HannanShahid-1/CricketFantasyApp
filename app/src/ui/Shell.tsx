@@ -1,12 +1,12 @@
 import {
-  Activity, BookOpen, CalendarDays, ChevronDown, FastForward, LayoutGrid, ListOrdered, MessageCircle, Play,
+  Activity, BookOpen, CalendarDays, ChevronDown, FastForward, LayoutGrid, ListOrdered, MessageCircle, Palette, Play,
   RotateCcw, SkipForward, Swords, Trophy, Users, UserRound,
 } from 'lucide-react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { isDm } from '../engine/chat'
-import { currentWeek, LAST_WEEK, managerName, REG_WEEKS } from '../engine/league'
-import { getData, ME, useApp, type Tab } from '../store'
-import { previewText, totalUnread } from './chat/chatText'
+import { currentWeek, LAST_WEEK, REG_WEEKS } from '../engine/league'
+import { getData, useApp, type Tab } from '../store'
+import { cycleTheme, THEMES, useTheme } from '../themes/themes'
+import { incomingNotice, totalUnread } from './chat/chatText'
 import { FTeamAvatar, Logo, TeamChip } from './common'
 import { fmtDate, weekLabel } from './format'
 import { ActivityView } from './views/ActivityView'
@@ -74,6 +74,7 @@ export function Shell() {
             </div>
           ))}
         </nav>
+        <ThemeSwitch />
         <div className="side-foot">
           Data: Cricsheet.org (ODC-BY)
           <br />
@@ -106,17 +107,25 @@ function useIncomingNotifications() {
   const last = useRef(seq)
   useEffect(() => {
     const { tab, chatChannel, notify } = useApp.getState()
-    const fresh = league.chat.messages.filter((m) => m.id >= last.current && m.author !== ME)
+    const fresh = league.chat.messages.filter((m) => m.id >= last.current)
     last.current = seq
     for (const m of fresh) {
       if (tab === 'chat' && chatChannel === m.channel) continue
-      const offer = m.event?.type === 'trade' && m.event.stage === 'proposed'
-      if (!isDm(m.channel) || (!m.text && !offer)) continue
-      const from = m.author !== null ? managerName(league.teams[m.author]) : null
-      const text = previewText(league, m, true)
-      notify(from ? `💬 ${from}: ${text.length > 70 ? text.slice(0, 70) + '…' : text}` : `🤝 ${text}`, 'info')
+      const text = incomingNotice(league, m)
+      if (text) notify(text, 'info')
     }
   }, [seq, league])
+}
+
+function ThemeSwitch() {
+  const theme = useTheme()
+  return (
+    <button className="theme-switch" onClick={cycleTheme} title="Switch theme (Option/Alt+T)">
+      <Palette size={16} />
+      <span className="nav-label grow">{THEMES.find((t) => t.id === theme)?.name} theme</span>
+      <kbd className="nav-label">⌥T</kbd>
+    </button>
+  )
 }
 
 function ClockBar() {

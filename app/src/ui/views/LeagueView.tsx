@@ -1,13 +1,15 @@
-import { matchupsForWeek, PERSONA_LABEL, REG_WEEKS, standings } from '../../engine/league'
+import { PERSONA_LABEL, REG_WEEKS, standings } from '../../engine/league'
 import { fmt } from '../../engine/scoring'
 import { useApp } from '../../store'
 import { FTeamAvatar } from '../common'
+import { weeklyResults } from '../weeklyResults'
 import { useShallow } from 'zustand/react/shallow'
 
 export function LeagueView() {
   const league = useApp((s) => s.league)!
   const { setTab, setViewWeek } = useApp(useShallow((s) => ({ setTab: s.setTab, setViewWeek: s.setViewWeek })))
   const rows = standings(league)
+  const grid = weeklyResults(league)
   const playoffLine = 4
 
   return (
@@ -38,8 +40,8 @@ export function LeagueView() {
             {rows.map((r, i) => {
               const t = league.teams[r.teamId]
               return (
-                <tr key={r.teamId} className={t.isUser ? 'me' : ''} style={i === playoffLine - 1 ? { boxShadow: 'inset 0 -2px 0 rgba(196,239,106,.35)' } : undefined}>
-                  <td className="n" style={{ color: i < playoffLine ? 'var(--turf)' : 'var(--dim)' }}>{i + 1}</td>
+                <tr key={r.teamId} className={t.isUser ? 'me' : ''} style={i === playoffLine - 1 ? { boxShadow: 'inset 0 -2px 0 color-mix(in srgb, var(--accent) 35%, transparent)' } : undefined}>
+                  <td className="n" style={{ color: i < playoffLine ? 'var(--accent)' : 'var(--dim)' }}>{i + 1}</td>
                   <td>
                     <div className="row">
                       <FTeamAvatar t={t} size="sm" />
@@ -102,26 +104,18 @@ export function LeagueView() {
                         <span className="ellipsis" style={{ fontWeight: 600 }}>{t.name}</span>
                       </div>
                     </td>
-                    {Array.from({ length: REG_WEEKS }, (_, i) => {
-                      const w = i + 1
-                      const res = league.results[w]
-                      const m = matchupsForWeek(league, w).find((x) => x.a === t.id || x.b === t.id)
-                      if (!res || !m) {
-                        const opp = m ? league.teams[m.a === t.id ? m.b : m.a] : null
+                    {grid.get(t.id)!.map((c, i) => {
+                      if (!c.played) {
                         return (
-                          <td key={w} className="n dim" style={{ fontSize: 11 }}>
-                            {opp ? `v ${opp.name.split(' ')[0]}` : '–'}
+                          <td key={i} className="n dim" style={{ fontSize: 11 }}>
+                            {c.opp !== null ? `v ${league.teams[c.opp].name.split(' ')[0]}` : '–'}
                           </td>
                         )
                       }
-                      const mine = res.scores[t.id]
-                      const opp = res.scores[m.a === t.id ? m.b : m.a]
-                      const won = mine > opp
-                      const med = res.median !== null && mine > res.median
                       return (
-                        <td key={w} className="n" style={{ color: won ? 'var(--win)' : mine === opp ? 'var(--muted)' : 'var(--loss)' }}>
-                          {fmt(mine, 1)}
-                          {med && <span className="gold"> ★</span>}
+                        <td key={i} className="n" style={{ color: c.outcome === 'win' ? 'var(--win)' : c.outcome === 'tie' ? 'var(--muted)' : 'var(--loss)' }}>
+                          {fmt(c.score, 1)}
+                          {c.beatMedian && <span className="gold"> ★</span>}
                         </td>
                       )
                     })}

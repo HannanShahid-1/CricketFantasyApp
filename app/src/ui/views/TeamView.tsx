@@ -6,10 +6,11 @@ import { fmt } from '../../engine/scoring'
 import { getData, ME, useApp } from '../../store'
 import { FTeamAvatar, PlayerAvatar, RoleTag, TeamChip } from '../common'
 import { weekLabel } from '../format'
+import { applyMove, canMove, ordinal, sameSpot, spotPlayer, type LineupSpot } from '../lineup'
 import { MatchPicker } from '../MatchPicker'
 import { useShallow } from 'zustand/react/shallow'
 
-type Sel = { kind: 'slot'; i: number } | { kind: 'bench'; p: number } | null
+type Sel = LineupSpot | null
 
 export function TeamView() {
   const d = getData()
@@ -26,49 +27,18 @@ export function TeamView() {
   const srow = standings(league)[row]
   const proj = st.reduce<number>((a, p) => a + (p === null ? 0 : playerWeek(d, league, ME, p, week).total), 0)
 
-  const selPlayer = sel ? (sel.kind === 'slot' ? st[sel.i] : sel.p) : null
+  const selPlayer = sel ? spotPlayer(st, sel) : null
+  const isTarget = (target: LineupSpot) => !!sel && canMove(d, st, sel, target, locked)
 
-  const isTarget = (target: Sel): boolean => {
-    if (!sel || !target) return false
-    if (sel.kind === 'slot') {
-      const p = st[sel.i]
-      if (target.kind === 'bench') {
-        return !locked(target.p) && d.players[target.p].elig.includes(SLOTS[sel.i]) && (p === null || true)
-      }
-      if (target.i === sel.i || locked(st[target.i])) return false
-      const okP = p === null || d.players[p].elig.includes(SLOTS[target.i])
-      const q = st[target.i]
-      const okQ = q === null || d.players[q].elig.includes(SLOTS[sel.i])
-      return okP && okQ && (p !== null || q !== null)
-    }
-    if (target.kind === 'slot') {
-      return !locked(st[target.i]) && d.players[sel.p].elig.includes(SLOTS[target.i])
-    }
-    return false
-  }
-
-  const doMove = (target: Sel) => {
-    if (!sel || !target) return
-    const next = [...st]
-    if (sel.kind === 'slot' && target.kind === 'bench') next[sel.i] = target.p
-    else if (sel.kind === 'bench' && target.kind === 'slot') next[target.i] = sel.p
-    else if (sel.kind === 'slot' && target.kind === 'slot') {
-      ;[next[sel.i], next[target.i]] = [next[target.i], next[sel.i]]
-    }
-    const err = setStarters(next)
-    if (err) notify(err, 'bad')
-    setSel(null)
-  }
-
-  const click = (target: Sel, p: number | null) => {
+  const click = (target: LineupSpot, p: number | null) => {
     if (done) return
-    if (sel && isTarget(target)) return doMove(target)
-    if (sel && JSON.stringify(sel) === JSON.stringify(target)) return setSel(null)
-    if (p !== null && locked(p)) return notify(`${d.players[p].name} is locked: the match that counts for him has started`, 'info')
-    if (target?.kind === 'slot' && p === null) {
-      setSel(target)
-      return
+    if (sel && isTarget(target)) {
+      const err = setStarters(applyMove(st, sel, target))
+      if (err) notify(err, 'bad')
+      return setSel(null)
     }
+    if (sel && sameSpot(sel, target)) return setSel(null)
+    if (p !== null && locked(p)) return notify(`${d.players[p].name} is locked: the match that counts for him has started`, 'info')
     setSel(target)
   }
 
@@ -87,7 +57,7 @@ export function TeamView() {
         <div className="grow" />
         <div className="tiles" style={{ gridTemplateColumns: 'repeat(3, 120px)' }}>
           <div className="tile">
-            <div className="v turf">{fmt(proj, 1)}</div>
+            <div className="v accent">{fmt(proj, 1)}</div>
             <div className="k">{weekLabel(week)} proj</div>
           </div>
           <div className="tile">
@@ -106,10 +76,10 @@ export function TeamView() {
           <Wand2 size={15} /> Optimise lineup
         </button>
         <button className="btn" onClick={toggleAutoSub} title="Swap in an eligible bench player when a starter misses the XI">
-          <Sparkles size={15} className={me.autoSub ? 'turf' : 'dim'} /> Auto-sub: {me.autoSub ? 'On' : 'Off'}
+          <Sparkles size={15} className={me.autoSub ? 'accent' : 'dim'} /> Auto-sub: {me.autoSub ? 'On' : 'Off'}
         </button>
         <button className="btn" onClick={toggleAutoLineup} title="Re-optimise your lineup by projection at the start of every gameweek">
-          <Wand2 size={15} className={me.autoLineup ? 'turf' : 'dim'} /> Auto-set weekly: {me.autoLineup ? 'On' : 'Off'}
+          <Wand2 size={15} className={me.autoLineup ? 'accent' : 'dim'} /> Auto-set weekly: {me.autoLineup ? 'On' : 'Off'}
         </button>
         <button className="btn" onClick={() => openTrade(1)} disabled={done}>
           <ArrowLeftRight size={15} /> Propose trade
@@ -180,7 +150,7 @@ export function TeamView() {
           </div>
           {myClaims.map((c) => (
             <div key={c.id} className="txn">
-              <div className="txn-ic turf">$</div>
+              <div className="txn-ic accent">$</div>
               <div>
                 <b>{d.players[c.add].name}</b>
                 <span className="muted"> · bid ${c.bid}</span>
@@ -240,7 +210,7 @@ function LineupRow({ slot, pid, selected, target, locked, onClick, onOpen, onDro
       <div className="num right dim hide-md">{wp ? fmt(wp.total, 1) : ''}</div>
       <div className="num right muted">{season ? fmt(season.pts, 1) : ''}</div>
       <div>
-        {target && <span className="chip" style={{ color: 'var(--sky)', background: 'rgba(108,196,255,.14)' }}>Swap</span>}
+        {target && <span className="chip" style={{ color: 'var(--sky)', background: 'color-mix(in srgb, var(--sky) 14%, transparent)' }}>Swap</span>}
         {!target && onDrop && !locked && (
           <button
             className="btn sm icon ghost danger"
@@ -256,10 +226,4 @@ function LineupRow({ slot, pid, selected, target, locked, onClick, onOpen, onDro
       </div>
     </div>
   )
-}
-
-function ordinal(n: number) {
-  const s = ['th', 'st', 'nd', 'rd']
-  const v = n % 100
-  return n + (s[(v - 20) % 10] || s[v] || s[0])
 }

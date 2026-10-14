@@ -1,25 +1,20 @@
 import { FastForward, Pause, Play, SkipForward } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { countedMatch, rosteredBy, userMatchup } from '../../engine/league'
-import { computeLines, fmt, oversStr, score } from '../../engine/scoring'
+import { rosteredBy, userMatchup } from '../../engine/league'
+import { fmt, oversStr } from '../../engine/scoring'
 import { getData, useApp } from '../../store'
 import { FTeamAvatar, Modal, PlayerAvatar, TeamChip } from '../common'
 import { fmtDate } from '../format'
-import { ballEvents, inningsDetails } from '../scorecard'
+import { fantasyTracker, isNextMatch, liveMatchupScore, REPLAY_SPEEDS, replayState, resultToast } from '../replay'
+import { ballEvents, runRate } from '../scorecard'
 import { useShallow } from 'zustand/react/shallow'
-
-const SPEEDS = [
-  { k: '1×', ms: 420 },
-  { k: '4×', ms: 110 },
-  { k: '20×', ms: 22 },
-]
 
 export function LiveMatch({ mi }: { mi: number }) {
   const d = getData()
   const league = useApp((s) => s.league)!
   const { openLive, simMatch, notify, openPlayer } = useApp(useShallow((s) => ({ openLive: s.openLive, simMatch: s.simMatch, notify: s.notify, openPlayer: s.openPlayer })))
   const m = d.matches[mi]
-  const isNext = mi === league.played && league.phase === 'season'
+  const isNext = isNextMatch(league, mi)
   const evs = useMemo(() => ballEvents(d, m.raw), [d, m])
   const total = evs.length
   const [k, setK] = useState(0)
@@ -29,65 +24,27 @@ export function LiveMatch({ mi }: { mi: number }) {
 
   useEffect(() => {
     if (!playing || finished) return
-    const t = setTimeout(() => setK((x) => Math.min(total, x + 1)), SPEEDS[speed].ms)
+    const t = setTimeout(() => setK((x) => Math.min(total, x + 1)), REPLAY_SPEEDS[speed].ms)
     return () => clearTimeout(t)
   }, [k, playing, speed, finished, total])
 
   const close = () => {
     if (isNext) {
       simMatch()
-      notify(`${m.teams[0]} v ${m.teams[1]} — ${m.raw.result}`, 'info')
+      notify(resultToast(m), 'info')
     }
     openLive(null)
   }
 
-  const lines = useMemo(() => computeLines(m.raw, k), [m, k])
-  const inns = useMemo(() => inningsDetails(d, m.raw, k), [d, m, k])
+  const { lines, inns, cur, last, over: overBalls, batters: curBatters, chase } = useMemo(() => replayState(d, m, evs, k), [d, m, evs, k])
   const owned = useMemo(() => rosteredBy(league), [league])
-  const curInn = inns.length ? inns.length - 1 : 0
-  const cur = inns[curInn]
-  const last = evs[k - 1]
-
-  // this over's balls
-  const overBalls = useMemo(() => {
-    if (!last) return []
-    const label = last.label.split('.')[0]
-    const out: typeof evs = []
-    for (let i = k - 1; i >= 0 && evs[i].inn === last.inn && evs[i].label.split('.')[0] === label; i--) out.unshift(evs[i])
-    return out
-  }, [evs, k, last])
 
   // fantasy: rostered players in this match
-  const live = [...m.xi]
-    .filter((p) => owned.has(p))
-    .map((p) => {
-      const l = lines.get(p)
-      const pts = l ? score(l, d.players[p].role).total : 0
-      return { p, pts, owner: owned.get(p)! }
-    })
-    .sort((a, b) => (b.owner === 0 ? 1 : 0) - (a.owner === 0 ? 1 : 0) || b.pts - a.pts)
+  const live = fantasyTracker(d, league, m, lines, owned)
 
   // user matchup live
   const um = isNext ? userMatchup(league, m.gw) : undefined
-  const liveScore = (teamId: number) => {
-    let s = 0
-    // only each starter's counting match adds up: banked if it was earlier this week, live if it's this one
-    for (const p of league.teams[teamId].starters) {
-      if (p === null) continue
-      const c = countedMatch(d, league, teamId, p, m.gw)
-      if (c === null || c > mi) continue
-      if (c < mi) s += d.players[p].games.get(c)?.pts.total ?? 0
-      else if (m.xi.has(p)) {
-        const l = lines.get(p)
-        if (l) s += score(l, d.players[p].role).total
-      }
-    }
-    return s
-  }
-
-  // current batters (not out) and bowler
-  const curBatters = cur ? cur.batters.filter((p) => !cur.dismissal.has(p)).slice(-2) : []
-  const target = inns.length === 2 ? inningsDetails(d, m.raw)[0].runs + 1 : null
+  const liveScore = (teamId: number) => liveMatchupScore(d, league, teamId, m, lines)
 
   return (
     <Modal
@@ -107,9 +64,9 @@ export function LiveMatch({ mi }: { mi: number }) {
           </div>
           <div className="grow" />
           <div className="seg">
-            {SPEEDS.map((s, i) => (
-              <button key={s.k} className={speed === i ? 'on' : ''} onClick={() => setSpeed(i)}>
-                {s.k}
+            {REPLAY_SPEEDS.map((s, i) => (
+              <button key={s.label} className={speed === i ? 'on' : ''} onClick={() => setSpeed(i)}>
+                {s.label}
               </button>
             ))}
           </div>
@@ -175,21 +132,21 @@ export function LiveMatch({ mi }: { mi: number }) {
                   )
                 })}
                 <div className="center dim" style={{ gridColumn: 2, gridRow: 1, fontSize: 12 }}>
-                  {target && !finished ? (
+                  {chase && !finished ? (
                     <>
-                      Need <b className="turf">{Math.max(0, target - cur.runs)}</b>
+                      Need <b className="accent">{chase.need}</b>
                       <br />
-                      off {Math.max(0, 120 - cur.balls)}
+                      off {chase.balls}
                     </>
                   ) : finished ? (
-                    <b className="turf" style={{ fontSize: 13 }}>{m.raw.result}</b>
+                    <b className="accent" style={{ fontSize: 13 }}>{m.raw.result}</b>
                   ) : cur ? (
-                    <>CRR {cur.balls ? ((cur.runs / cur.balls) * 6).toFixed(2) : '0.00'}</>
+                    <>CRR {runRate(cur.runs, cur.balls)}</>
                   ) : null}
                 </div>
               </div>
               <div className="progress" style={{ marginTop: 14 }}>
-                <i style={{ width: `${(k / total) * 100}%`, background: 'var(--ball)' }} />
+                <i style={{ width: `${(k / total) * 100}%`, background: 'var(--live)' }} />
               </div>
               <div className="row" style={{ marginTop: 14, gap: 8, minHeight: 30 }}>
                 <span className="up dim" style={{ width: 56 }}>This over</span>
@@ -255,11 +212,9 @@ export function LiveMatch({ mi }: { mi: number }) {
               <span className="dim" style={{ fontSize: 12, marginLeft: 'auto' }}>Rostered players in this match</span>
             </div>
             <div style={{ padding: 8 }}>
-              {live.map(({ p, pts, owner }) => {
+              {live.map(({ p, pts, owner, starter, counts }) => {
                 const pl = d.players[p]
                 const t = league.teams[owner]
-                const starter = t.starters.includes(p)
-                const counts = starter && countedMatch(d, league, owner, p, m.gw) === mi
                 return (
                   <div key={p} className={`fant-row ${owner === 0 ? 'mine' : ''} ${starter && !counts ? 'nc' : ''}`}>
                     <div className="pcell" onClick={() => openPlayer(p)}>
@@ -274,7 +229,7 @@ export function LiveMatch({ mi }: { mi: number }) {
                       </div>
                     </div>
                     <FTeamAvatar t={t} size="sm" />
-                    <div key={fmt(pts)} className={`pts flash ${pts >= 25 ? 'turf' : ''}`}>
+                    <div key={fmt(pts)} className={`pts flash ${pts >= 25 ? 'accent' : ''}`}>
                       {fmt(pts)}
                     </div>
                   </div>

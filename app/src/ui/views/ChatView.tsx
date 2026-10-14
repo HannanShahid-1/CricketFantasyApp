@@ -1,17 +1,15 @@
 import { ArrowLeft, ArrowLeftRight, Gavel, SendHorizontal, SmilePlus } from 'lucide-react'
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import {
-  channelMembers, dmChannel, dmPartner, isDm, lastMessage, LEAGUE_CHANNEL, messagesIn, REACTIONS, readCursor, unreadCount,
-  type ChannelId, type ChatMessage,
+  dmPartner, isDm, lastMessage, LEAGUE_CHANNEL, messagesIn, REACTIONS, unreadCount, type ChannelId, type ChatMessage,
 } from '../../engine/chat'
-import { currentWeek, managerName, PERSONA_LABEL, TRADE_DEADLINE_WEEK, type FTeam, type League } from '../../engine/league'
-import { getData, ME, useApp } from '../../store'
+import { managerName, PERSONA_LABEL, type FTeam } from '../../engine/league'
+import { ME, useApp } from '../../store'
 import { EventMessage } from '../chat/ChatCards'
-import { fmtAgo, fmtClock, previewText } from '../chat/chatText'
+import { buildRows, dmSeenAt, dmThreads, firstUnread as findFirstUnread, seenPositions, typingLabel } from '../chat/chatRows'
+import { fmtAgo, fmtClock, previewText, tradesOpen } from '../chat/chatText'
 import { FTeamAvatar, Logo } from '../common'
-import { fmtDate, weekLabel } from '../format'
 
-const GROUP_MS = 5 * 60 * 1000
 const NOBODY: number[] = []
 
 export function ChatView() {
@@ -20,14 +18,7 @@ export function ChatView() {
   const openChat = useApp((s) => s.openChat)
   const [mobileConvo, setMobileConvo] = useState(true)
 
-  const dms = useMemo(
-    () =>
-      league.teams
-        .filter((t) => t.id !== ME)
-        .map((t) => ({ t, ch: dmChannel(ME, t.id), last: lastMessage(league.chat, dmChannel(ME, t.id)) }))
-        .sort((a, b) => (b.last?.id ?? 0) - (a.last?.id ?? 0) || a.t.name.localeCompare(b.t.name)),
-    [league],
-  )
+  const dms = useMemo(() => dmThreads(league), [league])
   const select = (ch: ChannelId) => {
     openChat(ch)
     setMobileConvo(true)
@@ -50,7 +41,7 @@ export function ChatView() {
           inDm={false}
         />
         <div className="chat-list-label up dim">Direct messages</div>
-        {dms.map(({ t, ch, last }) => (
+        {dms.map(({ t, channel: ch, last }) => (
           <ConvoItem
             key={ch}
             on={channel === ch}
@@ -95,33 +86,6 @@ function ConvoItem({ on, onClick, avatar, name, sub, last, unread, inDm }: {
 
 // ---------------------------------------------------------------- conversation
 
-type Row =
-  | { kind: 'day'; key: string; label: string }
-  | { kind: 'new'; key: string }
-  | { kind: 'event'; key: string; m: ChatMessage }
-  | { kind: 'group'; key: string; author: number; msgs: ChatMessage[] }
-
-function buildRows(msgs: ChatMessage[], firstUnread: number | null): Row[] {
-  const rows: Row[] = []
-  let day = ''
-  for (const m of msgs) {
-    const dayKey = `${m.week}|${m.date}`
-    if (dayKey !== day) {
-      day = dayKey
-      rows.push({ kind: 'day', key: `d${m.id}`, label: `${weekLabel(m.week)} · ${fmtDate(m.date)}` })
-    }
-    if (m.id === firstUnread) rows.push({ kind: 'new', key: 'new' })
-    if (m.author === null || !m.text) {
-      rows.push({ kind: 'event', key: `e${m.id}`, m })
-      continue
-    }
-    const prev = rows[rows.length - 1]
-    if (prev?.kind === 'group' && prev.author === m.author && m.at - prev.msgs[prev.msgs.length - 1].at < GROUP_MS) prev.msgs.push(m)
-    else rows.push({ kind: 'group', key: `g${m.id}`, author: m.author, msgs: [m] })
-  }
-  return rows
-}
-
 /** A single conversation. `compact` is the docked league chat on the Matchup screen. */
 export function Conversation({ channel, onBack, compact, action }: { channel: ChannelId; onBack?: () => void; compact?: boolean; action?: ReactNode }) {
   const league = useApp((s) => s.league)!
@@ -132,12 +96,9 @@ export function Conversation({ channel, onBack, compact, action }: { channel: Ch
   const stick = useRef(true)
 
   // "New messages" divider: where the unread run started when this conversation was opened
-  const [firstUnread] = useState<number | null>(() => {
-    const seen = readCursor(league.chat, channel, ME)?.id ?? 0
-    return msgs.find((m) => m.id > seen && m.author !== ME)?.id ?? null
-  })
+  const [firstUnread] = useState(() => findFirstUnread(league, channel, msgs))
   const rows = useMemo(() => buildRows(msgs, firstUnread), [msgs, firstUnread])
-  const seen = useSeenPositions(league, channel, msgs)
+  const seen = useMemo(() => seenPositions(league, channel, msgs), [league, channel, msgs])
 
   useEffect(() => {
     const mark = () => document.visibilityState === 'visible' && markRead(channel)
@@ -214,7 +175,6 @@ function DockHeader({ action }: { action?: ReactNode }) {
 function ConvoHeader({ channel, onBack }: { channel: ChannelId; onBack: () => void }) {
   const league = useApp((s) => s.league)!
   const openTrade = useApp((s) => s.openTrade)
-  const d = getData()
   const back = (
     <button className="btn icon ghost chat-back" onClick={onBack} aria-label="Back to conversations">
       <ArrowLeft size={18} />
@@ -240,7 +200,7 @@ function ConvoHeader({ channel, onBack }: { channel: ChannelId; onBack: () => vo
     )
   }
   const t = league.teams[dmPartner(channel, ME)]
-  const closed = currentWeek(d, league) >= TRADE_DEADLINE_WEEK || league.phase !== 'season'
+  const closed = !tradesOpen(league)
   return (
     <header className="convo-h">
       {back}
@@ -337,35 +297,18 @@ function Bubble({ m, mine, first, last }: { m: ChatMessage; mine: boolean; first
   )
 }
 
-/** For each message, the other members whose read cursor stops there. */
-function useSeenPositions(league: League, channel: ChannelId, msgs: ChatMessage[]) {
-  return useMemo(() => {
-    const at = new Map<number, number[]>()
-    const members = channelMembers(channel, league.teams.map((t) => t.id)).filter((id) => id !== ME)
-    for (const id of members) {
-      const c = readCursor(league.chat, channel, id)
-      if (!c) continue
-      let pos: ChatMessage | undefined
-      for (const m of msgs) if (m.id <= c.id) pos = m
-      if (!pos || pos.author === id) continue
-      at.set(pos.id, [...(at.get(pos.id) ?? []), id])
-    }
-    return at
-  }, [league.chat, league.teams, channel, msgs])
-}
-
 function SeenRow({ ids, mine, dm }: { ids?: number[]; mine: boolean; dm?: boolean }) {
   const league = useApp((s) => s.league)!
   if (!ids?.length) return null
   const names = ids.map((id) => managerName(league.teams[id]))
   if (dm) {
-    const c = readCursor(league.chat, dmChannel(ids[0], ME), ids[0])
-    return <div className={`seen ${mine ? 'mine' : ''}`}>Seen{c ? ` ${fmtClock(c.at)}` : ''}</div>
+    const at = dmSeenAt(league, ids[0])
+    return <div className={`seen ${mine ? 'mine' : ''}`}>Seen{at ? ` ${fmtClock(at)}` : ''}</div>
   }
   return (
     <div className={`seen ${mine ? 'mine' : ''}`} title={`Seen by ${names.join(', ')}`}>
       <span className="seen-avs">
-        {ids.slice(0, 5).map((id) => <span key={id} className="seen-av" style={{ background: league.teams[id].color }} />)}
+        {ids.slice(0, 5).map((id) => <span key={id} className="seen-av" style={{ ['--c' as string]: league.teams[id].color }} />)}
       </span>
       {ids.length > 5 ? `+${ids.length - 5}` : ''}
     </div>
@@ -374,15 +317,12 @@ function SeenRow({ ids, mine, dm }: { ids?: number[]; mine: boolean; dm?: boolea
 
 function Typing({ ids, channel }: { ids: number[]; channel: ChannelId }) {
   const league = useApp((s) => s.league)!
-  const names = ids.map((id) => managerName(league.teams[id]))
   return (
     <div className="msg-group typing-row">
       <FTeamAvatar t={league.teams[ids[0]]} size="sm" />
       <div className="msg-col">
         <div className="bubble typing first last" aria-label="typing"><i /><i /><i /></div>
-        <div className="typing-label">
-          {isDm(channel) ? `${names[0]} is typing` : names.length === 1 ? `${names[0]} is typing` : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]} are typing`}
-        </div>
+        <div className="typing-label">{typingLabel(league, channel, ids)}</div>
       </div>
     </div>
   )

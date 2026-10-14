@@ -4,7 +4,7 @@ import type { RawData, RawMatch, RawTeam, Role, SlotType } from './types'
 import { matchupAdjustment } from './matchupForecast'
 import { playerDisplayName } from './playerNames'
 
-interface PlayerMedia {
+export interface PlayerMedia {
   players: Record<string, { fullName: string; photo: string; team?: string }>
   teams: Record<string, { logo: string }>
 }
@@ -119,21 +119,8 @@ function inningsTotals(raw: RawMatch): InningsTotal[] {
   })
 }
 
-export async function loadData(): Promise<Data> {
-  const url = (f: string) => `${import.meta.env.BASE_URL}data/${f}`
-  // fetched in parallel; photos and bios are optional so a failed request can't block league loading
-  const [raw, media, bios] = await Promise.all([
-    fetch(url('ipl.json')).then((r) => {
-      if (!r.ok) throw new Error(`Couldn't load data/ipl.json (${r.status})`)
-      return r.json() as Promise<RawData>
-    }),
-    fetch(url('player-media.json'))
-      .then((r): Promise<PlayerMedia> => (r.ok ? r.json() : Promise.resolve({ players: {}, teams: {} })))
-      .catch((): PlayerMedia => ({ players: {}, teams: {} })),
-    fetch(url('player-bios.json'))
-      .then((r): Promise<Record<string, PlayerBio>> => (r.ok ? r.json() : Promise.resolve({})))
-      .catch(() => ({}) as Record<string, PlayerBio>),
-  ])
+/** Build the game data from the raw files. Each platform loads the files its own way (web: `src/loadData.ts`). */
+export function buildData(raw: RawData, media: PlayerMedia, bios: Record<string, PlayerBio>): Data {
   const teams = Object.fromEntries(raw.teams.map((t) => [t.code, t]))
 
   const players: Player[] = raw.players.map((p, idx) => ({

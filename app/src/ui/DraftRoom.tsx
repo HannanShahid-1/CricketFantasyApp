@@ -1,20 +1,13 @@
 import { Bot, LayoutGrid, List, Pause, Play, Search, Star, Zap } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Player } from '../engine/data'
-import { bestLineup, draftedSet, preseasonValue, SLOTS, teamAtPick, teamOnClock } from '../engine/league'
+import { draftedSet, preseasonValue, SLOTS, teamOnClock } from '../engine/league'
 import { fmt } from '../engine/scoring'
-import type { Role } from '../engine/types'
 import { getData, useApp } from '../store'
 import { FTeamAvatar, Logo, PlayerAvatar, RoleTag, TeamChip } from './common'
+import { aiPickDelay, availablePool, draftBoard, DRAFT_SPEEDS, picksUntil, rankedPool, rosterBySlot, upcomingPicks } from './draft'
+import { ROLE_FILTERS, type RoleFilter } from './playerList'
 import { useShallow } from 'zustand/react/shallow'
-
-const ROLE_FILTERS: { k: 'ALL' | Role | 'AR'; label: string }[] = [
-  { k: 'ALL', label: 'All' },
-  { k: 'WK', label: 'WK' },
-  { k: 'BAT', label: 'BAT' },
-  { k: 'AR', label: 'AR' },
-  { k: 'BOWL', label: 'BOWL' },
-]
 
 export function DraftRoom() {
   const d = getData()
@@ -23,7 +16,7 @@ export function DraftRoom() {
   const [paused, setPaused] = useState(false)
   const [autoMe, setAutoMe] = useState(false)
   const [view, setView] = useState<'players' | 'board'>('players')
-  const [role, setRole] = useState<(typeof ROLE_FILTERS)[number]['k']>('ALL')
+  const [role, setRole] = useState<RoleFilter>('ALL')
   const [team, setTeam] = useState('ALL')
   const [q, setQ] = useState('')
   const [sideTab, setSideTab] = useState<'roster' | 'queue'>('roster')
@@ -34,35 +27,19 @@ export function DraftRoom() {
   const youOnClock = onClock === 0
   const taken = useMemo(() => draftedSet(league), [league])
 
-  const ranked = useMemo(
-    () => [...d.pool].sort((a, b) => preseasonValue(b) - preseasonValue(a)),
-    [d],
-  )
-  const adp = useMemo(() => new Map(ranked.map((p, i) => [p.idx, i + 1])), [ranked])
-
-  const pool = useMemo(() => {
-    const needle = q.toLowerCase()
-    return ranked.filter((p) => {
-      if (taken.has(p.idx)) return false
-      if (role === 'AR' ? !(p.role === 'ARB' || p.role === 'ARW') : role !== 'ALL' && p.role !== role) return false
-      if (team !== 'ALL' && p.team !== team) return false
-      if (needle && !`${p.name} ${p.fullName} ${p.rawName}`.toLowerCase().includes(needle)) return false
-      return true
-    })
-  }, [ranked, taken, role, team, q])
+  const adp = rankedPool(d).rank
+  const pool = useMemo(() => availablePool(getData(), taken, { role, team, q }), [taken, role, team, q])
 
   // AI picks
   useEffect(() => {
     if (paused || onClock === null || (onClock === 0 && !autoMe)) return
-    const delay = league.draft.speed === 'instant' ? 30 : league.draft.speed === 'fast' ? 280 : 950
-    const t = setTimeout(draftAuto, delay)
+    const t = setTimeout(draftAuto, aiPickDelay(league.draft.speed))
     return () => clearTimeout(t)
   }, [paused, onClock, picks.length, league.draft.speed, draftAuto, autoMe])
 
   // upcoming slots for ticker
-  const upcoming: { overall: number; teamId: number }[] = []
-  for (let k = picks.length; k < Math.min(picks.length + 8, n * league.draft.rounds); k++) upcoming.push({ overall: k + 1, teamId: teamAtPick(league, k) })
-  const yourNext = upcoming.findIndex((u) => u.teamId === 0)
+  const upcoming = upcomingPicks(league, 8)
+  const yourNext = picksUntil(league, 0)
 
   const tickerRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -71,8 +48,7 @@ export function DraftRoom() {
 
   const me = league.teams[0]
   // recomputed on picks, not on every timer tick or keystroke
-  const myLineup = useMemo(() => bestLineup(d, league, me, 1).starters, [d, league, me])
-  const bench = me.roster.filter((p) => !myLineup.includes(p))
+  const { starters: myLineup, bench } = useMemo(() => rosterBySlot(getData(), league, 0), [league])
   const round = Math.floor(picks.length / n) + 1
   const pickInRound = (picks.length % n) + 1
   const otcTeam = onClock !== null ? league.teams[onClock] : null
@@ -88,7 +64,7 @@ export function DraftRoom() {
           </div>
         </div>
         <div className="row" style={{ gap: 6, marginLeft: 12 }}>
-          <span className="chip turf">
+          <span className="chip accent">
             Round {Math.min(round, league.draft.rounds)} / {league.draft.rounds}
           </span>
           <span className="chip">Pick {pickInRound} · #{picks.length + 1} overall</span>
@@ -105,11 +81,11 @@ export function DraftRoom() {
             {!youOnClock && <Bot size={16} className="muted spin-ball" style={{ animationDuration: '2.4s' }} />}
           </div>
         )}
-        {!youOnClock && yourNext >= 0 && <span className="muted" style={{ fontSize: 13 }}>Your pick in {yourNext}</span>}
+        {!youOnClock && yourNext !== null && <span className="muted" style={{ fontSize: 13 }}>Your pick in {yourNext}</span>}
         <div className="seg">
-          {(['normal', 'fast', 'instant'] as const).map((s) => (
-            <button key={s} className={league.draft.speed === s ? 'on' : ''} onClick={() => setDraftSpeed(s)}>
-              {s === 'normal' ? '1×' : s === 'fast' ? '3×' : 'Max'}
+          {DRAFT_SPEEDS.map((s) => (
+            <button key={s.value} className={league.draft.speed === s.value ? 'on' : ''} onClick={() => setDraftSpeed(s.value)}>
+              {s.short}
             </button>
           ))}
         </div>
@@ -169,8 +145,8 @@ export function DraftRoom() {
               <>
                 <div className="seg">
                   {ROLE_FILTERS.map((r) => (
-                    <button key={r.k} className={role === r.k ? 'on' : ''} onClick={() => setRole(r.k)}>
-                      {r.label}
+                    <button key={r} className={role === r ? 'on' : ''} onClick={() => setRole(r)}>
+                      {r === 'ALL' ? 'All' : r}
                     </button>
                   ))}
                 </div>
@@ -336,7 +312,7 @@ function PoolRow({ p, rank, queued, canPick, onPick, onQueue, onOpen }: { p: Pla
       </td>
       <td className="n">{p.s25.apps || '–'}</td>
       <td className="n">{p.s25.apps ? fmt(p.s25.avg, 1) : <span className="dim">new</span>}</td>
-      <td className="n turf">{fmt(preseasonValue(p), 0)}</td>
+      <td className="n accent">{fmt(preseasonValue(p), 0)}</td>
       <td style={{ width: 34 }}>
         <button className="btn sm icon ghost" onClick={onQueue} title={queued ? 'Remove from queue' : 'Add to queue'}>
           <Star size={15} fill={queued ? 'var(--gold)' : 'none'} color={queued ? 'var(--gold)' : 'currentColor'} />
@@ -367,8 +343,8 @@ function PickClock({ total, paused, onExpire }: { total: number; paused: boolean
   return (
     <div className="timer-ring">
       <svg width="44" height="44">
-        <circle cx="22" cy="22" r={r} stroke="rgba(239,230,204,0.12)" strokeWidth="4" fill="none" />
-        <circle cx="22" cy="22" r={r} stroke={left <= 10 ? 'var(--ball)' : 'var(--turf)'} strokeWidth="4" fill="none" strokeDasharray={c} strokeDashoffset={c * (1 - frac)} strokeLinecap="round" style={{ transition: 'stroke-dashoffset 1s linear' }} />
+        <circle cx="22" cy="22" r={r} stroke="var(--line-2)" strokeWidth="4" fill="none" />
+        <circle cx="22" cy="22" r={r} stroke={left <= 10 ? 'var(--live)' : 'var(--accent)'} strokeWidth="4" fill="none" strokeDasharray={c} strokeDashoffset={c * (1 - frac)} strokeLinecap="round" style={{ transition: 'stroke-dashoffset 1s linear' }} />
       </svg>
       <b className={left <= 10 ? 'red' : ''}>{left}</b>
     </div>
@@ -380,7 +356,6 @@ export function DraftBoard() {
   const league = useApp((s) => s.league)!
   const openPlayer = useApp((s) => s.openPlayer)
   const n = league.numTeams
-  const byCell = new Map(league.draft.picks.map((p) => [`${p.round}-${p.teamId}`, p]))
   return (
     <div className="board" style={{ gridTemplateColumns: `repeat(${n}, minmax(118px, 1fr))` }}>
       {league.draft.order.map((tid) => {
@@ -392,9 +367,9 @@ export function DraftBoard() {
           </div>
         )
       })}
-      {Array.from({ length: league.draft.rounds }, (_, r) =>
-        league.draft.order.map((tid) => {
-          const pk = byCell.get(`${r + 1}-${tid}`)
+      {draftBoard(league).map((row, r) =>
+        row.map((pk, c) => {
+          const tid = league.draft.order[c]
           const p = pk ? d.players[pk.player] : null
           return (
             <div key={`${r}-${tid}`} className={`board-cell ${p?.role ?? ''} ${tid === 0 ? 'mine' : ''}`} style={{ cursor: p ? 'pointer' : undefined }} onClick={() => p && openPlayer(p.idx)}>

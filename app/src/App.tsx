@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { startBots } from './bots'
-import { loadData } from './engine/data'
+import { loadData } from './loadData'
 import { upgradeLeague } from './engine/league'
 import { setData, useApp } from './store'
 import { Logo } from './ui/common'

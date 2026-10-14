@@ -5,11 +5,14 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { dmChannel, emptyChat, markRead, post, toggleReaction, unreadCount } from '../src/engine/chat'
-import { loadData, type Data } from '../src/engine/data'
+import type { Data } from '../src/engine/data'
+import { loadData } from '../src/loadData'
+import { restOfSeason } from '../src/engine/data'
 import {
-  chooseDraftPick, countedMatch, createLeague, currentWeek, lineupProblem, lockedPick, makePick, playNext, proposeTrade,
-  respondTrade, reviewTrade, setMatchPick, slotLocked, SLOTS, teamOnClock, tradeProblem, weekMatches, withdrawTrade,
-  type League,
+  addMode, botTradeVerdict, canFillLineup, chooseDraftPick, countedMatch, createLeague, currentWeek, dropPlayer,
+  freeAgentAdd, isOffRoster, lineupProblem, lockedPick, makePick, optimizeLineup, overLimit, placeClaim, playNext,
+  proposeTrade, respondTrade, reviewTrade, ROSTER_SIZE, setMatchPick, slotLocked, SLOTS, teamOnClock,
+  TRADE_DEADLINE_WEEK, tradeProblem, weekMatches, withdrawTrade, type League,
 } from '../src/engine/league'
 import { computeLines } from '../src/engine/scoring'
 import { FLAG_LEGBYE, FLAG_NOBALL, type RawMatch } from '../src/engine/types'
@@ -222,13 +225,203 @@ describe('trades and the commissioner', () => {
     expect(stages).toEqual(['proposed', 'withdrawn', 'proposed', 'declined', 'proposed', 'expired'])
   })
 
-  it('mismatched or deadline-breaking offers are refused', () => {
+  it('empty-sided or deadline-breaking offers are refused', () => {
     const l = drafted()
     const [p] = legalPair(l)
-    expect(proposeTrade(d, l, 0, 1, [p], []).error).toMatch(/same number/)
+    expect(proposeTrade(d, l, 0, 1, [p], []).error).toMatch(/at least one player/)
     while (currentWeek(d, l) < 5) playNext(d, l)
     const [x, y] = [l.teams[0].roster[0], l.teams[1].roster[0]]
     expect(tradeProblem(d, l, 0, 1, [x], [y])).toMatch(/deadline/)
+  })
+})
+
+describe('trading players who have already played (off roster)', () => {
+  /** Play week 1 until one of my starters' counting match is over, with more of the week still to come. */
+  function lockedStarter(l: League): number {
+    l.teams[0].autoSub = false
+    while (currentWeek(d, l) === 1) {
+      const p = l.teams[0].starters.find((x) => x !== null && slotLocked(d, l, 0, x))
+      if (p != null && d.matches[l.played].gw === 1) return p
+      playNext(d, l)
+    }
+    throw new Error('no starter played early in week 1')
+  }
+  /** Propose, accept and approve; returns the offer. */
+  function trade(l: League, from: number, to: number, give: number[], get: number[]) {
+    const t = proposeTrade(d, l, from, to, give, get).trade!
+    expect(t).toBeDefined()
+    respondTrade(d, l, t.id, true)
+    if (t.status === 'review') reviewTrade(d, l, t.id, true, l.commissionerId)
+    return t
+  }
+  const partner = (l: League, p: number) => l.teams[1].roster.find((x) => !tradeProblem(d, l, 0, 1, [p], [x]))!
+
+  it('a starter who has played stays in the old lineup this week, his points count there, and his slot is frozen', () => {
+    const l = drafted()
+    const p = lockedStarter(l)
+    const slot = l.teams[0].starters.indexOf(p)
+    expect(trade(l, 0, 1, [p], [partner(l, p)]).status).toBe('approved')
+    expect(l.teams[0].roster).not.toContain(p)
+    expect(l.teams[1].roster).toContain(p)
+    expect(l.teams[0].starters[slot]).toBe(p)
+    expect(isOffRoster(l, 0, p)).toBe(true)
+    // nobody can reuse his slot this week, and his new team can't start him until next week
+    const bench = l.teams[0].roster.find((x) => !l.teams[0].starters.includes(x) && d.players[x].elig.includes(SLOTS[slot]))
+    if (bench !== undefined) {
+      const next = [...l.teams[0].starters]
+      next[slot] = bench
+      expect(lineupProblem(d, l, 0, next)).toMatch(/locked/)
+    }
+    expect(l.teams[1].starters).not.toContain(p)
+    const j = l.teams[1].starters.findIndex((x, i) => x !== null && !slotLocked(d, l, 1, x) && d.players[p].elig.includes(SLOTS[i]))
+    if (j >= 0) {
+      const theirs = [...l.teams[1].starters]
+      theirs[j] = p
+      expect(lineupProblem(d, l, 1, theirs)).toMatch(/can't come in/)
+    }
+    while (currentWeek(d, l) === 1) playNext(d, l)
+    expect(l.results[1].starters[0]).toContain(p)
+    expect(l.results[1].starters[1]).not.toContain(p)
+    // the week is over: he leaves my lineup and the slot is refilled from my roster
+    expect(l.teams[0].starters).not.toContain(p)
+    expect(l.teams[0].starters.every((x) => x === null || l.teams[0].roster.includes(x))).toBe(true)
+    expect(l.teams[0].offRoster).toBeUndefined()
+  })
+
+  it('traded back the same week, he is an ordinary starter again', () => {
+    const l = drafted()
+    const p = lockedStarter(l)
+    const slot = l.teams[0].starters.indexOf(p)
+    trade(l, 0, 1, [p], [partner(l, p)])
+    const mine = l.teams[0].roster.find((x) => !tradeProblem(d, l, 0, 1, [x], [p]))!
+    expect(trade(l, 0, 1, [mine], [p]).status).toBe('approved')
+    expect(l.teams[0].roster).toContain(p)
+    expect(l.teams[0].starters[slot]).toBe(p)
+    expect(isOffRoster(l, 0, p)).toBe(false)
+  })
+})
+
+describe('uneven trades and the roster limit', () => {
+  /** A 1-for-2 from me to team 1 at the start of week 1 (nobody locked yet). */
+  function oneForTwo(l: League) {
+    const B = l.teams[1]
+    for (const p of l.teams[0].roster) for (const q of B.roster) for (const r of B.roster) {
+      if (q < r && !tradeProblem(d, l, 0, 1, [p], [q, r])) {
+        const t = proposeTrade(d, l, 0, 1, [p], [q, r]).trade!
+        respondTrade(d, l, t.id, true)
+        reviewTrade(d, l, t.id, true, 0)
+        expect(t.status).toBe('approved')
+        return
+      }
+    }
+    throw new Error('no legal 1-for-2 found')
+  }
+
+  it('goes through over the limit; until you drop, your lineup and adds are frozen', () => {
+    const l = drafted()
+    const me = l.teams[0]
+    me.autoLineup = false
+    oneForTwo(l)
+    expect(me.roster).toHaveLength(ROSTER_SIZE + 1)
+    expect(overLimit(l, 0)).toBe(1)
+    expect(l.teams[1].roster).toHaveLength(ROSTER_SIZE - 1)
+    expect(lineupProblem(d, l, 0, [...me.starters])).toMatch(/over the/)
+    expect(optimizeLineup(d, l, 0)).toMatch(/over the/)
+    const fa = d.pool.find((x) => addMode(d, l, x.idx) === 'free')!.idx
+    expect(freeAgentAdd(d, l, 0, fa, me.roster[0])).toMatch(/over the/)
+    expect(placeClaim(l, 0, fa, me.roster[0], 0)).toMatch(/over the/)
+    const spare = me.roster.find((x) => !me.starters.includes(x))!
+    expect(dropPlayer(d, l, 0, spare)).toBeNull()
+    expect(overLimit(l, 0)).toBe(0)
+    expect(lineupProblem(d, l, 0, [...me.starters])).toBeNull()
+  })
+
+  it('anyone still over the limit when the week ends loses their least valuable bench players', () => {
+    const l = drafted()
+    l.teams[0].autoLineup = false
+    oneForTwo(l)
+    while (currentWeek(d, l) === 1) playNext(d, l)
+    const me = l.teams[0]
+    expect(me.roster).toHaveLength(ROSTER_SIZE)
+    expect(canFillLineup(d, me.roster)).toBe(true)
+    expect(me.starters.every((x) => x !== null && me.roster.includes(x))).toBe(true)
+    expect(l.txns.some((t) => t.teamId === 0 && t.type === 'drop' && /roster limit/.test(t.note ?? ''))).toBe(true)
+  })
+
+  it('AI managers drop down straight away, and count the players they would have to cut', () => {
+    const l = drafted()
+    const ros = (p: number) => restOfSeason(d, d.players[p], l.played)
+    const B = l.teams[1]
+    // three of my least valuable players for their best: not worth the two players they'd have to cut
+    const junk = [...l.teams[0].roster].sort((a, b) => ros(a) - ros(b)).slice(0, 3)
+    const star = [...B.roster].sort((a, b) => ros(b) - ros(a))[0]
+    const offer = proposeTrade(d, l, 0, 1, junk, [star]).trade
+    if (offer) expect(botTradeVerdict(d, l, offer).accept).toBe(false)
+    // a 2-for-1 they accept leaves them at 16 for a moment: they drop one right away
+    for (const p of l.teams[0].roster) for (const q of l.teams[0].roster) for (const r of B.roster) {
+      if (p < q && !tradeProblem(d, l, 0, 1, [p, q], [r])) {
+        const t = proposeTrade(d, l, 0, 1, [p, q], [r]).trade!
+        respondTrade(d, l, t.id, true)
+        reviewTrade(d, l, t.id, true, 0)
+        expect(B.roster).toHaveLength(ROSTER_SIZE)
+        expect(l.txns.some((x) => x.teamId === 1 && x.type === 'drop')).toBe(true)
+        return
+      }
+    }
+  })
+
+  it('random uneven trades, including players who have played, never break a week', () => {
+    for (let run = 0; run < 3; run++) {
+      const l = drafted()
+      const pick = <T>(xs: T[]) => xs[Math.floor(Math.random() * xs.length)]
+      const some = (xs: number[]) => [...xs].sort(() => Math.random() - 0.5).slice(0, 1 + Math.floor(Math.random() * 3))
+      let week = 0
+      while (l.phase === 'season' && l.played < d.matches.length) {
+        if (currentWeek(d, l) !== week) {
+          week = currentWeek(d, l)
+          // every week starts clean: rosters within the limit, lineups only from the roster, each player once
+          const seen = new Set<number>()
+          for (const t of l.teams) {
+            expect(t.roster.length).toBeLessThanOrEqual(ROSTER_SIZE)
+            expect(t.offRoster).toBeUndefined()
+            for (const p of t.starters) if (p !== null) expect(t.roster).toContain(p)
+            for (const p of t.roster) {
+              expect(seen.has(p)).toBe(false)
+              seen.add(p)
+            }
+          }
+        }
+        if (week < TRADE_DEADLINE_WEEK && Math.random() < 0.35) {
+          const a = pick(l.teams)
+          const b = pick(l.teams.filter((t) => t.id !== a.id))
+          const give = some(a.roster)
+          const get = some(b.roster)
+          if (!tradeProblem(d, l, a.id, b.id, give, get)) {
+            const t = proposeTrade(d, l, a.id, b.id, give, get).trade!
+            respondTrade(d, l, t.id, true)
+            if (t.status === 'review') reviewTrade(d, l, t.id, true, l.commissionerId)
+          }
+        }
+        playNext(d, l)
+      }
+      expect(l.phase).toBe('complete')
+      for (const [wk, r] of Object.entries(l.results)) {
+        // no player counts for two teams in the same week, and every score is one counted match per starter
+        const counted = new Set<number>()
+        for (const t of l.teams) {
+          let s = 0
+          r.starters[t.id].forEach((p, i) => {
+            const c = r.counted![t.id][i]
+            if (p === null || c === null) return
+            expect(counted.has(p)).toBe(false)
+            counted.add(p)
+            expect(weekMatches(d, p, Number(wk))).toContain(c)
+            s += d.players[p].games.get(c)?.pts.total ?? 0
+          })
+          expect(r.scores[t.id]).toBeCloseTo(s, 2)
+        }
+      }
+    }
   })
 })
 

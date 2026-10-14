@@ -2,29 +2,15 @@ import {
   ArrowLeftRight, Check, CircleDollarSign, Gavel, Hourglass, LayoutGrid, Minus, Plus, Trophy, X,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
-import type { ChatEvent, ChatMessage } from '../../engine/chat'
+import type { ChatEvent, ChatMessage, TradeStage } from '../../engine/chat'
 import { restOfSeason } from '../../engine/data'
-import {
-  managerName, matchupsForWeek, matchupWinner, REG_WEEKS, standings,
-  type TradeOffer, type TradeStatus,
-} from '../../engine/league'
+import { managerName, matchupsForWeek, matchupWinner, REG_WEEKS, standings, type TradeOffer } from '../../engine/league'
 import { fmt } from '../../engine/scoring'
 import { getData, ME, useApp } from '../../store'
 import { FTeamAvatar, PlayerAvatar, RoleTag, TeamChip } from '../common'
 import { weekLabel } from '../format'
-import { teamLabel, tradeLine, who } from './chatText'
+import { leagueTradeInfo, offerStatusText, teamLabel, TRADE_STATUS as STATUS, tradeLine, tradeSides, txnVerb, who } from './chatText'
 import { useShallow } from 'zustand/react/shallow'
-
-const STATUS: Record<TradeStatus, { label: string; tone: string }> = {
-  pending: { label: 'Pending', tone: 'gold' },
-  review: { label: 'In review', tone: 'sky' },
-  approved: { label: 'Processed', tone: 'ok' },
-  declined: { label: 'Declined', tone: 'bad' },
-  withdrawn: { label: 'Withdrawn', tone: '' },
-  expired: { label: 'Expired', tone: '' },
-  vetoed: { label: 'Vetoed', tone: 'bad' },
-  failed: { label: 'Failed', tone: 'bad' },
-}
 
 // ---------------------------------------------------------------- building blocks
 
@@ -83,7 +69,7 @@ export function EventMessage({ m, inDm }: { m: ChatMessage; inDm: boolean }) {
       )
     case 'draft-complete':
       return (
-        <Card icon={<LayoutGrid size={15} />} tone="var(--turf)" title="The draft is complete">
+        <Card icon={<LayoutGrid size={15} />} tone="var(--accent)" title="The draft is complete">
           <div className="cc-b dim" style={{ fontSize: 13 }}>
             {league.draft.rounds} rounds, {league.numTeams} teams, {league.draft.picks.length} picks. Set your lineup — Week 1 is up next.
           </div>
@@ -121,11 +107,11 @@ export function EventMessage({ m, inDm }: { m: ChatMessage; inDm: boolean }) {
 function TxnCard({ teamId, adds, drops }: { teamId: number; adds: number[]; drops: number[] }) {
   const league = useApp((s) => s.league)!
   const t = league.teams[teamId]
-  const verb = adds.length && drops.length ? 'added and dropped' : adds.length ? 'added' : 'dropped'
+  const verb = txnVerb(adds, drops)
   return (
     <Card
       icon={adds.length ? <Plus size={15} /> : <Minus size={15} />}
-      tone={adds.length ? 'var(--turf)' : 'var(--loss)'}
+      tone={adds.length ? 'var(--accent)' : 'var(--loss)'}
       title={<span className="row" style={{ gap: 8 }}><FTeamAvatar t={t} size="sm" /><span><b>{teamLabel(league, teamId)}</b> <span className="dim">{verb}</span></span></span>}
       aside={<span className="chip">Free agency</span>}
     >
@@ -150,7 +136,7 @@ function WaiversCard({ e }: { e: Extract<ChatEvent, { type: 'waivers' }> }) {
             <div className="grow" style={{ minWidth: 0, fontSize: 13, lineHeight: 1.5 }}>
               <b>{teamLabel(league, c.teamId)}</b>
               <div>
-                <span className="turf">+ </span>
+                <span className="accent">+ </span>
                 <b className="link" onClick={() => openPlayer(c.add)}>{d.players[c.add].name}</b>
                 {c.drop !== null && (
                   <>
@@ -229,13 +215,7 @@ function TradeSides({ t, perspective }: { t: TradeOffer; perspective: 'me' | 'le
   const league = useApp((s) => s.league)!
   const d = getData()
   const ros = (p: number) => restOfSeason(d, d.players[p], league.played)
-  // `give` moves from → to, `get` moves to → from
-  const sides =
-    perspective === 'me'
-      ? t.from === ME
-        ? [{ label: 'You get', ps: t.get }, { label: 'You give', ps: t.give }]
-        : [{ label: 'You get', ps: t.give }, { label: 'You give', ps: t.get }]
-      : [{ label: `${teamLabel(league, t.from)} get${t.from === ME ? '' : 's'}`, ps: t.get }, { label: `${teamLabel(league, t.to)} get${t.to === ME ? '' : 's'}`, ps: t.give }]
+  const sides = tradeSides(league, t, perspective)
   const live = t.status === 'pending' || t.status === 'review'
   return (
     <div className="cc-sides">
@@ -279,26 +259,10 @@ function CommishActions({ t }: { t: TradeOffer }) {
 
 function LeagueTradeCard({ t, stage, by }: { t: TradeOffer; stage: TradeStage; by: number | null }) {
   const league = useApp((s) => s.league)!
-  const head =
-    stage === 'review'
-      ? { title: t.status === 'review' ? 'Trade pending review' : 'Trade sent for review', tone: 'var(--gold)', icon: <Hourglass size={15} /> }
-      : stage === 'approved'
-        ? { title: 'Trade processed', tone: 'var(--turf)', icon: <ArrowLeftRight size={15} /> }
-        : stage === 'vetoed'
-          ? { title: 'Trade vetoed', tone: 'var(--loss)', icon: <Gavel size={15} /> }
-          : { title: 'Trade failed', tone: 'var(--loss)', icon: <X size={15} /> }
-  const foot =
-    stage === 'approved'
-      ? by === null ? 'Review period ended with no veto.' : `Approved by the commissioner (${who(league, by)}).`
-      : stage === 'vetoed'
-        ? `Vetoed by the commissioner (${by === null ? 'league' : who(league, by)}).`
-        : stage === 'failed'
-          ? t.reason
-          : t.status !== 'review'
-            ? `Outcome: ${STATUS[t.status].label.toLowerCase()}`
-            : null
+  const { title, tone, foot } = leagueTradeInfo(league, t, stage, by)
+  const icon = stage === 'review' ? <Hourglass size={15} /> : stage === 'approved' ? <ArrowLeftRight size={15} /> : stage === 'vetoed' ? <Gavel size={15} /> : <X size={15} />
   return (
-    <Card icon={head.icon} tone={head.tone} title={<b>{head.title}</b>} aside={stage === 'review' && <span className={`chip ${STATUS[t.status].tone}`}>{STATUS[t.status].label}</span>}>
+    <Card icon={icon} tone={`var(--${tone})`} title={<b>{title}</b>} aside={stage === 'review' && <span className={`chip ${STATUS[t.status].tone}`}>{STATUS[t.status].label}</span>}>
       <div className="cc-b">
         <TradeSides t={t} perspective="league" />
         {foot && <div className="dim" style={{ fontSize: 12, marginTop: 10 }}>{foot}</div>}
@@ -308,14 +272,11 @@ function LeagueTradeCard({ t, stage, by }: { t: TradeOffer; stage: TradeStage; b
   )
 }
 
-type TradeStage = Extract<ChatEvent, { type: 'trade' }>['stage']
-
 export function TradeOfferCard({ t }: { t: TradeOffer }) {
   const league = useApp((s) => s.league)!
   const { respondTrade, withdrawTrade, notify } = useApp(useShallow((s) => ({ respondTrade: s.respondTrade, withdrawTrade: s.withdrawTrade, notify: s.notify })))
   const st = STATUS[t.status]
   const incoming = t.to === ME
-  const other = incoming ? t.from : t.to
   return (
     <Card
       className="cc-offer"
@@ -327,12 +288,7 @@ export function TradeOfferCard({ t }: { t: TradeOffer }) {
       <div className="cc-b">
         {t.note && <div className="cc-note">“{t.note}”</div>}
         <TradeSides t={t} perspective="me" />
-        <div className="dim" style={{ fontSize: 12, marginTop: 10 }}>
-          {t.status === 'pending' && (incoming ? `Expires at the end of ${weekLabel(t.expiresWeek)}.` : `Waiting on ${who(league, other)}…`)}
-          {t.status === 'review' && (league.commissionerId === ME ? 'Accepted. As commissioner, approve or veto it in the league chat.' : 'Accepted. Waiting on the commissioner.')}
-          {t.status === 'approved' && 'Done. The players have moved.'}
-          {t.status === 'failed' && t.reason}
-        </div>
+        <div className="dim" style={{ fontSize: 12, marginTop: 10 }}>{offerStatusText(league, t)}</div>
       </div>
       {t.status === 'pending' && (
         <div className="cc-actions">

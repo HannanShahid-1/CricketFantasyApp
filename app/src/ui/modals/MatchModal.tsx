@@ -5,7 +5,7 @@ import { fmt, oversStr, type Points, type StatLine } from '../../engine/scoring'
 import { getData, useApp } from '../../store'
 import { FTeamAvatar, Modal, PlayerAvatar, TeamChip } from '../common'
 import { fmtDate } from '../format'
-import { inningsDetails } from '../scorecard'
+import { economy, fantasyLeaders, inningsDetails, strikeRate } from '../scorecard'
 import { useShallow } from 'zustand/react/shallow'
 
 export function MatchModal({ mi }: { mi: number }) {
@@ -21,10 +21,10 @@ export function MatchModal({ mi }: { mi: number }) {
     const o = owned.get(p)
     return o === undefined ? null : <FTeamAvatar t={league.teams[o]} size="sm" />
   }
-  const ptsCell = (pts?: Points) => <td className="n turf" style={{ fontSize: 14 }}>{pts ? fmt(pts.total) : ''}</td>
+  const ptsCell = (pts?: Points) => <td className="n accent" style={{ fontSize: 14 }}>{pts ? fmt(pts.total) : ''}</td>
 
   // fantasy leaderboard
-  const lb = [...m.points.entries()].sort((a, b) => b[1].total - a[1].total).slice(0, 6)
+  const lb = fantasyLeaders(m).slice(0, 6)
 
   return (
     <Modal
@@ -48,7 +48,7 @@ export function MatchModal({ mi }: { mi: number }) {
                 </span>
               ))}
             </div>
-            <div className="turf" style={{ fontWeight: 600, marginTop: 4 }}>{m.raw.result}</div>
+            <div className="accent" style={{ fontWeight: 600, marginTop: 4 }}>{m.raw.result}</div>
           </div>
           <div className="grow" />
           <button className="btn sm" onClick={() => { close(); openLive(mi) }}>
@@ -66,7 +66,7 @@ export function MatchModal({ mi }: { mi: number }) {
                 <PlayerAvatar p={d.players[p]} size="sm" />
                 <div>
                   <div className="pname" style={{ fontSize: 13 }}>{d.players[p].name}</div>
-                  <div className="num turf" style={{ fontWeight: 700 }}>{fmt(pts.total)} pts</div>
+                  <div className="num accent" style={{ fontWeight: 700 }}>{fmt(pts.total)} pts</div>
                 </div>
               </div>
             ))}
@@ -112,7 +112,7 @@ export function MatchModal({ mi }: { mi: number }) {
                         <td className="n muted">{l.b}</td>
                         <td className="n muted">{l.fours}</td>
                         <td className="n muted">{l.sixes}</td>
-                        <td className="n muted">{l.b ? ((l.r / l.b) * 100).toFixed(1) : '–'}</td>
+                        <td className="n muted">{strikeRate(l)}</td>
                         {ptsCell(m.points.get(p))}
                         <td style={{ width: 36 }}>
                           {owner(p)}
@@ -150,7 +150,7 @@ export function MatchModal({ mi }: { mi: number }) {
                         <td className="n muted">{l.maidens}</td>
                         <td className="n muted">{l.rc}</td>
                         <td className="n" style={{ fontSize: 15 }}>{l.w}</td>
-                        <td className="n muted">{l.bb ? (l.rc / (l.bb / 6)).toFixed(2) : '–'}</td>
+                        <td className="n muted">{economy(l)}</td>
                         <td className="n muted">{l.dots}</td>
                         {ptsCell(m.points.get(p))}
                         <td style={{ width: 36 }}>

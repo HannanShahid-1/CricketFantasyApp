@@ -1,0 +1,64 @@
+/* Floodlit — the original night-match look: floodlit-turf green, cricket-ball red, cream "whites"
+   and Chakra Petch scoreboard type. This file lists every theme token: copy it to start a new theme. */
+:root[data-theme='floodlit'] {
+  color-scheme: dark;
+
+  /* surfaces */
+  --bg: #0b0f0e;
+  --panel: #121816;
+  --panel-2: #161d1a;
+  --panel-3: #1c2521;
+  --tint: #efe6cc;                     /* base colour for translucent fills on surfaces */
+  --shade: #000;                       /* base colour for recessed wells (inputs, chat list) */
+  --line: rgba(239, 230, 204, 0.07);
+  --line-2: rgba(239, 230, 204, 0.12);
+  --scrim: rgba(4, 6, 5, 0.7);         /* behind modals */
+
+  /* text */
+  --text: #f1ead6;
+  --muted: #9db0a5;
+  --dim: #637a6e;
+  --hi: #efe6cc;                       /* strongest emphasis: scores, finished-match balls, selected week */
+  --ink: #10200a;                      /* text on --hi */
+  --team-ink: #0b140f;                 /* initials on fantasy-team badges */
+
+  /* accents */
+  --accent: #c4ef6a;
+  --accent-ink: #10200a;
+  --accent-hover: #d4f78a;
+  --live: #e5383b;
+  --live-2: #ff6b5e;                   /* live/alert text */
+  --live-ink: #fff;
+  --gold: #f5b942;
+  --sky: #6cc4ff;
+  --win: #7be38f;
+  --loss: #ff7a72;
+  --seam: rgba(229, 56, 59, 0.45);     /* stitched divider */
+
+  /* roles */
+  --wk: #f5b942;
+  --bat: #6cc4ff;
+  --bowl: #7be38f;
+  --flex: #e7a8ff;
+  --ar: #c9a2ff;
+
+  --team-sat: 100%;                    /* how much of a team's own colour shows (rest is --panel) */
+  --badge-outline: 100%;               /* opacity of role/slot badge outlines */
+  --hero-lift: 0%;                     /* lightens role colours on the player card's dark photo header */
+
+  --r-sm: 8px;
+  --r: 14px;
+  --r-lg: 20px;
+
+  /* type */
+  --font: 'Inter Variable', system-ui, -apple-system, Segoe UI, sans-serif;
+  --display: 'Chakra Petch', 'Inter Variable', system-ui, sans-serif;
+  --num: var(--display);               /* scores and stats */
+  --num-weight: 700;
+  --num-tracking: 0;
+  --title-font: var(--display);        /* page titles, brand, landing headline */
+  --title-weight: 700;
+  --title-tracking: 0.02em;
+  --title-scale: 1;
+  --title-em: normal;                  /* the highlighted word in the landing headline */
+}

@@ -6,12 +6,15 @@ import { fantasyAdvice } from '../../engine/fantasyAdvice'
 import { scoutingProfile } from '../../engine/playerProfile'
 import { playerAge } from '../../engine/playerAge'
 import { addMode, currentWeek, isLocked, rosteredBy, weekMatches } from '../../engine/league'
-import { batLine, bowlLine, fieldLine, fmt } from '../../engine/scoring'
+import { fmt } from '../../engine/scoring'
 import { getData, useApp } from '../../store'
 import { FTeamAvatar, Modal, PlayerPortrait, TeamChip } from '../common'
 import { fmtDate, weekLabel } from '../format'
 import { MatchPicker } from '../MatchPicker'
+import { cardPlayed, gameLog, ptsBand } from '../playerCard'
 import { useShallow } from 'zustand/react/shallow'
+
+const BAND_COLOR = { big: 'var(--accent)', low: 'var(--loss)', normal: undefined }
 
 export function PlayerModal({ pid }: { pid: number }) {
   const d = getData()
@@ -20,7 +23,7 @@ export function PlayerModal({ pid }: { pid: number }) {
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null)
   const [open, setOpen] = useState<number | null>(null)
   const p = d.players[pid]
-  const played = league?.phase === 'draft' || !league ? 0 : league.played
+  const played = cardPlayed(league)
   const s = seasonToDate(p, played)
   const owner = league ? rosteredBy(league).get(pid) : undefined
   const ownerTeam = owner !== undefined ? league!.teams[owner] : null
@@ -42,7 +45,7 @@ export function PlayerModal({ pid }: { pid: number }) {
   const displayGw = d.gameweeks.find((g) => g.gw === displayWeek)
   const avg = s.apps ? s.avg : null
 
-  const allMis = d.teamMis[p.team] ?? []
+  const log = gameLog(d, p, played)
   const inSeason = league && league.phase !== 'draft'
   const mode = inSeason ? addMode(d, league!, pid) : 'none'
 
@@ -79,7 +82,7 @@ export function PlayerModal({ pid }: { pid: number }) {
                 <span style={{ fontWeight: 600 }}>{ownerTeam.isUser ? 'On your team' : ownerTeam.name}</span>
               </div>
             ) : inSeason ? (
-              <span className={`chip ${mode === 'waiver' ? 'gold' : 'turf'}`}>{mode === 'waiver' ? 'On waivers' : 'Free agent'}</span>
+              <span className={`chip ${mode === 'waiver' ? 'gold' : 'accent'}`}>{mode === 'waiver' ? 'On waivers' : 'Free agent'}</span>
             ) : null}
             {inSeason && league!.phase === 'season' && (
               <div className="row" style={{ gap: 6 }}>
@@ -181,7 +184,7 @@ export function PlayerModal({ pid }: { pid: number }) {
                     {forecast.components.map((c) => <div key={c.label}><span>{c.label}</span><strong>{c.points >= 0 ? '+' : ''}{fmt(c.points, 2)}</strong></div>)}
                     <p>{Math.round(forecast.chance * 100)}% estimated playing probability, already included. {forecast.venueSamples} earlier role appearances at this venue; {forecast.opponentSamples} against this opponent. Small samples are discounted.</p>
                   </details>
-                  <div className={done ? 'turf' : 'dim'}><span>FPTS</span><strong>{done ? g ? fmt(g.pts.total, 1) : 'DNP' : '—'}</strong></div>
+                  <div className={done ? 'accent' : 'dim'}><span>FPTS</span><strong>{done ? g ? fmt(g.pts.total, 1) : 'DNP' : '—'}</strong></div>
                 </div>
               </article>
             }) : <p className="dim">No match scheduled this week.</p>}
@@ -195,7 +198,7 @@ export function PlayerModal({ pid }: { pid: number }) {
           <div className="player-scout">
             <div className="player-report-meta">Scouting profile · {profile.sampleSize} known appearances{profile.limited ? ' · Limited history' : ''}</div>
             <strong>{profile.identity}</strong>
-            <div className="row wrap" style={{ gap: 6, marginTop: 10 }}><span className="chip turf">{advice.recommendation}</span>{advice.tier && <span className="chip">{advice.tier}</span>}</div>
+            <div className="row wrap" style={{ gap: 6, marginTop: 10 }}><span className="chip accent">{advice.recommendation}</span>{advice.tier && <span className="chip">{advice.tier}</span>}</div>
             <p>{advice.opinion}</p>
             <details><summary>What this is based on</summary><p>{advice.explanation}</p><ul>{profile.evidence.length ? profile.evidence.map((fact) => <li key={fact}>{fact}</li>) : <li>No earlier appearances available.</li>}</ul><p>Usage is inferred from completed deliveries, not an official position label. First ball faced does not establish exact batting order; bowling phases refer to overs 1–6 and 17–20. No upcoming XI, injury or selection news is inferred.</p></details>
           </div>
@@ -222,24 +225,21 @@ export function PlayerModal({ pid }: { pid: number }) {
               </tr>
             </thead>
             <tbody>
-              {allMis.map((mi) => {
-                const m = d.matches[mi]
-                const opp = m.teams[0] === p.team ? m.teams[1] : m.teams[0]
-                const g = p.games.get(mi)
-                const done = mi < played
+              {log.map((e) => {
+                const g = e.game
                 return (
-                  <Fragment key={mi}>
-                    <tr style={{ cursor: done && g ? 'pointer' : undefined, opacity: done ? 1 : 0.45 }} onClick={() => done && g && setOpen(open === mi ? null : mi)}>
-                      <td className="dim">{m.gw}</td>
-                      <td>{fmtDate(m.raw.date)}</td>
+                  <Fragment key={e.mi}>
+                    <tr style={{ cursor: g ? 'pointer' : undefined, opacity: e.state === 'upcoming' ? 0.45 : 1 }} onClick={() => g && setOpen(open === e.mi ? null : e.mi)}>
+                      <td className="dim">{e.gw}</td>
+                      <td>{fmtDate(e.date)}</td>
                       <td>
                         <span className="row" style={{ gap: 6 }}>
-                          v <TeamChip code={opp} />
+                          v <TeamChip code={e.opp} />
                         </span>
                       </td>
-                      {!done ? (
+                      {e.state === 'upcoming' ? (
                         <td colSpan={4} className="dim">
-                          Upcoming · {m.raw.time}
+                          Upcoming · {e.time}
                         </td>
                       ) : !g ? (
                         <td colSpan={4} className="loss">
@@ -247,18 +247,18 @@ export function PlayerModal({ pid }: { pid: number }) {
                         </td>
                       ) : (
                         <>
-                          <td>{batLine(g.line) ?? <span className="dim">–</span>}</td>
-                          <td>{bowlLine(g.line) ?? <span className="dim">–</span>}</td>
-                          <td>{fieldLine(g.line) ?? <span className="dim">–</span>}</td>
-                          <td className="n" style={{ color: g.pts.total >= 25 ? 'var(--turf)' : g.pts.total < 2 ? 'var(--loss)' : undefined, fontSize: 15 }}>
+                          <td>{e.bat ?? <span className="dim">–</span>}</td>
+                          <td>{e.bowl ?? <span className="dim">–</span>}</td>
+                          <td>{e.field ?? <span className="dim">–</span>}</td>
+                          <td className="n" style={{ color: BAND_COLOR[ptsBand(g.pts.total)], fontSize: 15 }}>
                             {fmt(g.pts.total)}
                           </td>
                         </>
                       )}
                     </tr>
-                    {open === mi && g && (
+                    {open === e.mi && g && (
                       <tr>
-                        <td colSpan={7} style={{ background: 'rgba(0,0,0,.2)' }}>
+                        <td colSpan={7} style={{ background: 'color-mix(in srgb, var(--shade) 20%, transparent)' }}>
                           <div className="row wrap" style={{ gap: 6 }}>
                             {g.pts.parts.map((x, i) => (
                               <span key={i} className={`chip ${x.pts > 0 ? 'ok' : 'bad'}`}>
@@ -266,7 +266,7 @@ export function PlayerModal({ pid }: { pid: number }) {
                                 {fmt(x.pts)}
                               </span>
                             ))}
-                            <button className="btn xs ghost" style={{ marginLeft: 'auto' }} onClick={() => { close(); openMatch(mi) }}>
+                            <button className="btn xs ghost" style={{ marginLeft: 'auto' }} onClick={() => { close(); openMatch(e.mi) }}>
                               Full scorecard →
                             </button>
                           </div>

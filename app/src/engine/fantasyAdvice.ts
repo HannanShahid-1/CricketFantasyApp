@@ -15,7 +15,7 @@ export function fantasyAdvice(d: Data, p: Player, played: number, leagueSize = 8
   const known = (x: Player) => x.history.length + [...x.games.keys()].filter((mi) => mi < played).length
   const value = (x: Player) => perMatchProj(d, x, played) * availability(d, x, played)
   const chance = availability(d, p, played)
-  const explanation = `Editorial tiers compare expected FPTS among established players in the same primary role: ${size} players per tier in this ${size}-team league. Start advice also considers competition for eligible starting slots and estimated playing probability. These are opinions, not the season-total ranks above.`
+  const explanation = `Editorial tiers compare expected FPTS among established players in the same primary role: ${size} players per tier in this ${size}-team league. Start advice also considers competition for eligible starting slots and estimated playing probability. These are opinions, not season-total ranks.`
   if (profile.limited) return { tier: null, recommendation: 'Unproven', opinion: `${p.name} is a watchlist option for now. There is not enough history to call him a reliable fantasy starter; look for repeated opportunities before buying into a breakout.`, explanation }
   const peers = d.pool.filter((x) => x.role === p.role && known(x) >= 5)
   const positionRank = 1 + peers.filter((x) => value(x) > value(p)).length

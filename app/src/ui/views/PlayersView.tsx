@@ -1,15 +1,12 @@
 import { ArrowLeftRight, Plus, Search } from 'lucide-react'
 import { useMemo, useState, type ReactNode } from 'react'
-import { restOfSeason, seasonToDate } from '../../engine/data'
-import { addMode, currentWeek, playerWeek, rosteredBy } from '../../engine/league'
+import { currentWeek } from '../../engine/league'
 import { fmt } from '../../engine/scoring'
-import type { Role } from '../../engine/types'
 import { getData, useApp } from '../../store'
 import { MatchBalls, PlayerAvatar, RoleTag, TeamChip } from '../common'
 import { weekLabel } from '../format'
+import { playerRows, ROLE_FILTERS, STATUS_LABEL, type PlayerStatus, type RoleFilter, type SortKey } from '../playerList'
 import { useShallow } from 'zustand/react/shallow'
-
-type SortKey = 'season' | 'avg' | 'week' | 'ros' | 'last' | 'prev'
 
 function Th({ k, sort, onSort, children }: { k: SortKey; sort: SortKey; onSort: (k: SortKey) => void; children: ReactNode }) {
   return (
@@ -24,55 +21,14 @@ export function PlayersView() {
   const d = getData()
   const league = useApp((s) => s.league)!
   const { openPlayer, openAdd, openTrade } = useApp(useShallow((s) => ({ openPlayer: s.openPlayer, openAdd: s.openAdd, openTrade: s.openTrade })))
-  const [status, setStatus] = useState<'avail' | 'all' | 'mine' | 'rostered'>('avail')
-  const [role, setRole] = useState<'ALL' | Role | 'AR'>('ALL')
+  const [status, setStatus] = useState<PlayerStatus>('avail')
+  const [role, setRole] = useState<RoleFilter>('ALL')
   const [team, setTeam] = useState('ALL')
   const [q, setQ] = useState('')
   const [sort, setSort] = useState<SortKey>('ros')
   const week = currentWeek(d, league)
-  const owned = useMemo(() => rosteredBy(league), [league])
 
-  // every number a row shows is computed once here, then the same values drive both sorting and rendering
-  const rows = useMemo(() => {
-    const needle = q.toLowerCase()
-    const list = d.pool.filter((p) => {
-      const o = owned.get(p.idx)
-      if (status === 'avail' && o !== undefined) return false
-      if (status === 'mine' && o !== 0) return false
-      if (status === 'rostered' && o === undefined) return false
-      if (role === 'AR' ? !(p.role === 'ARB' || p.role === 'ARW') : role !== 'ALL' && p.role !== role) return false
-      if (team !== 'ALL' && p.team !== team) return false
-      if (needle && !`${p.name} ${p.fullName} ${p.rawName}`.toLowerCase().includes(needle)) return false
-      return true
-    })
-    const stats = list.map((p) => {
-      const o = owned.get(p.idx)
-      let last: number | null = null
-      let lastMi = -1
-      for (const g of p.games.values()) {
-        if (g.mi < league.played && g.mi > lastMi) {
-          lastMi = g.mi
-          last = g.pts.total
-        }
-      }
-      return {
-        p, o, last,
-        wk: playerWeek(d, league, o ?? null, p.idx, week),
-        season: seasonToDate(p, league.played),
-        ros: restOfSeason(d, p, league.played),
-        mode: o === undefined ? addMode(d, league, p.idx, owned) : 'none',
-      }
-    })
-    const key: Record<SortKey, (r: (typeof stats)[number]) => number> = {
-      season: (r) => r.season.pts,
-      avg: (r) => r.season.avg,
-      week: (r) => r.wk.total,
-      ros: (r) => r.ros,
-      last: (r) => r.last ?? -99,
-      prev: (r) => r.p.s25.avg,
-    }
-    return stats.sort((a, b) => key[sort](b) - key[sort](a))
-  }, [d, league, owned, status, role, team, q, sort, week])
+  const rows = useMemo(() => playerRows(getData(), league, { status, role, team, q }, sort), [league, status, role, team, q, sort])
 
   return (
     <>
@@ -82,21 +38,14 @@ export function PlayersView() {
       </div>
       <div className="row wrap" style={{ marginBottom: 14 }}>
         <div className="seg">
-          {(
-            [
-              ['avail', 'Available'],
-              ['all', 'All'],
-              ['rostered', 'Rostered'],
-              ['mine', 'Mine'],
-            ] as const
-          ).map(([k, l]) => (
+          {(Object.keys(STATUS_LABEL) as PlayerStatus[]).map((k) => (
             <button key={k} className={status === k ? 'on' : ''} onClick={() => setStatus(k)}>
-              {l}
+              {STATUS_LABEL[k]}
             </button>
           ))}
         </div>
         <div className="seg">
-          {(['ALL', 'WK', 'BAT', 'AR', 'BOWL'] as const).map((r) => (
+          {ROLE_FILTERS.map((r) => (
             <button key={r} className={role === r ? 'on' : ''} onClick={() => setRole(r)}>
               {r === 'ALL' ? 'All' : r}
             </button>
@@ -135,7 +84,7 @@ export function PlayersView() {
               </tr>
             </thead>
             <tbody>
-              {rows.slice(0, 200).map(({ p, o, wk, season: s, ros, last, mode }) => {
+              {rows.slice(0, 200).map(({ p, owner: o, week: wk, season: s, ros, last, mode }) => {
                 return (
                   <tr key={p.idx} className={o === 0 ? 'me' : ''}>
                     <td>
@@ -151,7 +100,7 @@ export function PlayersView() {
                     </td>
                     <td>
                       {o === undefined ? (
-                        mode === 'waiver' ? <span className="chip gold">Waivers</span> : <span className="chip turf">FA</span>
+                        mode === 'waiver' ? <span className="chip gold">Waivers</span> : <span className="chip accent">FA</span>
                       ) : o === 0 ? (
                         <span className="chip ok">Mine</span>
                       ) : (
@@ -167,7 +116,7 @@ export function PlayersView() {
                     <td className="n">{fmt(s.pts, 1)}</td>
                     <td className="n">{s.apps ? fmt(s.avg, 1) : '–'}</td>
                     <td className="n muted">{p.s25.apps ? fmt(p.s25.avg, 1) : '–'}</td>
-                    <td className="n turf">{fmt(ros, 0)}</td>
+                    <td className="n accent">{fmt(ros, 0)}</td>
                     <td style={{ width: 96 }}>
                       {o === undefined && league.phase === 'season' && (
                         <button className={`btn sm ${mode === 'free' ? 'primary' : ''}`} onClick={() => openAdd(p.idx)}>

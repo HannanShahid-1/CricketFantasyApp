@@ -1,4 +1,5 @@
-import type { Data } from '../engine/data'
+import type { Data, Match } from '../engine/data'
+import type { Points, StatLine } from '../engine/scoring'
 import { FLAG_BYE, FLAG_LEGBYE, FLAG_NOBALL, FLAG_NONBOUNDARY, FLAG_WIDE, type RawMatch } from '../engine/types'
 
 export interface InningsDetail {
@@ -17,10 +18,23 @@ export interface BallEvent {
   label: string // e.g. 14.3
   batter: number
   bowler: number
-  text: string
+  text: string // "Bumrah to Gill — FOUR! Raced to the rope"
+  desc: string // just the outcome: "FOUR! Raced to the rope"
   short: string // for the ball chip
   cls: '' | 'b4' | 'b6' | 'bw' | 'bx'
 }
+
+/** Batting strike rate, e.g. "142.9" ("–" before he has faced a ball). */
+export const strikeRate = (l: StatLine) => (l.b ? ((l.r / l.b) * 100).toFixed(1) : '–')
+
+/** Bowling economy in runs per over, e.g. "7.25" ("–" before he has bowled). */
+export const economy = (l: StatLine) => (l.bb ? (l.rc / (l.bb / 6)).toFixed(2) : '–')
+
+/** Runs per over, e.g. "8.45". */
+export const runRate = (runs: number, balls: number) => (balls ? ((runs / balls) * 6).toFixed(2) : '0.00')
+
+/** Everyone who played in the match with his fantasy points, best first. */
+export const fantasyLeaders = (m: Match): [number, Points][] => [...m.points.entries()].sort((a, b) => b[1].total - a[1].total)
 
 export function dismissalText(d: Data, kind: number, bowler: number, fielders: number[]): string {
   const n = (i: number) => d.players[i]?.name ?? '?'
@@ -112,7 +126,7 @@ export function ballEvents(d: Data, m: RawMatch): BallEvent[] {
       } else {
         text = `${rb} run${rb > 1 ? 's' : ''}`
       }
-      evs.push({ inn: ii, label, batter, bowler, text: `${n(bowler)} to ${n(batter)} — ${text}`, short, cls })
+      evs.push({ inn: ii, label, batter, bowler, text: `${n(bowler)} to ${n(batter)} — ${text}`, desc: text, short, cls })
     }
   })
   return evs

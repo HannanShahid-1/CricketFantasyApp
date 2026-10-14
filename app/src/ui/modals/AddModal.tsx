@@ -4,6 +4,7 @@ import { addMode, isLocked, ROSTER_SIZE } from '../../engine/league'
 import { fmt } from '../../engine/scoring'
 import { getData, useApp } from '../../store'
 import { Modal, PlayerAvatar, RoleTag, TeamChip } from '../common'
+import { suggestedBid } from '../transactions'
 import { useShallow } from 'zustand/react/shallow'
 
 export function AddModal({ pid }: { pid: number }) {
@@ -21,7 +22,7 @@ export function AddModal({ pid }: { pid: number }) {
   )
   const ros = (x: number) => rosMap.get(x) ?? 0
   const [drop, setDrop] = useState<number | null>(null)
-  const suggested = Math.min(me.faab, Math.max(1, Math.round(ros(pid) * 0.15)))
+  const suggested = suggestedBid(me.faab, ros(pid))
   const [bid, setBid] = useState(suggested)
   const close = () => openAdd(null)
   const candidates = [...me.roster].sort((a, b) => ros(a) - ros(b))
@@ -45,7 +46,7 @@ export function AddModal({ pid }: { pid: number }) {
               {mode === 'free' ? 'Add' : 'Waiver claim'}: {p.name}
             </div>
             <div className="pmeta">
-              <TeamChip code={p.team} /> <RoleTag p={p} /> · ROS proj <b className="turf">{fmt(ros(pid), 0)}</b>
+              <TeamChip code={p.team} /> <RoleTag p={p} /> · ROS proj <b className="accent">{fmt(ros(pid), 0)}</b>
             </div>
           </div>
         </div>
@@ -60,7 +61,7 @@ export function AddModal({ pid }: { pid: number }) {
               the gameweek ends — highest bid wins, ties go to waiver priority.
             </div>
             <div className="row">
-              <input type="range" min={0} max={me.faab} value={bid} onChange={(e) => setBid(Number(e.target.value))} className="grow" style={{ accentColor: '#c4ef6a' }} />
+              <input type="range" min={0} max={me.faab} value={bid} onChange={(e) => setBid(Number(e.target.value))} className="grow" style={{ accentColor: 'var(--accent)' }} />
               <span className="num" style={{ fontSize: 22, fontWeight: 700, width: 60, textAlign: 'right' }}>${bid}</span>
             </div>
             <div className="dim" style={{ fontSize: 12 }}>Budget left: ${me.faab} · suggested ${suggested}</div>
