@@ -35,6 +35,7 @@ app/                 React + TypeScript (Vite) prototype — runs fully in the b
   tests/             Vitest engine suite
   public/data/       ipl.json (built from Cricsheet), player media + bio metadata — committed so the app runs after a clone
   public/media/      player portraits (WebP) and team logos
+mobile/              iPhone app (Expo/React Native), sharing app/src — see mobile/README.md
 scripts/             data tools: build_data.py, sync_player_media.py (+ optimize_player_media.py), sync_player_bios.py
 data/                raw Cricsheet download (git-ignored) — see data/README.md
 docs/
@@ -42,7 +43,7 @@ docs/
   CHAT.md            chat, trades, commissioner, and their multiplayer plan
   ROADMAP.md         what's done and what's next
   research/          the research report, scoring options, and the raw research notes
-CLAUDE.md            short brief for AI coding sessions
+CLAUDE.md            short brief for AI coding sessions (AGENTS.md: extra notes for Codex and other agents)
 Start Seam.bat       one-click launcher
 Update Data.bat      re-download Cricsheet and rebuild the data file
 ```

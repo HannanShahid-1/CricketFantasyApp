@@ -3,7 +3,8 @@
 Sleeper-style season-long IPL fantasy league: React + TypeScript (Vite) in `app/`, Python data scripts in `scripts/`.
 Single player vs AI managers, replaying IPL 2026 from Cricsheet. Goal: an iPhone app (Expo) for a few friends, then
 multiplayer. **Read `docs/DEVELOPER_GUIDE.md` before non-trivial work**; `docs/CHAT.md` covers chat, trades and the
-commissioner.
+commissioner. The iPhone app is in `mobile/` (Expo): it imports `app/src` directly, so read `mobile/README.md` before
+working there, and run `npm run typecheck` in `mobile/` after changing shared code in `app/src`.
 
 ## Commands (run in `app/`)
 

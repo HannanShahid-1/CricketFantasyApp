@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Seam",
+    "slug": "seam",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false,
+      "icon": {
+        "light": "./assets/icon.png",
+        "dark": "./assets/icon-dark.png",
+        "tinted": "./assets/icon-tinted.png"
+      },
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-image",
+      "expo-font",
+      "./plugins/withSceneLifecycle",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-ball.png",
+          "imageWidth": 156,
+          "resizeMode": "contain",
+          "backgroundColor": "#dc5f57"
+        }
+      ]
+    ],
+    "scheme": "seam"
+  }
+}

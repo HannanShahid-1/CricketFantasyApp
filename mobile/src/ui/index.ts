@@ -1,0 +1,13 @@
+// The app's design system: import screens' building blocks from '@/ui'.
+export { Chip, Button, Pill, Segmented, type ButtonKind, type ButtonSize, type ChipTone } from './controls'
+export { EmptyState, Row, RowIcon, Section, StatGrid, SwitchRow, Tiles } from './list'
+export { GroupCell, GroupHeader, GroupNote } from './grouped'
+export { MatchBalls, PlayerAvatar, PlayerLine, RoleTag, roleColor, SlotBadge, slotColor, TeamBadge, TeamTag } from './badges'
+export { chooseOption } from './chooseOption'
+export { confirm, haptic, report } from './feedback'
+export { Icon, type SFSymbol } from './Icon'
+export { PlayerLink } from './PlayerLink'
+export { Screen } from './Screen'
+export { SearchField } from './SearchField'
+export { SheetStack, useSettingsButton, useNextMatchMenu, useStackOptions } from './stack'
+export { toneColor, Txt, type Tone, type Weight } from './text'
