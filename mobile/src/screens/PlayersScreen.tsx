@@ -26,8 +26,8 @@ import {
 type Stat = SortKey | 'gp'
 
 /** stat-line order under each player; the stat the list is sorted by moves to the big number on the right */
-const STAT_LINE: Stat[] = ['week', 'last', 'gp', 'season', 'avg', 'prev', 'ros']
-const SORTS: SortKey[] = ['ros', 'week', 'last', 'season', 'avg', 'prev']
+const STAT_LINE: Stat[] = ['next', 'week', 'last', 'gp', 'season', 'avg', 'prev']
+const SORTS: SortKey[] = ['next', 'week', 'last', 'season', 'avg', 'prev', 'ros']
 const STATUSES = (Object.keys(STATUS_LABEL) as PlayerStatus[]).map((key) => ({ key, label: STATUS_LABEL[key] }))
 const NO_MATCH: Record<PlayerStatus, string> = {
   avail: 'No free agents or waiver players match.',
@@ -49,6 +49,7 @@ function statLabels(d: Data, week: number): Record<Stat, StatLabel> {
   const prev = Number(d.raw.simSeason) - 1
   const yy = `’${String(prev).slice(-2)}`
   return {
+    next: { short: 'Next', tag: 'Proj', long: 'Next game projection' },
     ros: { short: 'ROS', tag: 'ROS proj', long: 'Rest-of-season projection' },
     week: { short: 'Week', tag: 'Week proj', long: `${weekLabel(week)} projection` },
     last: { short: 'Last', tag: 'Last', long: 'Last match' },
@@ -63,6 +64,7 @@ const DASH = '–'
 
 function statText(r: PlayerRow, k: Stat): string {
   switch (k) {
+    case 'next': return r.next === null ? DASH : fmt(r.next.total, 1)
     case 'week': return fmt(r.week.total, 1)
     case 'last': return r.last === null ? DASH : fmt(r.last)
     case 'gp': return String(r.season.apps)
@@ -82,7 +84,7 @@ export function PlayersScreen() {
   const [status, setStatus] = useState<PlayerStatus>('avail')
   const [role, setRole] = useState<RoleFilter>('ALL')
   const [team, setTeam] = useState('ALL')
-  const [sort, setSort] = useState<SortKey>('ros')
+  const [sort, setSort] = useState<SortKey>('next')
   const [q, setQ] = useState('')
   const query = useDeferredValue(q)
   const searchRef = useRef<SearchBarCommands>(null)

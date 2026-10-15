@@ -20,7 +20,7 @@ import { LOGOS, PHOTOS } from '@/generated/photos'
 import { intParam, nav } from '@/nav'
 import { alpha, mix, useStyles, useTheme, type Theme } from '@/theme/theme'
 import {
-  Button, Chip, type ChipTone, confirm, EmptyState, GroupHeader, GroupNote, haptic, Icon, report, roleColor, Row, RowIcon,
+  Button, Chip, type ChipTone, confirm, EmptyState, GroupHeader, haptic, Icon, report, roleColor, Row, RowIcon,
   Section, type SFSymbol, SlotBadge, StatGrid, TeamTag, type Tone, Txt,
 } from '@/ui'
 
@@ -194,14 +194,14 @@ function Hero({ p, league, closeAfter }: { p: Player; league: League | null; clo
           </View>
         )}
         <View accessible accessibilityRole="header" accessibilityLabel={p.fullName}>
-          {!!first && <Txt display up weight={700} size={18} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={{ color: HERO.ink }}>{first}</Txt>}
-          <Txt display up weight={800} size={27} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={{ color: HERO.ink, lineHeight: 32 }}>{last}</Txt>
+          {!!first && <Txt display up weight={700} size={20} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={{ color: HERO.ink }}>{first}</Txt>}
+          <Txt display up weight={800} size={31} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={{ color: HERO.ink, lineHeight: 36 }}>{last}</Txt>
         </View>
         <View style={s.facts}>
           {facts.map((f) => (
             <View key={f.label} style={s.fact} accessible accessibilityLabel={`${f.label}: ${f.full}`}>
-              <Txt up size={10} weight={600} numberOfLines={1} style={{ color: HERO.faint }}>{f.label}</Txt>
-              <Txt num weight={700} size={17} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} style={{ color: HERO.ink }}>
+              <Txt up size={11} weight={600} numberOfLines={1} style={{ color: HERO.faint }}>{f.label}</Txt>
+              <Txt num weight={700} size={19} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} style={{ color: HERO.ink }}>
                 {f.value}
               </Txt>
             </View>
@@ -209,13 +209,17 @@ function Hero({ p, league, closeAfter }: { p: Player; league: League | null; clo
         </View>
         {own?.action && (
           <Pressable
+            disabled={own.action.disabled}
             onPress={() => {
+              if (own.action?.disabled) return
               haptic.tap()
               own.action?.onPress()
             }}
             accessibilityRole="button"
             accessibilityLabel={`${own.action.title} ${p.name}`}
-            style={({ pressed }) => [s.pill, pressed && { opacity: 0.7 }]}
+            accessibilityState={{ disabled: !!own.action.disabled }}
+            accessibilityHint={own.action.disabled ? 'Locked until this gameweek ends.' : undefined}
+            style={({ pressed }) => [s.pill, own.action?.disabled && { opacity: 0.5 }, pressed && { opacity: 0.7 }]}
           >
             <Icon name={own.action.icon} size={13} weight="semibold" color={HERO.ink} />
             <Txt up size={14} weight={700} style={{ color: HERO.ink }}>{own.action.title}</Txt>
@@ -256,7 +260,7 @@ function HeroBackdrop({ color }: { color: string }) {
 
 // ---------------------------------------------------------------- ownership and actions
 
-interface Ownership { owner: string; detail: string | null; action: { title: string; icon: SFSymbol; onPress: () => void } | null }
+interface Ownership { owner: string; detail: string | null; action: { title: string; icon: SFSymbol; disabled?: boolean; onPress: () => void } | null }
 
 /** Who has him, what that means this week, and the one thing you can do about it (null outside a league). */
 function useOwnership(p: Player, league: League | null, closeAfter: () => void): Ownership | null {
@@ -287,7 +291,7 @@ function useOwnership(p: Player, league: League | null, closeAfter: () => void):
     return {
       owner: 'Your team',
       detail: !season ? null : locked ? 'Locked: his match has started' : team.starters.includes(p.idx) ? 'Starting XI' : 'Bench',
-      action: season && !locked ? { title: 'Drop', icon: 'trash', onPress: onDrop } : null,
+      action: season ? { title: 'Drop', icon: locked ? 'lock.fill' : 'trash', disabled: locked, onPress: onDrop } : null,
     }
   }
   if (league.phase === 'draft') return { owner: 'Available', detail: 'Not drafted yet', action: null }
@@ -351,7 +355,6 @@ function ThisWeek({ p, league }: { p: Player; league: League }) {
   return (
     <Section
       title={`${weekLabel(week)} · which match counts`}
-      footer={n > 1 ? 'Only one counts. His first match counts unless you lock in another before it starts.' : 'He has one match this week, so it counts.'}
     >
       <View style={{ padding: 14 }}><MatchPicker pid={p.idx} /></View>
     </Section>
@@ -375,16 +378,16 @@ function Headline({ p, played }: { p: Player; played: number }) {
   const groups = [
     { title: 'Player rank', cells: [{ value: rank(ranks.role), label: ROLE_LABEL[p.role] }, { value: rank(ranks.overall), label: 'Overall' }] },
     { title: 'FPTS / game', cells: [{ value: season.apps ? fmt(season.avg, 1) : '–', label: 'Season' }, { value: last3 !== null ? fmt(last3, 1) : '–', label: 'Last 3' }] },
-    { title: `IPL ${d.raw.simSeason}`, cells: [{ value: fmt(season.pts, 1), label: 'FPTS' }, { value: String(season.apps), label: 'Matches' }] },
+    { title: `IPL ${d.raw.simSeason} totals`, cells: [{ value: String(season.apps), label: 'Matches' }, { value: fmt(season.pts, 1), label: 'FPTS' }] },
   ]
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -16 }} contentContainerStyle={{ paddingHorizontal: 16, gap: 30 }}>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -16 }} contentContainerStyle={{ paddingHorizontal: 16, gap: 16 }}>
       {groups.map((g) => (
         <View key={g.title} style={{ gap: 10 }}>
-          <Txt up size={11} weight={700} tone="muted">{g.title}</Txt>
-          <View style={{ flexDirection: 'row', gap: 20 }}>
+          <Txt up size={11} weight={700} tone="muted" style={g.title === `IPL ${d.raw.simSeason} totals` ? { textAlign: 'center' } : undefined}>{g.title}</Txt>
+          <View style={{ flexDirection: 'row', gap: g.title === `IPL ${d.raw.simSeason} totals` ? 8 : 12, justifyContent: g.title === `IPL ${d.raw.simSeason} totals` ? 'center' : undefined }}>
             {g.cells.map((c) => (
-              <View key={c.label} style={{ gap: 2 }}>
+              <View key={c.label} style={{ gap: 2, alignItems: g.title === `IPL ${d.raw.simSeason} totals` ? 'center' : 'flex-start' }}>
                 <Txt num weight={700} size={21}>{c.value}</Txt>
                 <Txt up size={10.5} weight={700} tone="dim">{c.label}</Txt>
               </View>
@@ -403,10 +406,6 @@ function Season({ p, played }: { p: Player; played: number }) {
     <View>
       <GroupHeader title={`IPL ${d.raw.simSeason} stats`} />
       <StatGrid items={stats} columns={stats.length === 4 ? 2 : 3} />
-      <GroupNote>
-        Ranks above are by total FPTS, among {ROLE_NAME[p.role].toLowerCase()}s and among all players; ties share a rank.
-        Last 3 is his FPTS per game over his last three matches.
-      </GroupNote>
     </View>
   )
 }
@@ -453,7 +452,6 @@ function Projections({ p, league, played }: { p: Player; league: League | null; 
     <Section
       title="Projections"
       action={<InfoButton title="How projections work" message={HOW_PROJECTIONS} />}
-      footer={rows.length ? 'Rough estimates, not promises. Tap a match to see what went into it.' : undefined}
     >
       <View style={s.stepper}>
         <StepButton icon="chevron.left" label="Previous week" disabled={week <= 1} onPress={() => step(-1)} />
@@ -616,9 +614,6 @@ function Outlook({ p, league, played }: { p: Player; league: League | null; play
       <Section
         title="Fantasy outlook"
         action={<InfoButton title="About these opinions" message={advice.explanation} />}
-        footer={advice.tier
-          ? `${advice.tier} is his tier among ${ROLE_NAME[p.role].toLowerCase()}s by expected FPTS: ${size} players per tier, one for each team in this league.`
-          : undefined}
       >
         <View style={s.outlook}>
           <View style={s.tags}>
@@ -627,9 +622,6 @@ function Outlook({ p, league, played }: { p: Player; league: League | null; play
           </View>
           <View style={{ gap: 2 }}>
             <Txt display weight={700} size={17}>{identity}</Txt>
-            <Txt size={13} tone="muted">
-              {profile.sampleSize} IPL {profile.sampleSize === 1 ? 'appearance' : 'appearances'} on record{profile.limited ? ' · limited history' : ''}
-            </Txt>
           </View>
           <Txt size={15} style={{ lineHeight: 21 }}>{advice.opinion}</Txt>
         </View>
@@ -654,7 +646,7 @@ function PlayerUpdates({ p, reports }: { p: Player; reports: PlayerReport[] }) {
   const [open, setOpen] = useState(false)
   const n = reports.length
   return (
-    <Section footer={open ? 'Automated summaries of the ball-by-ball data. A replay, not live news.' : undefined}>
+    <Section>
       <Row
         left={<RowIcon name="newspaper" color={t.c.accent} />}
         title="Player updates"
@@ -751,7 +743,6 @@ function GameLog({ p, played }: { p: Player; played: number }) {
     <Section
       title={`IPL ${d.raw.simSeason} matches`}
       inset={58}
-      footer={log.some((e) => e.game) ? 'Tap a match he played to see where his points came from.' : undefined}
     >
       {log.length
         ? log.map((e) => <LogRow key={e.mi} e={e} open={open === e.mi} onToggle={toggle} />)
@@ -856,14 +847,14 @@ const styles = (t: Theme) => ({
     alignItems: 'center' as const, gap: 3, paddingHorizontal: 8, paddingTop: 9, paddingBottom: 11,
     backgroundColor: HERO.plate, borderTopRightRadius: t.r.lg,
   },
-  main: { flex: 1, minWidth: 0, gap: 12, paddingLeft: 14, paddingRight: 16, paddingTop: 16, paddingBottom: 18 },
+  main: { flex: 1, minWidth: 0, gap: 10, paddingLeft: 14, paddingRight: 16, paddingTop: 28, paddingBottom: 2 },
   owner: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 5, paddingRight: 34 },
   facts: { flexDirection: 'row' as const },
-  fact: { flex: 1, alignItems: 'center' as const, gap: 2 },
+  fact: { flex: 1, alignItems: 'flex-start' as const, gap: 2 },
   slots: { flexDirection: 'row' as const, justifyContent: 'center' as const, gap: 4, marginTop: 3 },
   pill: {
     flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'center' as const, gap: 7,
-    height: 38, borderRadius: 999, backgroundColor: HERO.button, marginTop: 'auto' as const, // level with the team plate
+    height: 38, borderRadius: 999, backgroundColor: HERO.button, marginTop: 8,
   },
   close: {
     position: 'absolute' as const, top: 12, right: 12, width: 28, height: 28, borderRadius: 14,

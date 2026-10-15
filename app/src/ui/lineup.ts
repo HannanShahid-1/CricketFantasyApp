@@ -1,6 +1,6 @@
 // Lineup editor moves (tap a player, then tap where he goes), shared by the web and iPhone screens.
 import type { Data } from '../engine/data'
-import { SLOTS } from '../engine/league'
+import { currentWeek, lineupProblem, slotLocked, SLOTS, type League } from '../engine/league'
 
 /** A tapped place in the lineup: a starting slot by index, or a bench player. */
 export type LineupSpot = { kind: 'slot'; i: number } | { kind: 'bench'; p: number }
@@ -46,4 +46,20 @@ export function ordinal(n: number) {
   const s = ['th', 'st', 'nd', 'rd']
   const v = n % 100
   return n + (s[(v - 20) % 10] || s[v] || s[0])
+}
+
+/** Legal destinations for a starter, including eligible bench replacements. */
+export function swapTargets(d: Data, league: League, teamId: number, week: number, slot: number) {
+  const team = league.teams[teamId]
+  if (!team || league.phase !== 'season' || week !== currentWeek(d, league) || league.results[week] || !Number.isInteger(slot) || slot < 0 || slot >= SLOTS.length) return []
+  const starters = team.starters
+  const locked = (p: number) => slotLocked(d, league, teamId, p, week)
+  const source = starters[slot]
+  if (source !== null && (locked(source) || !team.roster.includes(source))) return []
+  const from: LineupSpot = { kind: 'slot', i: slot }
+  const candidates: LineupSpot[] = [
+    ...SLOTS.map((_, i): LineupSpot => ({ kind: 'slot', i })),
+    ...team.roster.filter((p) => !starters.includes(p)).map((p): LineupSpot => ({ kind: 'bench', p })),
+  ]
+  return candidates.filter((to) => canMove(d, starters, from, to, locked) && !lineupProblem(d, league, teamId, applyMove(starters, from, to)))
 }

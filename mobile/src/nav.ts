@@ -7,6 +7,9 @@ import { useApp } from '@shared/store'
 export const nav = {
   /** player card (sheet) */
   player: (pid: number) => router.push({ pathname: '/player/[id]', params: { id: String(pid) } }),
+  /** eligible lineup swaps from a Matchup position badge */
+  swap: (slot: number, week: number, pid: number | null) =>
+    router.push({ pathname: '/swap/[slot]', params: { slot: String(slot), week: String(week), pid: String(pid ?? -1) } }),
   /** add a free agent or claim off waivers (sheet) */
   add: (pid: number) => router.push({ pathname: '/add/[id]', params: { id: String(pid) } }),
   /** propose a trade to a team (sheet) */

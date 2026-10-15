@@ -59,6 +59,7 @@ function App() {
           {/* a page sheet like the others: on iOS 27 a formSheet doesn't draw its ScrollView (the sheet came up blank) */}
           <Stack.Screen name="add/[id]" options={sheet} />
           <Stack.Screen name="trade" options={sheet} />
+          <Stack.Screen name="swap/[slot]" options={sheet} />
           <Stack.Screen name="match" options={sheet} />
           <Stack.Screen name="live/[mi]" options={{ ...sheet, presentation: 'fullScreenModal' }} />
         </Stack.Protected>

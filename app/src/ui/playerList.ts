@@ -1,12 +1,12 @@
 // The Players list: filter, per-row numbers and sort, shared by the web and iPhone screens. Every number a row shows
 // is computed once here, and the same values drive sorting and rendering.
-import { restOfSeason, seasonToDate, type Data, type Player } from '../engine/data'
+import { matchProjection, restOfSeason, seasonToDate, type Data, type Player } from '../engine/data'
 import { addMode, currentWeek, playerWeek, rosteredBy, type AddMode, type League } from '../engine/league'
 import type { Role } from '../engine/types'
 
 export type PlayerStatus = 'avail' | 'all' | 'rostered' | 'mine'
 export type RoleFilter = 'ALL' | Role | 'AR'
-export type SortKey = 'season' | 'avg' | 'week' | 'ros' | 'last' | 'prev'
+export type SortKey = 'season' | 'avg' | 'week' | 'ros' | 'last' | 'prev' | 'next'
 
 export interface PlayerFilter {
   status: PlayerStatus
@@ -28,6 +28,8 @@ export interface PlayerRow {
   week: ReturnType<typeof playerWeek>
   season: ReturnType<typeof seasonToDate>
   ros: number
+  /** The next scheduled fixture, independent of this week's counting-match choice. */
+  next: { mi: number; total: number } | null
   mode: AddMode
 }
 
@@ -52,8 +54,10 @@ export function playerRows(d: Data, league: League, f: PlayerFilter, sort: SortK
         last = g.pts.total
       }
     }
+    const nextMi = d.teamMis[p.team]?.find((mi) => mi >= league.played)
     rows.push({
       p, owner, last,
+      next: nextMi === undefined ? null : { mi: nextMi, total: matchProjection(d, p, nextMi, league.played).total },
       week: playerWeek(d, league, owner ?? null, p.idx, week),
       season: seasonToDate(p, league.played),
       ros: restOfSeason(d, p, league.played),
@@ -65,6 +69,7 @@ export function playerRows(d: Data, league: League, f: PlayerFilter, sort: SortK
     avg: (r) => r.season.avg,
     week: (r) => r.week.total,
     ros: (r) => r.ros,
+    next: (r) => r.next?.total ?? -Infinity,
     last: (r) => r.last ?? -99,
     prev: (r) => r.p.s25.avg,
   }

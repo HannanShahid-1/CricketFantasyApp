@@ -71,7 +71,7 @@ export function MatchupScreen() {
           </>
         )}
         {recap && (
-          <Section title="Week recap" footer="Written from the results. An AI recap comes later.">
+          <Section title="Week recap">
             <View style={{ padding: 16, gap: 10 }}>
               {recap.map((s, i) => <Txt key={i} tone="muted" size={14} style={{ lineHeight: 20 }}>{s}</Txt>)}
             </View>
@@ -196,7 +196,6 @@ function Lineups({ m: raw }: { m: Matchup }) {
   const s = useStyles(styles)
   const m = oriented(raw)
   const league = useGameLeague()!
-  const [showBench, setShowBench] = useState(false)
   const week = m.week
   const final = !!league.results[week]
   const played = final ? Infinity : league.played
@@ -205,27 +204,28 @@ function Lineups({ m: raw }: { m: Matchup }) {
   const bench = (teamId: number, st: (number | null)[]) => league.teams[teamId].roster.filter((p) => !st.includes(p))
   const bA = bench(m.a, stA)
   const bB = bench(m.b, stB)
-  const row = (key: string, slot: string, a: number | null, b: number | null, dim = false) => (
+  const editable = m.a === ME && league.phase === 'season' && week === currentWeek(getData(), league) && !final
+  const row = (key: string, slot: string, a: number | null, b: number | null, dim = false, i?: number) => (
     <View key={key} style={[s.mrow, dim && { opacity: 0.7 }]}>
       <Cell teamId={m.a} pid={a} week={week} played={played} right={false} />
-      <View style={{ width: 50, alignItems: 'center' }}><SlotBadge slot={slot} /></View>
+      <Pressable
+        style={{ width: 50, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
+        disabled={!editable || i === undefined}
+        accessibilityRole="button"
+        accessibilityLabel={`Swap your ${slot} player`}
+        accessibilityState={{ disabled: !editable || i === undefined }}
+        onPress={() => { if (i !== undefined) nav.swap(i, week, a) }}
+      ><SlotBadge slot={slot} /></Pressable>
       <Cell teamId={m.b} pid={b} week={week} played={played} right />
     </View>
   )
   return (
     <>
       <Section title="Starting XI" inset={0}>
-        {SLOTS.map((slot, i) => row(`s${i}`, slot, stA[i], stB[i]))}
+        {SLOTS.map((slot, i) => row(`s${i}`, slot, stA[i], stB[i], false, i))}
       </Section>
-      <Section
-        title="Bench"
-        inset={0}
-        action={<Pressable hitSlop={10} onPress={() => setShowBench(!showBench)}><Txt size={13} weight={600} tone="accent">{showBench ? 'Hide' : 'Show'}</Txt></Pressable>}
-        footer="Bench points don't count."
-      >
-        {showBench
-          ? Array.from({ length: Math.max(bA.length, bB.length) }, (_, i) => row(`b${i}`, 'BN', bA[i] ?? null, bB[i] ?? null, true))
-          : [<Pressable key="show" onPress={() => setShowBench(true)} style={{ padding: 14 }}><Txt tone="muted" size={14}>{bA.length} bench players each side</Txt></Pressable>]}
+      <Section title="Bench" inset={0}>
+        {Array.from({ length: Math.max(bA.length, bB.length) }, (_, i) => row(`b${i}`, 'BN', bA[i] ?? null, bB[i] ?? null, true))}
       </Section>
     </>
   )

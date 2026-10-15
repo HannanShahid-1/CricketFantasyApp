@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { beforeAll, expect, it } from 'vitest'
 import { availability, matchProjection, perMatchProj, type Data } from '../src/engine/data'
+import { playerRows } from '../src/ui/playerList'
 import { loadData } from '../src/loadData'
 import { fantasyAdvice, gameVerdict } from '../src/engine/fantasyAdvice'
 import { createLeague, playerWeek, setMatchPick } from '../src/engine/league'
@@ -166,4 +167,21 @@ it('waits for a confirmed return after missed fixtures instead of recommending a
   expect(advice.recommendation).toBe('Wait for XI')
   expect(advice.opinion).toContain('missed')
   expect(advice.opinion).not.toContain('injured')
+})
+
+it('next-game list projections advance after a fixture and stop at season end', () => {
+  const l = createLeague(d, { name: 'Next game check', teamName: 'Me', numTeams: 8, draftSlot: 'random', timer: 0, speed: 'instant' })
+  const filter = { status: 'all', role: 'ALL', team: 'ALL', q: '' } as const
+  const p = d.pool.find((p) => d.teamMis[p.team].length > 2)!
+  const [first, second] = d.teamMis[p.team]
+  const initial = playerRows(d, l, filter, 'next').find((r) => r.p.idx === p.idx)!
+  expect(initial.next?.mi).toBe(first)
+  l.played = first + 1
+  const rows = playerRows(d, l, filter, 'next')
+  const advanced = rows.find((r) => r.p.idx === p.idx)!
+  expect(advanced.next?.mi).toBe(second)
+  expect(advanced.next?.total).toBe(matchProjection(d, p, second, l.played).total)
+  expect(rows.every((r, i) => i === 0 || (rows[i - 1].next?.total ?? -Infinity) >= (r.next?.total ?? -Infinity))).toBe(true)
+  l.played = d.matches.length
+  expect(playerRows(d, l, filter, 'next').every((r) => r.next === null)).toBe(true)
 })

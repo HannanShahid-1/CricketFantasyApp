@@ -14,6 +14,7 @@ import {
   proposeTrade, respondTrade, reviewTrade, ROSTER_SIZE, setMatchPick, slotLocked, SLOTS, teamOnClock,
   TRADE_DEADLINE_WEEK, tradeProblem, weekMatches, withdrawTrade, type League,
 } from '../src/engine/league'
+import { applyMove, swapTargets } from '../src/ui/lineup'
 import { computeLines } from '../src/engine/scoring'
 import { FLAG_LEGBYE, FLAG_NOBALL, type RawMatch } from '../src/engine/types'
 
@@ -453,5 +454,47 @@ describe('scoring', () => {
       innings: [{ team: 'A', balls: [[0, 1, 2, 0, 3, FLAG_NOBALL | FLAG_LEGBYE]] }],
     } as unknown as RawMatch
     expect(computeLines(match).get(2)!.rc).toBe(1)
+  })
+})
+
+describe('matchup swap choices', () => {
+  function fixture() {
+    const l = createLeague(d, { name: 'Swap check', teamName: 'Me', numTeams: 8, draftSlot: 'random', timer: 0, speed: 'instant' })
+    l.phase = 'season'
+    l.teams[0].starters = SLOTS.map(() => null)
+    l.teams[0].roster = []
+    return l
+  }
+  it('allows eligible BAT/FLEX and bench swaps, but checks eligibility in both directions', () => {
+    const l = fixture(), me = l.teams[0]
+    const [bat, otherBat] = d.pool.filter((p) => p.role === 'BAT')
+    const bowler = d.pool.find((p) => p.role === 'BOWL')!
+    const batSlot = SLOTS.indexOf('BAT'), flexSlot = SLOTS.indexOf('FLEX')
+    me.roster = [bat.idx, otherBat.idx, bowler.idx]
+    me.starters[batSlot] = bat.idx
+    me.starters[flexSlot] = bowler.idx
+    const blocked = swapTargets(d, l, 0, 1, batSlot)
+    expect(blocked).not.toContainEqual({ kind: 'slot', i: flexSlot })
+    expect(blocked).toContainEqual({ kind: 'bench', p: otherBat.idx })
+    me.starters[flexSlot] = otherBat.idx
+    expect(swapTargets(d, l, 0, 1, batSlot)).toContainEqual({ kind: 'slot', i: flexSlot })
+    for (const to of swapTargets(d, l, 0, 1, batSlot)) {
+      expect(lineupProblem(d, l, 0, applyMove(me.starters, { kind: 'slot', i: batSlot }, to))).toBeNull()
+    }
+  })
+  it('hides locked bench replacements, locks the source and disallows past/future week edits', () => {
+    const l = fixture(), me = l.teams[0]
+    const lockedBat = d.pool.find((p) => p.role === 'BAT' && d.matches[0].teams.includes(p.team))!
+    const unlockedBat = d.pool.find((p) => p.role === 'BAT' && !d.matches[0].teams.includes(p.team))!
+    const slot = SLOTS.indexOf('BAT')
+    me.roster = [lockedBat.idx, unlockedBat.idx]
+    me.starters[slot] = unlockedBat.idx
+    l.played = 1
+    expect(swapTargets(d, l, 0, 1, slot)).not.toContainEqual({ kind: 'bench', p: lockedBat.idx })
+    me.starters[slot] = lockedBat.idx
+    expect(swapTargets(d, l, 0, 1, slot)).toEqual([])
+    expect(swapTargets(d, l, 0, 2, slot)).toEqual([])
+    l.phase = 'complete'
+    expect(swapTargets(d, l, 0, 1, slot)).toEqual([])
   })
 })

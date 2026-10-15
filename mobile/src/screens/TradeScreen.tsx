@@ -3,10 +3,10 @@ import { useCallback, useMemo, useState } from 'react'
 import { ScrollView, View } from 'react-native'
 import { restOfSeason } from '@shared/engine/data'
 import {
-  currentWeek, isLocked, managerName, ROSTER_SIZE, slotLocked, TRADE_DEADLINE_WEEK, tradeProblem, type League,
+  currentWeek, isLocked, managerName, slotLocked, TRADE_DEADLINE_WEEK, tradeProblem, type League,
 } from '@shared/engine/league'
 import { getData, ME } from '@shared/store'
-import { pendingOffers, tradeImpact } from '@shared/ui/transactions'
+import { pendingOffers } from '@shared/ui/transactions'
 import { PICK_INSET, PickRow } from '@/components/sheets/PickRow'
 import { SheetFooter } from '@/components/sheets/SheetChrome'
 import { TradeBoard, useTradeHeader, type TradeSide } from '@/components/trade/parts'
@@ -57,7 +57,6 @@ export function TradeScreen() {
   const complete = give.length > 0 && get.length > 0
   const problem = complete ? tradeProblem(d, league, ME, other, give, get) : null
   const pending = pendingOffers(league, ME, other)
-  const over = complete ? tradeImpact(d, league, ME, other, give, get).mine - ROSTER_SIZE : 0
   // an empty side is a step, not an error: say what's left to pick
   const status = !picked
     ? pending
@@ -67,9 +66,7 @@ export function TradeScreen() {
       ? 'Now pick who you give.'
       : !get.length
         ? `Now pick who you get from ${managerName(them)}.`
-        : problem ??
-          `${give.length}-for-${get.length} with ${managerName(them)}.` +
-            (over > 0 ? ` You'd drop ${over} to get back to ${ROSTER_SIZE}.` : ' Review it before you send.')
+        : problem
 
   const chooseTeam = () =>
     chooseOption({
@@ -123,7 +120,7 @@ export function TradeScreen() {
         </Txt>
       </ScrollView>
       <SheetFooter>
-        <Txt size={12.5} tone={problem ? 'loss' : 'dim'} style={{ textAlign: 'center' }} numberOfLines={2}>{status}</Txt>
+        {status && <Txt size={12.5} tone={problem ? 'loss' : 'dim'} style={{ textAlign: 'center' }} numberOfLines={2}>{status}</Txt>}
         <Button
           title="Review Trade"
           kind="filled"
