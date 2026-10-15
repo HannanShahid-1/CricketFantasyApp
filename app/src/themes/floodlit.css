@@ -8,6 +8,7 @@
   --panel: #121816;
   --panel-2: #161d1a;
   --panel-3: #1c2521;
+  --feature: var(--panel);            /* featured card: the matchup scoreboard */
   --tint: #efe6cc;                     /* base colour for translucent fills on surfaces */
   --shade: #000;                       /* base colour for recessed wells (inputs, chat list) */
   --line: rgba(239, 230, 204, 0.07);
@@ -49,6 +50,7 @@
   --r-sm: 8px;
   --r: 14px;
   --r-lg: 20px;
+  --motif: none;                       /* signature shapes: none, or stitch (seams and stitched meters) */
 
   /* type */
   --font: 'Inter Variable', system-ui, -apple-system, Segoe UI, sans-serif;

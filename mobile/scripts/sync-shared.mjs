@@ -1,5 +1,5 @@
 // Generates src/generated/* from the web app, so the web stays the single source of truth:
-//  - themes.ts: every theme's tokens, read from ../app/src/themes/*.css (+ order/default from themes.ts)
+//  - themes.ts: every theme's tokens (and light-mode tokens), read from ../app/src/themes/*.css (+ order/default from themes.ts)
 //  - photos.ts: player id -> bundled photo and list thumbnail, read from ../app/public/data/player-media.json
 // Runs before `npm start`; run `npm run sync` after changing a web theme.
 import { execFileSync } from 'node:child_process'
@@ -19,18 +19,28 @@ const order = [...registry.matchAll(/\{ id: '(\w+)', name: '([^']+)' \}/g)].map(
 const defaultTheme = registry.match(/DEFAULT_THEME: ThemeId = '(\w+)'/)?.[1]
 
 const camel = (s) => s.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase())
+const declarations = (body, into) => {
+  const scheme = body.match(/color-scheme:\s*(\w+)/)?.[1]
+  if (scheme) into.colorScheme = scheme
+  for (const m of body.matchAll(/--([\w-]+):\s*([^;]+);/g)) into[m[1]] = m[2].trim()
+  return into
+}
+const tokens = (raw) => {
+  const resolve = (v, depth = 0) =>
+    depth > 5 ? v : v.replace(/var\(--([\w-]+)\)/g, (_, k) => resolve(raw[k] ?? '', depth + 1))
+  return Object.fromEntries(Object.entries(raw).map(([k, v]) => [camel(k), resolve(v)]))
+}
 const themes = {}
+// themes that restyle themselves for light mode (a `@media (prefers-color-scheme: light)` block): their light tokens
+const lightThemes = {}
 for (const f of readdirSync(themesDir).filter((f) => f.endsWith('.css'))) {
   const css = readFileSync(join(themesDir, f), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')
   const block = css.match(/:root\[data-theme='(\w+)'\]\s*\{([^}]*)\}/)
   if (!block) continue
-  const raw = { colorScheme: block[2].match(/color-scheme:\s*(\w+)/)?.[1] ?? 'dark' }
-  for (const m of block[2].matchAll(/--([\w-]+):\s*([^;]+);/g)) raw[m[1]] = m[2].trim()
-  const resolve = (v, depth = 0) =>
-    depth > 5 ? v : v.replace(/var\(--([\w-]+)\)/g, (_, k) => resolve(raw[k] ?? '', depth + 1))
-  const t = {}
-  for (const [k, v] of Object.entries(raw)) t[camel(k)] = resolve(v)
-  themes[block[1]] = t
+  const raw = declarations(block[2], { colorScheme: 'dark' })
+  themes[block[1]] = tokens(raw)
+  const light = css.match(/@media\s*\(prefers-color-scheme:\s*light\)\s*\{\s*:root\[data-theme='\w+'\]\s*\{([^}]*)\}/)
+  if (light) lightThemes[block[1]] = tokens(declarations(light[1], { ...raw }))
 }
 const missing = order.filter((o) => !themes[o.id]).map((o) => o.id)
 if (missing.length || !defaultTheme) throw new Error(`theme sync: missing ${missing.join(', ') || 'DEFAULT_THEME'}`)
@@ -43,6 +53,9 @@ export const THEME_ORDER = ${JSON.stringify(order, null, 2)} as const
 export const DEFAULT_THEME = '${defaultTheme}'
 
 export const THEME_TOKENS = ${JSON.stringify(themes, null, 2)} as const
+
+/** light-mode tokens of the themes that have them; the others look the same in light and dark mode */
+export const LIGHT_TOKENS = ${JSON.stringify(lightThemes, null, 2)} as const
 `,
 )
 

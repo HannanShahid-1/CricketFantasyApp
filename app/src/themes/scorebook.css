@@ -7,6 +7,7 @@
   --panel: #f8f6f0;
   --panel-2: #f3f0e8;
   --panel-3: #fffdf8;                  /* raised: selected segment, message bubbles, toasts */
+  --feature: var(--panel);
   --tint: #3b3629;
   --shade: #a89c84;
   --line: rgba(59, 54, 41, 0.1);
@@ -45,6 +46,7 @@
   --r-sm: 6px;
   --r: 10px;
   --r-lg: 14px;
+  --motif: none;
 
   --font: 'Inter Variable', system-ui, -apple-system, Segoe UI, sans-serif;
   --display: 'Chakra Petch', 'Inter Variable', system-ui, sans-serif;

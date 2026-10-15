@@ -4,7 +4,7 @@ import { useTheme, type Theme } from '@/theme/theme'
 export type Tone = 'text' | 'muted' | 'dim' | 'hi' | 'accent' | 'gold' | 'sky' | 'win' | 'loss' | 'live'
 export type Weight = 400 | 500 | 600 | 700 | 800
 
-export const toneColor = (t: Theme, tone: Tone) => (tone === 'live' ? t.c.live2 : t.c[tone])
+const toneColor = (t: Theme, tone: Tone) => (tone === 'live' ? t.c.live2 : t.c[tone])
 
 /**
  * Themed text. Body text is Inter; `display` uses the theme's display face (titles, names), `num` its number face

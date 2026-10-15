@@ -14,7 +14,7 @@ import { MatchPicker } from '../MatchPicker'
 import { cardPlayed, gameLog, ptsBand } from '../playerCard'
 import { useShallow } from 'zustand/react/shallow'
 
-const BAND_COLOR = { big: 'var(--accent)', low: 'var(--loss)', normal: undefined }
+const BAND_COLOR = { big: 'var(--win)', low: 'var(--loss)', normal: undefined }
 
 export function PlayerModal({ pid }: { pid: number }) {
   const d = getData()

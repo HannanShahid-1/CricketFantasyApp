@@ -9,7 +9,7 @@ import type { RoleFilter } from '@shared/ui/playerList'
 import { scoringStats, type Appearance } from '@shared/ui/scoringStats'
 import { RolePills } from '@/components/RolePills'
 import { alpha, useStyles, useTheme, type Theme } from '@/theme/theme'
-import { EmptyState, GroupHeader, PlayerLine, PlayerLink, roleColor, Row, RowIcon, Screen, Section, type SFSymbol, Tiles, Txt } from '@/ui'
+import { EmptyState, GroupHeader, Meter, PlayerLine, PlayerLink, roleColor, Row, RowIcon, Screen, Section, type SFSymbol, Tiles, Txt } from '@/ui'
 
 // How points are scored, the one-match-a-week rule, and how the rules have played out so far this season. Stats only
 // use matches already played in the league, so nothing here gives away results still to come.
@@ -124,7 +124,7 @@ function RuleRow({ label, value }: { label: string; value: string }) {
     return (
       <Row
         title={<Txt size={15} style={{ flexShrink: 1 }}>{label}</Txt>}
-        right={<Txt num weight={700} size={14.5} tone="accent" style={{ maxWidth: '50%', textAlign: 'right' }}>{value}</Txt>}
+        right={<Txt num weight={700} size={14.5} tone={value.startsWith('−') ? 'loss' : 'win'} style={{ maxWidth: '50%', textAlign: 'right' }}>{value}</Txt>}
       />
     )
   }
@@ -134,7 +134,7 @@ function RuleRow({ label, value }: { label: string; value: string }) {
         {tiers.map((x) => (
           <View key={x.when} style={s.tier}>
             <Txt size={12} tone="muted">{x.when}</Txt>
-            <Txt num weight={700} size={12.5} tone={x.pts.startsWith('−') ? 'loss' : x.pts === '0' ? 'dim' : 'accent'}>{x.pts}</Txt>
+            <Txt num weight={700} size={12.5} tone={x.pts.startsWith('−') ? 'loss' : x.pts === '0' ? 'dim' : 'win'}>{x.pts}</Txt>
           </View>
         ))}
       </View>
@@ -144,16 +144,13 @@ function RuleRow({ label, value }: { label: string; value: string }) {
 
 function RoleAverage({ role, avg }: { role: Role; avg: number }) {
   const t = useTheme()
-  const s = useStyles(styles)
   const color = roleColor(t, role)
   return (
     <Row
       title={<Txt size={15} numberOfLines={1}>{ROLE_NAME[role]}</Txt>}
       right={
         <>
-          <View style={s.track}>
-            <View style={[s.fill, { width: `${Math.min(100, (avg / BAR_MAX) * 100)}%`, backgroundColor: color }]} />
-          </View>
+          <Meter value={avg / BAR_MAX} color={color} style={{ width: 90 }} />
           <Txt num weight={700} size={15} style={{ width: 40, textAlign: 'right' }}>{fmt(avg, 1)}</Txt>
         </>
       }
@@ -182,7 +179,5 @@ function TopScore({ x }: { x: Appearance }) {
 const styles = (t: Theme) => ({
   tiers: { flexDirection: 'row' as const, flexWrap: 'wrap' as const, gap: 6, marginTop: 6 },
   tier: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 5, height: 24, paddingHorizontal: 8, borderRadius: 7, backgroundColor: alpha(t.c.tint, 0.06) },
-  track: { width: 90, height: 6, borderRadius: 3, overflow: 'hidden' as const, backgroundColor: alpha(t.c.tint, 0.1) },
-  fill: { height: '100%' as const, borderRadius: 3 },
   top: { paddingHorizontal: 16, paddingVertical: 10, minHeight: 56, justifyContent: 'center' as const },
 })

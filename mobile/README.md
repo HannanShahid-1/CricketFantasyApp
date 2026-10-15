@@ -61,6 +61,14 @@ and `mix()` for tints, `t.team(color)` for team colours. Never literal colours (
 team-branded exception). Text is always `Txt` (`display` for titles/names, `num` for scores and stats). Icons are SF
 Symbols via `Icon`. Spacing: 16pt screen margins, ~24pt between sections, rows ≥ 50pt tall.
 
+**Stitch (the default look).** The cricket ball: coral and cream, with a dark and a light look (Settings: Automatic /
+Light / Dark; `useThemeStore`, and the native UI follows via `Appearance`). Its signature is the seam: `Seam` divides the
+two innings on a scorecard (not the matchup scoreboard: the user didn't like it there), and `Meter` draws any share or progress bar
+(stitches in Stitch, a plain bar elsewhere). Featured cards (scoreboards) use `t.c.feature`. Don't branch on the theme
+in screens: `Seam` draws nothing and `Meter` is a plain bar in the other themes, and `t.stitched` stays inside
+`@/ui`. Good/bad pairs (added/dropped players, points won/lost, big/low games) are `win`/`loss`, never accent/`loss`:
+the accent is for emphasis and actions, and in Stitch it is red-ish.
+
 **Feedback.** `Button` already taps a haptic. Use `haptic.select()` for choices, and `report(err, okMessage)` after
 every store action that can fail (store actions return an error string or null): it plays the right haptic and
 shows the toast.

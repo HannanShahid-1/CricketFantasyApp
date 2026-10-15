@@ -12,7 +12,7 @@ import { SHEET_HEADER_HEIGHT, SheetFooter, SheetHeader, useSheetLeague } from '@
 import { ownersOf } from '@/data/derived'
 import { intParam } from '@/nav'
 import { alpha, useStyles, useTheme, type Theme } from '@/theme/theme'
-import { Button, Chip, EmptyState, haptic, Icon, PlayerLine, report, Row, RowIcon, Section, Txt, type SFSymbol } from '@/ui'
+import { Button, Chip, EmptyState, haptic, Icon, Meter, PlayerLine, report, Row, RowIcon, Section, Txt, type SFSymbol } from '@/ui'
 
 // Add a free agent, or place a blind FAAB claim on a player on waivers, optionally dropping someone to make room.
 
@@ -184,9 +184,7 @@ function BidStepper({ value, max, suggested, onChange }: { value: number; max: n
         </View>
         <StepButton icon="plus" label="Raise bid" disabled={value >= max} onStep={step(1)} />
       </View>
-      <View style={s.meter}>
-        <View style={{ width: `${max ? (value / max) * 100 : 0}%`, backgroundColor: t.c.accent, borderRadius: 2 }} />
-      </View>
+      <Meter value={max ? value / max : 0} color={t.c.accent} height={4} />
       <View style={s.quickRow}>
         {quick.map((q) => {
           const on = value === q.v
@@ -257,7 +255,6 @@ const styles = (t: Theme) => ({
     width: 48, height: 48, borderRadius: 24, alignItems: 'center' as const, justifyContent: 'center' as const,
     backgroundColor: alpha(t.c.accent, 0.14),
   },
-  meter: { height: 4, borderRadius: 2, overflow: 'hidden' as const, flexDirection: 'row' as const, backgroundColor: alpha(t.c.tint, 0.1) },
   quickRow: { flexDirection: 'row' as const, gap: 8 },
   quick: {
     flex: 1, alignItems: 'center' as const, gap: 3, paddingVertical: 9, borderRadius: t.r.md,

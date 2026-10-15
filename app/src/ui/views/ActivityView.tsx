@@ -6,7 +6,7 @@ import { FTeamAvatar } from '../common'
 import { weekLabel } from '../format'
 
 const ICON: Record<Txn['type'], { i: typeof Plus; c: string; label: string }> = {
-  add: { i: Plus, c: 'var(--accent)', label: 'Free agent add' },
+  add: { i: Plus, c: 'var(--win)', label: 'Free agent add' },
   drop: { i: Minus, c: 'var(--loss)', label: 'Dropped' },
   waiver: { i: CircleDollarSign, c: 'var(--gold)', label: 'Waiver claim' },
   'waiver-fail': { i: XCircle, c: 'var(--loss)', label: 'Claim failed' },
@@ -61,12 +61,12 @@ export function ActivityView() {
                 <div style={{ marginTop: 6, fontSize: 13, lineHeight: 1.7 }}>
                   {t.type === 'trade' ? (
                     <>
-                      Received {t.adds.map((p, i) => <span key={p}>{i ? ', ' : ''}{P(p, "var(--accent)")}</span>)} from{' '}
+                      Received {t.adds.map((p, i) => <span key={p}>{i ? ', ' : ''}{P(p, "var(--win)")}</span>)} from{' '}
                       <b>{league.teams[t.otherTeamId!].name}</b> for {t.drops.map((p, i) => <span key={p}>{i ? ', ' : ''}{P(p, "var(--loss)")}</span>)}
                     </>
                   ) : t.type === 'autosub' ? (
                     <>
-                      {P(t.adds[0], "var(--accent)")} in for {P(t.drops[0], "var(--loss)")} <span className="dim">({t.note})</span>
+                      {P(t.adds[0], "var(--win)")} in for {P(t.drops[0], "var(--loss)")} <span className="dim">({t.note})</span>
                     </>
                   ) : (
                     <>

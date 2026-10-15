@@ -324,8 +324,15 @@ The scoreboard compacts with a container query when its slot is narrow.
 every token with a comment, so copy it to start a new theme, then import and list it in `themes.ts`.
 `DEFAULT_THEME` in `themes.ts` picks the default (set it to `'floodlit'` to revert the redesign).
 
-- Themes: **Dusk** (default; warm graphite, iris accent), **Scorebook** (light paper, ink-blue accent),
-  **Floodlit** (original). All three use Inter (body) and Chakra Petch (titles, numbers).
+- Themes: **Stitch** (default; the cricket ball: coral leather and cream, Bricolage Grotesque titles and numbers),
+  **Dusk** (warm graphite, iris accent), **Scorebook** (light paper, ink-blue accent), **Floodlit** (original). The
+  last three use Chakra Petch for titles and numbers; all use Inter for body text.
+- Light mode: a theme can restyle itself in a `@media (prefers-color-scheme: light)` block (Stitch does: its dark
+  look is night leather, its light look the white ball). The iPhone app reads both and adds an Automatic / Light /
+  Dark choice in Settings.
+- Signature shapes: `--motif: stitch` turns on Stitch's seam (between the two innings on a scorecard) and stitched
+  meters on the iPhone (`Seam`, `Meter` in `mobile/src/ui/stitch.tsx`); `--feature` is the surface of featured
+  cards (the matchup scoreboard), `var(--panel)` in plain themes.
 - Switching: the sidebar button or Option/Alt+T cycles and remembers the choice (`localStorage` `seam-theme`);
   `?theme=floodlit` previews one without saving, so two tabs can compare side by side.
 - Key tokens: `--accent` (primary), `--live` (live/alerts), `--hi`/`--ink` (strongest emphasis and the text on it),

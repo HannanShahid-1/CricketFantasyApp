@@ -321,7 +321,7 @@ const ProjectionRow = memo(function ProjectionRow({ p, mi, f, played, counts, op
     ? { value: '–', tone: 'dim' }
     : !g
       ? { value: 'DNP', tone: 'loss' }
-      : { value: fmt(g.pts.total, 1), tone: ptsBand(g.pts.total) === 'big' ? 'accent' : ptsBand(g.pts.total) === 'low' ? 'loss' : 'text' }
+      : { value: fmt(g.pts.total, 1), tone: ptsBand(g.pts.total) === 'big' ? 'win' : ptsBand(g.pts.total) === 'low' ? 'loss' : 'text' }
   return (
     <View>
       <Pressable
@@ -647,7 +647,7 @@ const LogRow = memo(function LogRow({ e, open, onToggle }: { e: LogEntry; open: 
       </View>
       {g && (
         <View style={{ alignItems: 'flex-end', gap: 4 }}>
-          <Txt num weight={700} size={19} tone={band === 'big' ? 'accent' : band === 'low' ? 'loss' : 'text'}>{fmt(g.pts.total)}</Txt>
+          <Txt num weight={700} size={19} tone={band === 'big' ? 'win' : band === 'low' ? 'loss' : 'text'}>{fmt(g.pts.total)}</Txt>
           <Icon name={open ? 'chevron.up' : 'chevron.down'} size={11} color={t.c.dim} weight="semibold" />
         </View>
       )}

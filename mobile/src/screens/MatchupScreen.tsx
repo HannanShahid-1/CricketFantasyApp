@@ -16,8 +16,8 @@ import { recordOf } from '@/data/derived'
 import { nav } from '@/nav'
 import { alpha, useStyles, useTheme, type Theme } from '@/theme/theme'
 import {
-  Button, Chip, EmptyState, Icon, MatchBalls, PlayerAvatar, PlayerLink, Screen, Section, SlotBadge,
-  TeamBadge, Txt, useSettingsButton, useNextMatchMenu,
+  Button, Chip, EmptyState, Icon, MatchBalls, Meter, PlayerAvatar, PlayerLink, Screen, Seam, Section, SlotBadge,
+  TeamBadge, Txt, useSettingsButton, useNextMatchMenu, useTabTitle,
 } from '@/ui'
 
 // Home tab: this week's head-to-head. Mirrors the web's MatchupView (same engine helpers), laid out for a phone:
@@ -43,12 +43,13 @@ export function MatchupScreen() {
   const settings = useSettingsButton()
   const next = useNextMatchMenu()
   const headerItems = useMemo(() => () => (next ? [next, ...settings()] : settings()), [next, settings])
+  const title = useTabTitle(weekLabel(week))
   const playedIn = g.mis.filter((mi) => mi < league.played).length
 
   return (
     <>
-      <Stack.Screen options={{ title: weekLabel(week), unstable_headerRightItems: headerItems }} />
-      <Screen gap={20}>
+      <Stack.Screen options={{ ...title, unstable_headerRightItems: headerItems }} />
+      <Screen gap={14}>
         <View style={{ gap: 12 }}>
           <Txt tone="muted" size={14}>
             {fmtDate(g.start, false)} – {fmtDate(g.end, false)} · {week === cur && league.phase === 'season' ? `${playedIn} of ${g.mis.length} IPL matches played` : `${g.mis.length} IPL matches`}
@@ -88,6 +89,7 @@ function Champion({ league }: { league: League }) {
     <View style={{ alignItems: 'center', gap: 10, padding: 22, borderRadius: t.r.lg, backgroundColor: alpha(t.c.gold, 0.08), borderWidth: 1, borderColor: alpha(t.c.gold, 0.3) }}>
       <Icon name="trophy.fill" size={34} color={t.c.gold} />
       <Txt up size={12} weight={700} tone="gold">League champion</Txt>
+      <Seam style={{ alignSelf: 'stretch' }} />
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <TeamBadge team={team} size={44} />
         <Txt display weight={700} size={24}>{team.name}</Txt>
@@ -103,7 +105,7 @@ function Carousel({ ms, index, onIndex }: { ms: Matchup[]; index: number; onInde
   const width = useWindowDimensions().width - 32
   const label = (m: Matchup) => (m.a === ME || m.b === ME ? 'Your matchup' : m.label ?? `${league.teams[m.a].name} v ${league.teams[m.b].name}`)
   return (
-    <View style={{ gap: 10 }}>
+    <View style={{ gap: 8 }}>
       <ScrollView
         horizontal
         pagingEnabled
@@ -115,7 +117,7 @@ function Carousel({ ms, index, onIndex }: { ms: Matchup[]; index: number; onInde
         {ms.map((m, i) => <Scoreboard key={i} m={m} width={width} />)}
       </ScrollView>
       {ms.length > 1 && (
-        <View style={{ alignItems: 'center', gap: 7 }}>
+        <View style={{ alignItems: 'center', gap: 5 }}>
           <Txt tone="muted" size={13} weight={600} numberOfLines={1}>{label(ms[index])}</Txt>
           <View style={{ flexDirection: 'row', gap: 6 }}>
             {ms.map((_, i) => (
@@ -155,14 +157,14 @@ function Scoreboard({ m: raw, width }: { m: Matchup; width: number }) {
     const team = league.teams[id]
     return (
       <View style={{ flex: 1, alignItems: right ? 'flex-end' : 'flex-start', gap: 2 }}>
-        <View style={{ flexDirection: right ? 'row-reverse' : 'row', alignItems: 'center', gap: 9 }}>
-          <TeamBadge team={team} size={34} />
+        <View style={{ flexDirection: right ? 'row-reverse' : 'row', alignItems: 'center', gap: 8 }}>
+          <TeamBadge team={team} size={30} />
           <View style={{ flexShrink: 1, alignItems: right ? 'flex-end' : 'flex-start' }}>
             <Txt display weight={700} size={14.5} numberOfLines={1}>{team.name}</Txt>
             <Txt tone="dim" size={11.5}>{team.isUser ? 'You' : team.owner.replace('AI · ', '')} · {recordOf(league, id)}</Txt>
           </View>
         </View>
-        <Txt num weight={700} size={40} style={{ color: mine.score > other.score ? t.c.accent : t.c.hi, marginTop: 10 }}>{fmt(mine.score)}</Txt>
+        <Txt num weight={700} size={34} style={{ color: mine.score > other.score ? t.c.accent : t.c.hi, marginTop: 6, lineHeight: 38 }}>{fmt(mine.score)}</Txt>
         <Txt tone="dim" size={12}>Proj {fmt(mine.proj, 1)}</Txt>
       </View>
     )
@@ -174,11 +176,8 @@ function Scoreboard({ m: raw, width }: { m: Matchup; width: number }) {
         {side(m.a, sa, sb, false)}
         {side(m.b, sb, sa, true)}
       </View>
-      <View style={{ gap: 7 }}>
-        <View style={s.wp}>
-          <View style={{ width: `${pA * 100}%`, backgroundColor: t.team(league.teams[m.a].color) }} />
-          <View style={{ flex: 1, backgroundColor: t.team(league.teams[m.b].color) }} />
-        </View>
+      <View style={{ gap: 5 }}>
+        <Meter value={pA} height={4} color={t.team(league.teams[m.a].color)} rest={t.team(league.teams[m.b].color)} />
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Txt num size={12.5} style={{ flex: 1 }}>{Math.round(pA * 100)}%</Txt>
           {winner !== null ? (
@@ -270,9 +269,8 @@ function Cell({ teamId, pid, week, played, right }: { teamId: number; pid: numbe
 }
 
 const styles = (t: Theme) => ({
-  board: { padding: 16, gap: 14, backgroundColor: t.c.panel, borderRadius: t.r.lg },
-  wp: { height: 6, borderRadius: 6, overflow: 'hidden' as const, flexDirection: 'row' as const, backgroundColor: alpha(t.c.tint, 0.1) },
-  mrow: { flexDirection: 'row' as const, alignItems: 'center' as const, minHeight: 64, borderTopWidth: 0 },
-  cell: { flex: 1, flexDirection: 'row' as const, alignItems: 'center' as const, gap: 7, paddingVertical: 9, paddingHorizontal: 10 },
+  board: { paddingHorizontal: 16, paddingVertical: 13, gap: 10, backgroundColor: t.c.feature, borderRadius: t.r.lg },
+  mrow: { flexDirection: 'row' as const, alignItems: 'center' as const, minHeight: 58 },
+  cell: { flex: 1, flexDirection: 'row' as const, alignItems: 'center' as const, gap: 7, paddingVertical: 7, paddingHorizontal: 10 },
   cellR: { flexDirection: 'row-reverse' as const },
 })

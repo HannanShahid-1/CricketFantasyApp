@@ -11,7 +11,7 @@ import { Txt } from './text'
 
 // Cricket-specific building blocks shared by every screen: slots, roles, teams, players.
 
-export const slotColor = (t: Theme, slot: string) =>
+const slotColor = (t: Theme, slot: string) =>
   slot === 'WK' ? t.c.wk : slot === 'BAT' ? t.c.bat : slot === 'BOWL' ? t.c.bowl : slot === 'FLEX' ? t.c.flex : t.c.dim
 
 /** A playing role's colour: AR-BAT and AR-BOWL share the all-rounder colour. */
@@ -77,8 +77,9 @@ export const PlayerAvatar = memo(function PlayerAvatar({ p, size = 36 }: { p: Pl
   )
 })
 
-/** One dot per IPL match this week: filled when played, ringed when it is the one that counts, faded otherwise. */
-export function MatchBalls({ d, p, week, played, counted, live }: { d: Data; p: Player; week: number; played: number; counted?: number | null; live?: number | null }) {
+/** One dot per IPL match this week: filled when played (a ball with its seam in Stitch), ringed when it is the one
+ *  that counts, faded otherwise. */
+export function MatchBalls({ d, p, week, played, counted }: { d: Data; p: Player; week: number; played: number; counted?: number | null }) {
   const t = useTheme()
   const mis = d.teamGw[p.team]?.[week] ?? []
   if (!mis.length) return <Txt size={10.5} tone="dim">No match</Txt>
@@ -93,13 +94,16 @@ export function MatchBalls({ d, p, week, played, counted, live }: { d: Data; p: 
           <View
             key={mi}
             style={{
-              width: 10, height: 10, borderRadius: 5,
-              backgroundColor: live === mi ? t.c.live : dnp ? 'transparent' : done ? t.c.hi : alpha(t.c.tint, 0.14),
+              width: 10, height: 10, borderRadius: 5, overflow: 'hidden',
+              backgroundColor: dnp ? 'transparent' : done ? t.c.hi : alpha(t.c.tint, 0.14),
               borderWidth: counts ? 1.5 : 1, borderStyle: dnp ? 'dashed' : 'solid',
               borderColor: counts ? t.c.accent : dnp ? t.c.loss : done ? 'transparent' : alpha(t.c.tint, 0.22),
               opacity: marks && !counts ? 0.4 : 1,
             }}
-          />
+          >
+            {/* the seam: the edge of a larger circle, clipped by the ball */}
+            {t.stitched && done && !dnp && <View style={{ position: 'absolute', left: -9, top: -3, width: 14, height: 14, borderRadius: 7, borderWidth: 1, borderColor: t.c.accent }} />}
+          </View>
         )
       })}
     </View>

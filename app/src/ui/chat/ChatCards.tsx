@@ -111,7 +111,7 @@ function TxnCard({ teamId, adds, drops }: { teamId: number; adds: number[]; drop
   return (
     <Card
       icon={adds.length ? <Plus size={15} /> : <Minus size={15} />}
-      tone={adds.length ? 'var(--accent)' : 'var(--loss)'}
+      tone={adds.length ? 'var(--win)' : 'var(--loss)'}
       title={<span className="row" style={{ gap: 8 }}><FTeamAvatar t={t} size="sm" /><span><b>{teamLabel(league, teamId)}</b> <span className="dim">{verb}</span></span></span>}
       aside={<span className="chip">Free agency</span>}
     >
@@ -136,7 +136,7 @@ function WaiversCard({ e }: { e: Extract<ChatEvent, { type: 'waivers' }> }) {
             <div className="grow" style={{ minWidth: 0, fontSize: 13, lineHeight: 1.5 }}>
               <b>{teamLabel(league, c.teamId)}</b>
               <div>
-                <span className="accent">+ </span>
+                <span className="win">+ </span>
                 <b className="link" onClick={() => openPlayer(c.add)}>{d.players[c.add].name}</b>
                 {c.drop !== null && (
                   <>

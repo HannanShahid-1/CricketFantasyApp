@@ -1,0 +1,108 @@
+/* Stitch — the cricket ball: coral leather and cream, with its seam as the signature (the matchup card is a ball
+   split between the two teams, meters are rows of stitches). Dark is night leather; light is the white ball, used
+   when the device is in light mode. Inter body, Bricolage Grotesque titles and numbers. */
+:root[data-theme='stitch'] {
+  color-scheme: dark;
+
+  --bg: #150f0d;
+  --panel: #1f1714;
+  --panel-2: #251b18;
+  --panel-3: #2e221e;
+  --feature: #331e1a;
+  --tint: #f3e7d8;
+  --shade: #000;
+  --line: rgba(243, 231, 216, 0.07);
+  --line-2: rgba(243, 231, 216, 0.12);
+  --scrim: rgba(12, 8, 7, 0.65);
+
+  --text: #f2e7da;
+  --muted: #ad9b8d;
+  --dim: #75655a;
+  --hi: #f6ece0;
+  --ink: #24140f;
+  --team-ink: #1a110e;
+
+  --accent: #ec6a5e;
+  --accent-ink: #2a100b;
+  --accent-hover: #f3857a;
+  --live: #f0483c;
+  --live-2: #ff8a7e;
+  --live-ink: #fff;
+  --gold: #e2b867;
+  --sky: #8fb9e0;
+  --win: #8ccf9c;
+  --loss: #f08aa0;
+  --seam: rgba(236, 106, 94, 0.6);
+
+  --wk: #e2b867;
+  --bat: #8fb9e0;
+  --bowl: #86c4b0;
+  --flex: #c9aee6;
+  --ar: #b9a8e6;
+
+  --team-sat: 70%;
+  --badge-outline: 30%;
+  --hero-lift: 0%;
+
+  --r-sm: 8px;
+  --r: 13px;
+  --r-lg: 20px;
+  --motif: stitch;
+
+  --font: 'Inter Variable', system-ui, -apple-system, Segoe UI, sans-serif;
+  --display: 'Bricolage Grotesque Variable', 'Inter Variable', system-ui, sans-serif;
+  --num: var(--display);
+  --num-weight: 700;
+  --num-tracking: 0;
+  --title-font: var(--display);
+  --title-weight: 700;
+  --title-tracking: -0.01em;
+  --title-scale: 1;
+  --title-em: normal;
+}
+
+/* the white ball: same shapes and type, light surfaces and a deeper coral */
+@media (prefers-color-scheme: light) {
+  :root[data-theme='stitch'] {
+    color-scheme: light;
+
+    --bg: #f5efe7;
+    --panel: #fffaf4;
+    --panel-2: #f8f1e9;
+    --panel-3: #ffffff;
+    --feature: #fbede6;
+    --tint: #3a2620;
+    --shade: #b5a493;
+    --line: rgba(58, 38, 32, 0.09);
+    --line-2: rgba(58, 38, 32, 0.15);
+    --scrim: rgba(40, 24, 20, 0.3);
+
+    --text: #2b1a15;
+    --muted: #7c675d;
+    --dim: #a8968b;
+    --hi: #2b1a15;
+    --ink: #fffaf4;
+    --team-ink: #24140f;
+
+    --accent: #d6493d;
+    --accent-ink: #fff;
+    --accent-hover: #e05a4e;
+    --live: #d63a2e;
+    --live-2: #c4362b;
+    --gold: #a07418;
+    --sky: #3b6fa3;
+    --win: #357a4c;
+    --loss: #b8435a;
+    --seam: rgba(214, 73, 61, 0.55);
+
+    --wk: #a07418;
+    --bat: #3b6fa3;
+    --bowl: #2f7a6a;
+    --flex: #8a58a8;
+    --ar: #6e5cb2;
+
+    --team-sat: 60%;
+    --badge-outline: 35%;
+    --hero-lift: 55%;
+  }
+}

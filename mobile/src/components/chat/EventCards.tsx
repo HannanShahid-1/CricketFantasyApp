@@ -105,7 +105,7 @@ function CardPlayer({ pid, sign }: { pid: number; sign?: 'add' | 'drop' }) {
   const s = useStyles(styles)
   return (
     <PlayerLink pid={pid} style={s.player}>
-      {sign && <Icon name={sign === 'add' ? 'plus.circle.fill' : 'minus.circle.fill'} size={17} color={sign === 'add' ? t.c.accent : t.c.loss} />}
+      {sign && <Icon name={sign === 'add' ? 'plus.circle.fill' : 'minus.circle.fill'} size={17} color={sign === 'add' ? t.c.win : t.c.loss} />}
       <PlayerLine p={getData().players[pid]} size={32} />
     </PlayerLink>
   )
@@ -121,7 +121,7 @@ function TxnCard({ teamId, adds, drops }: { teamId: number; adds: number[]; drop
   return (
     <Card
       icon={adds.length ? 'plus' : 'minus'}
-      color={adds.length ? t.c.accent : t.c.loss}
+      color={adds.length ? t.c.win : t.c.loss}
       title={
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <TeamBadge team={league.teams[teamId]} size={22} />
@@ -159,8 +159,8 @@ function WaiversCard({ e }: { e: Extract<ChatEvent, { type: 'waivers' }> }) {
               <Txt size={14} weight={600} numberOfLines={1}>{teamLabel(league, c.teamId)}</Txt>
               <View style={s.claim}>
                 <PlayerLink pid={c.add} style={s.inline}>
-                  <Icon name="plus" size={10} color={t.c.accent} weight="bold" />
-                  <Txt size={13.5} weight={600} tone="accent">{d.players[c.add].name}</Txt>
+                  <Icon name="plus" size={10} color={t.c.win} weight="bold" />
+                  <Txt size={13.5} weight={600} tone="win">{d.players[c.add].name}</Txt>
                 </PlayerLink>
                 {c.drop !== null && (
                   <PlayerLink pid={c.drop} style={s.inline}>

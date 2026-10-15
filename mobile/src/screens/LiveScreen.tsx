@@ -16,7 +16,7 @@ import { BallChip, FlashNum, LiveBadge, TeamMark } from '@/components/match/part
 import { ownersOf } from '@/data/derived'
 import { intParam, nav } from '@/nav'
 import { alpha, useStyles, useTheme, type Theme } from '@/theme/theme'
-import { Button, Chip, EmptyState, haptic, Icon, PlayerAvatar, PlayerLink, Section, Segmented, TeamBadge, TeamTag, Txt } from '@/ui'
+import { Button, Chip, EmptyState, haptic, Icon, Meter, PlayerAvatar, PlayerLink, Section, Segmented, TeamBadge, TeamTag, Txt } from '@/ui'
 
 // Ball-by-ball replay of a real IPL match, full screen. Watching the next unplayed match is playing it: closing the
 // replay (finished or not) records the match in the league, like the web. Replays of played matches change nothing.
@@ -207,9 +207,7 @@ const Scorebug = memo(function Scorebug({ m, st, progress }: { m: Match; st: Rep
         {side(m.teams[1], true)}
       </View>
       {status}
-      <View style={s.track}>
-        <View style={{ width: `${progress * 100}%`, height: '100%', backgroundColor: t.c.live, borderRadius: 2 }} />
-      </View>
+      <Meter value={progress} color={t.c.live} height={3} />
       {!st.finished ? (
         <>
           <View style={s.overRow}>
@@ -431,9 +429,8 @@ const styles = (t: Theme) => ({
   top: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8, height: 52, paddingHorizontal: 16 },
   topSide: { width: 92 },
   head: { paddingHorizontal: 16, paddingTop: 4, paddingBottom: 12, gap: 14 },
-  bug: { backgroundColor: t.c.panel, borderRadius: t.r.lg, padding: 16, gap: 12 },
+  bug: { backgroundColor: t.c.feature, borderRadius: t.r.lg, padding: 16, gap: 12 },
   center: { textAlign: 'center' as const },
-  track: { height: 3, borderRadius: 2, overflow: 'hidden' as const, backgroundColor: alpha(t.c.tint, 0.1) },
   overRow: { flexDirection: 'row' as const, flexWrap: 'wrap' as const, alignItems: 'center' as const, gap: 5, minHeight: 28 },
   crease: {
     flexDirection: 'row' as const, gap: 12, paddingTop: 11, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: t.c.line2,

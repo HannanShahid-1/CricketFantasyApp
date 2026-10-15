@@ -13,7 +13,7 @@ type Filter = 'all' | 'mine'
 const FILTERS: { key: Filter; label: string }[] = [{ key: 'all', label: 'All' }, { key: 'mine', label: 'Mine' }]
 
 const KIND: Record<Txn['type'], { icon: SFSymbol; color: (t: Theme) => string; label: string }> = {
-  add: { icon: 'plus', color: (t) => t.c.accent, label: 'Free agent add' },
+  add: { icon: 'plus', color: (t) => t.c.win, label: 'Free agent add' },
   drop: { icon: 'minus', color: (t) => t.c.loss, label: 'Dropped' },
   waiver: { icon: 'dollarsign', color: (t) => t.c.gold, label: 'Waiver claim' },
   'waiver-fail': { icon: 'xmark', color: (t) => t.c.loss, label: 'Claim failed' },
@@ -107,7 +107,7 @@ function Move({ pid, add }: { pid: number; add?: boolean }) {
   const p = getData().players[pid]
   return (
     <PlayerLink pid={pid} style={s.move}>
-      <Icon name={add ? 'plus' : 'minus'} size={11} color={add ? t.c.accent : t.c.loss} weight="bold" />
+      <Icon name={add ? 'plus' : 'minus'} size={11} color={add ? t.c.win : t.c.loss} weight="bold" />
       <PlayerAvatar p={p} size={26} />
       <Txt size={14.5} weight={600} numberOfLines={1} style={{ flexShrink: 1 }}>{p.name}</Txt>
       <TeamTag code={p.team} />

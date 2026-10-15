@@ -5,8 +5,8 @@ import { haptic } from './feedback'
 import { Icon, type SFSymbol } from './Icon'
 import { Txt } from './text'
 
-export type ButtonKind = 'filled' | 'tinted' | 'gray' | 'plain' | 'destructive' | 'live'
-export type ButtonSize = 'large' | 'medium' | 'small'
+type ButtonKind = 'filled' | 'tinted' | 'gray' | 'plain' | 'destructive' | 'live'
+type ButtonSize = 'large' | 'medium' | 'small'
 
 const SIZE: Record<ButtonSize, { h: number; px: number; font: number; icon: number }> = {
   large: { h: 50, px: 20, font: 17, icon: 18 },

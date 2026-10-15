@@ -1,5 +1,5 @@
 import { Stack, useLocalSearchParams } from 'expo-router'
-import { memo, useMemo, useState, type ReactNode } from 'react'
+import { Fragment, memo, useMemo, useState, type ReactNode } from 'react'
 import { Pressable, View } from 'react-native'
 import type { Match } from '@shared/engine/data'
 import { batLine, bowlLine, fieldLine, fmt, oversStr } from '@shared/engine/scoring'
@@ -11,7 +11,7 @@ import { TeamMark } from '@/components/match/parts'
 import { ownersOf } from '@/data/derived'
 import { intParam, nav } from '@/nav'
 import { alpha, useStyles, useTheme, type Theme } from '@/theme/theme'
-import { Button, EmptyState, Icon, PlayerAvatar, PlayerLink, Screen, Section, Txt } from '@/ui'
+import { Button, EmptyState, Icon, PlayerAvatar, PlayerLink, Screen, Seam, Section, Txt } from '@/ui'
 
 // IPL match scorecard (sheet): the result, fantasy points, then each innings' batting and bowling. Mirrors the web's
 // MatchModal (same shared helpers), laid out as grouped tables for a phone.
@@ -77,21 +77,25 @@ function Summary({ m }: { m: Match }) {
         {m.raw.num ? `Match ${m.raw.num}` : (m.raw.stage ?? 'Playoff')} · {fmtDate(m.raw.date)} · {m.raw.venue}
       </Txt>
       <View style={{ gap: 10 }}>
-        {m.teams.map((code) => {
+        {m.teams.map((code, i) => {
           const tot = m.totals.find((x) => x.team === code)
           const lost = !!m.raw.winner && m.raw.winner !== code
           return (
-            <View key={code} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, opacity: lost ? 0.6 : 1 }}>
-              <TeamMark code={code} size={16} />
-              <Txt size={14} tone="muted" numberOfLines={1} style={{ flex: 1 }}>{d.teams[code]?.name}</Txt>
-              {tot ? (
-                <Txt num weight={700} size={24} tone="hi">
-                  {tot.runs}/{tot.wkts} <Txt num size={13} tone="dim">({oversStr(tot.balls)})</Txt>
-                </Txt>
-              ) : (
-                <Txt size={13} tone="dim">Did not bat</Txt>
-              )}
-            </View>
+            <Fragment key={code}>
+              {/* the seam between the two sides (Stitch) */}
+              {i > 0 && <Seam />}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, opacity: lost ? 0.6 : 1 }}>
+                <TeamMark code={code} size={16} />
+                <Txt size={14} tone="muted" numberOfLines={1} style={{ flex: 1 }}>{d.teams[code]?.name}</Txt>
+                {tot ? (
+                  <Txt num weight={700} size={24} tone="hi">
+                    {tot.runs}/{tot.wkts} <Txt num size={13} tone="dim">({oversStr(tot.balls)})</Txt>
+                  </Txt>
+                ) : (
+                  <Txt size={13} tone="dim">Did not bat</Txt>
+                )}
+              </View>
+            </Fragment>
           )
         })}
       </View>
@@ -259,7 +263,7 @@ function Bowling({ m, inn }: { m: Match; inn: InningsDetail }) {
 }
 
 const styles = (t: Theme) => ({
-  card: { backgroundColor: t.c.panel, borderRadius: t.r.lg, padding: 16, gap: 14 },
+  card: { backgroundColor: t.c.feature, borderRadius: t.r.lg, padding: 16, gap: 14 },
   frow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 12, minHeight: 58, paddingVertical: 9, paddingHorizontal: 16 },
   thead: { flexDirection: 'row' as const, alignItems: 'center' as const, paddingHorizontal: 14, paddingVertical: 8 },
   trow: { gap: 2, paddingHorizontal: 14, paddingVertical: 9, minHeight: 50, justifyContent: 'center' as const },

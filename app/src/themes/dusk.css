@@ -7,6 +7,7 @@
   --panel: #181817;
   --panel-2: #1c1c1b;
   --panel-3: #242422;
+  --feature: var(--panel);
   --tint: #ebe7df;
   --shade: #000;
   --line: rgba(235, 231, 223, 0.065);
@@ -45,6 +46,7 @@
   --r-sm: 7px;
   --r: 11px;
   --r-lg: 16px;
+  --motif: none;
 
   --font: 'Inter Variable', system-ui, -apple-system, Segoe UI, sans-serif;
   --display: 'Chakra Petch', 'Inter Variable', system-ui, sans-serif;

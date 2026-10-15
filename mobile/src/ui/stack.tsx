@@ -8,6 +8,7 @@ import { nav } from '@/nav'
 import { usePrefs } from '@/data/prefs'
 import { useTheme } from '@/theme/theme'
 import { haptic } from './feedback'
+import { Txt } from './text'
 
 /** Native header look for every tab's stack: large title in the display face, translucent bar, accent tint. */
 export function useStackOptions(): NativeStackNavigationOptions {
@@ -32,6 +33,23 @@ export function useStackOptions(): NativeStackNavigationOptions {
 export function SheetStack() {
   const options = useStackOptions()
   return <Stack screenOptions={{ ...options, headerLargeTitle: false }} />
+}
+
+/**
+ * Header options for a tab's first screen: its title on the left of the header bar, level with the header buttons,
+ * instead of a large title below them (saves the band of space under the buttons). Spread into the screen's options.
+ */
+export function useTabTitle(title: string): NativeStackNavigationOptions {
+  return useMemo(() => ({
+    title,
+    headerTitle: '',
+    headerLargeTitle: false,
+    unstable_headerLeftItems: () => [{
+      type: 'custom',
+      element: <Txt display weight={700} size={28} numberOfLines={1}>{title}</Txt>,
+      hidesSharedBackground: true,
+    }],
+  }), [title])
 }
 
 /**

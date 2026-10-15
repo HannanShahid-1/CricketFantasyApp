@@ -4,14 +4,21 @@ import { getData, useApp } from '@shared/store'
 import { useLaunchIntro } from '@/components/LaunchIntro'
 import { usePrefs } from '@/data/prefs'
 import { nav } from '@/nav'
-import { THEME_ORDER, THEME_TOKENS } from '@/generated/themes'
-import { useTheme, useThemeStore, type ThemeId } from '@/theme/theme'
-import { confirm, haptic, Icon, Row, RowIcon, Screen, Section, SwitchRow, Txt } from '@/ui'
+import { THEME_ORDER } from '@/generated/themes'
+import { hasLightMode, themeLooks, useTheme, useThemeStore, type ColorMode, type ThemeId } from '@/theme/theme'
+import { confirm, haptic, Icon, Row, RowIcon, Screen, Section, Segmented, SwitchRow, Txt } from '@/ui'
 
-/** App settings (sheet from the "…" menu): theme, testing tools, reset. */
+const MODES: { key: ColorMode; label: string }[] = [
+  { key: 'system', label: 'Automatic' },
+  { key: 'light', label: 'Light' },
+  { key: 'dark', label: 'Dark' },
+]
+
+/** App settings (sheet from the gear button): theme and light/dark mode, testing tools, reset. */
 export function SettingsScreen() {
   const t = useTheme()
   const themeId = useThemeStore((s) => s.id)
+  const mode = useThemeStore((s) => s.mode)
   const testingTools = usePrefs((s) => s.testingTools)
   const hasLeague = useApp((s) => s.league !== null)
 
@@ -24,22 +31,31 @@ export function SettingsScreen() {
         }}
       />
       <Screen>
-        <Section title="Appearance" inset={64}>
+        <Section
+          title="Appearance"
+          inset={64}
+          footer={hasLightMode(themeId) ? `${t.name} has a light and a dark look. Automatic follows your iPhone's setting.` : undefined}
+        >
           {THEME_ORDER.map((x) => {
-            const tok = THEME_TOKENS[x.id as ThemeId]
+            const id = x.id as ThemeId
             return (
               <Row
                 key={x.id}
                 title={x.name}
-                left={<Swatch bg={tok.bg} panel={tok.panel} accent={tok.accent} />}
+                left={<Swatch id={id} />}
                 right={x.id === themeId ? <Icon name="checkmark" size={16} color={t.c.accent} weight="semibold" /> : undefined}
                 onPress={() => {
                   haptic.select()
-                  useThemeStore.getState().set(x.id as ThemeId)
+                  useThemeStore.getState().set(id)
                 }}
               />
             )
           })}
+          {hasLightMode(themeId) && (
+            <View key="mode" style={{ padding: 12 }}>
+              <Segmented options={MODES} value={mode} onChange={(m) => useThemeStore.getState().setMode(m)} />
+            </View>
+          )}
         </Section>
 
         <Section
@@ -85,13 +101,18 @@ export function SettingsScreen() {
   )
 }
 
-/** A theme's look in miniature: background, a card and the accent. */
-function Swatch({ bg, panel, accent }: { bg: string; panel: string; accent: string }) {
+/** A theme's look in miniature: background, a card and the accent (split into its dark and light looks if it has both). */
+function Swatch({ id }: { id: ThemeId }) {
   const t = useTheme()
+  const looks = themeLooks(id)
   return (
-    <View style={{ width: 36, height: 28, borderRadius: 7, backgroundColor: bg, borderWidth: 1, borderColor: t.c.line2, padding: 4, flexDirection: 'row', gap: 3 }}>
-      <View style={{ flex: 1, borderRadius: 3, backgroundColor: panel }} />
-      <View style={{ width: 7, borderRadius: 3, backgroundColor: accent }} />
+    <View style={{ width: 36, height: 28, borderRadius: 7, borderWidth: 1, borderColor: t.c.line2, overflow: 'hidden', flexDirection: 'row' }}>
+      {looks.map((look, i) => (
+        <View key={look.key} style={{ flex: 1, backgroundColor: look.c.bg, padding: 4, paddingLeft: i ? 0 : 4, flexDirection: 'row', gap: 3 }}>
+          <View style={{ flex: 1, borderRadius: 3, backgroundColor: look.c.panel }} />
+          {i === looks.length - 1 && <View style={{ width: 7, borderRadius: 3, backgroundColor: look.c.accent }} />}
+        </View>
+      ))}
     </View>
   )
 }

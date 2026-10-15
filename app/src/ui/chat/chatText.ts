@@ -88,7 +88,7 @@ export function offerStatusText(l: League, t: TradeOffer): string {
 
 /** Headline, colour token and footnote of a trade card in the league chat (review, approved, vetoed, failed). */
 export function leagueTradeInfo(l: League, t: TradeOffer, stage: TradeStage, by: number | null): {
-  title: string; tone: 'gold' | 'accent' | 'loss'; foot: string | null
+  title: string; tone: 'gold' | 'win' | 'loss'; foot: string | null
 } {
   switch (stage) {
     case 'review':
@@ -98,7 +98,7 @@ export function leagueTradeInfo(l: League, t: TradeOffer, stage: TradeStage, by:
         foot: t.status === 'review' ? null : `Outcome: ${TRADE_STATUS[t.status].label.toLowerCase()}`,
       }
     case 'approved':
-      return { title: 'Trade processed', tone: 'accent', foot: by === null ? 'Review period ended with no veto.' : `Approved by the commissioner (${who(l, by)}).` }
+      return { title: 'Trade processed', tone: 'win', foot: by === null ? 'Review period ended with no veto.' : `Approved by the commissioner (${who(l, by)}).` }
     case 'vetoed':
       return { title: 'Trade vetoed', tone: 'loss', foot: `Vetoed by the commissioner (${by === null ? 'league' : who(l, by)}).` }
     default:

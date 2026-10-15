@@ -2,12 +2,15 @@ import { useSyncExternalStore } from 'react'
 import './floodlit.css'
 import './dusk.css'
 import './scorebook.css'
+import './stitch.css'
 
 /**
  * Themes are token sets in ./<id>.css, scoped to <html data-theme="id">. To add one: copy floodlit.css (it lists
- * every token), change the id and values, import it above and list it here.
+ * every token), change the id and values, import it above and list it here. A theme can also restyle itself for
+ * light mode in a `@media (prefers-color-scheme: light)` block (see stitch.css); the iPhone app reads both.
  */
 export const THEMES = [
+  { id: 'stitch', name: 'Stitch' },
   { id: 'dusk', name: 'Dusk' },
   { id: 'scorebook', name: 'Scorebook' },
   { id: 'floodlit', name: 'Floodlit' },
@@ -19,7 +22,7 @@ export type ThemeId = (typeof THEMES)[number]['id']
  * Used until the viewer picks one. Set to 'floodlit' to bring back the original look (also update data-theme in
  * index.html, which only paints the first frame).
  */
-export const DEFAULT_THEME: ThemeId = 'dusk'
+export const DEFAULT_THEME: ThemeId = 'stitch'
 
 const KEY = 'seam-theme'
 const listeners = new Set<() => void>()

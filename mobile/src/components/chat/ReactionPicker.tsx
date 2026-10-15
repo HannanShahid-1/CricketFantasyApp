@@ -11,7 +11,7 @@ import { BubbleBody, type BubblePos } from './Bubble'
 // and a strip of emoji springs out above it (below it near the top of the screen). Who reacted is listed under it.
 // Built on a transparent Modal so it covers the header and tab bar; positions come from measureInWindow.
 
-export interface ReactTarget {
+interface ReactTarget {
   m: ChatMessage
   mine: boolean
   pos: BubblePos

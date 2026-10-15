@@ -1,3 +1,4 @@
+import { BricolageGrotesque_500Medium, BricolageGrotesque_600SemiBold, BricolageGrotesque_700Bold } from '@expo-google-fonts/bricolage-grotesque'
 import { ChakraPetch_500Medium, ChakraPetch_600SemiBold, ChakraPetch_700Bold } from '@expo-google-fonts/chakra-petch'
 import {
   Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold, useFonts,
@@ -5,7 +6,7 @@ import {
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect, useState } from 'react'
-import { Appearance, View } from 'react-native'
+import { View } from 'react-native'
 import { useApp } from '@shared/store'
 import { LaunchIntro, useLaunchIntro } from '@/components/LaunchIntro'
 import { boot } from '@/data/boot'
@@ -16,16 +17,13 @@ export default function RootLayout() {
   const [fonts] = useFonts({
     Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold,
     ChakraPetch_500Medium, ChakraPetch_600SemiBold, ChakraPetch_700Bold,
+    BricolageGrotesque_500Medium, BricolageGrotesque_600SemiBold, BricolageGrotesque_700Bold,
   })
   const [ready, setReady] = useState(false)
   useEffect(() => {
     boot().then(() => setReady(true))
   }, [])
   const t = useTheme()
-  // the native tab bar (Liquid Glass), headers, sheets and alerts follow iOS's light/dark mode, so match the theme
-  useEffect(() => {
-    Appearance.setColorScheme(t.dark ? 'dark' : 'light')
-  }, [t.dark])
   const intro = useLaunchIntro((s) => (s.visible ? s.run : null))
 
   // the launch animation covers start-up, then reveals the app (and replays from Settings)
