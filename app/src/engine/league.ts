@@ -4,6 +4,7 @@ import {
   type Data, type Player,
 } from './data'
 import type { SlotType } from './types'
+import { BOT_AVATARS, defaultUserAvatar, USER_AVATARS } from './avatars'
 import { dmChannel, emptyChat, LEAGUE_CHANNEL, post, type ChannelId, type ChatEvent, type ChatState, type TradeStage } from './chat'
 
 export const SLOTS: SlotType[] = ['WK', 'BAT', 'BAT', 'BAT', 'BAT', 'BOWL', 'BOWL', 'BOWL', 'BOWL', 'FLEX', 'FLEX']
@@ -30,6 +31,8 @@ export interface FTeam {
   isUser: boolean
   persona: Persona
   color: string
+  /** profile picture: an emoji drawn on the team colour (see avatars.ts) */
+  avatar: string
   roster: number[]
   starters: (number | null)[]
   faab: number
@@ -160,21 +163,25 @@ export function upgradeLeague(l: League): League {
     settings: { tradeReview: l.settings?.tradeReview ?? 'commissioner' },
     trades: l.trades ?? [],
     chat: l.chat ?? emptyChat(),
+    teams: l.teams.map((t) => (t.avatar ? t : {
+      ...t,
+      avatar: (!t.isUser && BOT_TEAMS.find((b) => b.name === t.name)?.avatar) || defaultUserAvatar(t.name),
+    })),
   }
 }
 
 // ---------------------------------------------------------------- setup
 
-const BOT_TEAMS: { name: string; owner: string; persona: Persona; color: string }[] = [
-  { name: 'Yorker Kings', owner: 'AI · Ravi', persona: 'bowling', color: '#22c55e' },
-  { name: 'Doosra Dynasty', owner: 'AI · Meera', persona: 'balanced', color: '#f97316' },
-  { name: 'Powerplay Pirates', owner: 'AI · Arjun', persona: 'batting', color: '#eab308' },
-  { name: 'Silly Point Society', owner: 'AI · Kabir', persona: 'upside', color: '#a855f7' },
-  { name: 'Reverse Sweepers', owner: 'AI · Zoya', persona: 'steady', color: '#06b6d4' },
-  { name: 'Googly Gang', owner: 'AI · Dev', persona: 'bowling', color: '#ec4899' },
-  { name: 'Death Over Demons', owner: 'AI · Sana', persona: 'batting', color: '#ef4444' },
-  { name: 'Free Hit Frenzy', owner: 'AI · Neel', persona: 'upside', color: '#84cc16' },
-  { name: 'The Nightwatchmen', owner: 'AI · Isha', persona: 'steady', color: '#3b82f6' },
+const BOT_TEAMS: { name: string; owner: string; persona: Persona; color: string; avatar: string }[] = [
+  { name: 'Yorker Kings', owner: 'AI · Ravi', persona: 'bowling', color: '#22c55e', avatar: BOT_AVATARS.Ravi },
+  { name: 'Doosra Dynasty', owner: 'AI · Meera', persona: 'balanced', color: '#f97316', avatar: BOT_AVATARS.Meera },
+  { name: 'Powerplay Pirates', owner: 'AI · Arjun', persona: 'batting', color: '#eab308', avatar: BOT_AVATARS.Arjun },
+  { name: 'Silly Point Society', owner: 'AI · Kabir', persona: 'upside', color: '#a855f7', avatar: BOT_AVATARS.Kabir },
+  { name: 'Reverse Sweepers', owner: 'AI · Zoya', persona: 'steady', color: '#06b6d4', avatar: BOT_AVATARS.Zoya },
+  { name: 'Googly Gang', owner: 'AI · Dev', persona: 'bowling', color: '#ec4899', avatar: BOT_AVATARS.Dev },
+  { name: 'Death Over Demons', owner: 'AI · Sana', persona: 'batting', color: '#ef4444', avatar: BOT_AVATARS.Sana },
+  { name: 'Free Hit Frenzy', owner: 'AI · Neel', persona: 'upside', color: '#84cc16', avatar: BOT_AVATARS.Neel },
+  { name: 'The Nightwatchmen', owner: 'AI · Isha', persona: 'steady', color: '#3b82f6', avatar: BOT_AVATARS.Isha },
 ]
 
 export interface LeagueOptions {
@@ -198,7 +205,7 @@ function shuffle<T>(xs: T[]): T[] {
 export function createLeague(d: Data, o: LeagueOptions): League {
   const bots = shuffle(BOT_TEAMS).slice(0, o.numTeams - 1)
   const teams: FTeam[] = [
-    { id: 0, name: o.teamName || 'My Team', owner: 'You', isUser: true, persona: 'balanced', color: '#2dd4bf', roster: [], starters: SLOTS.map(() => null), faab: FAAB_BUDGET, autoSub: true, autoLineup: true },
+    { id: 0, name: o.teamName || 'My Team', owner: 'You', isUser: true, persona: 'balanced', color: '#2dd4bf', avatar: USER_AVATARS[Math.floor(Math.random() * USER_AVATARS.length)], roster: [], starters: SLOTS.map(() => null), faab: FAAB_BUDGET, autoSub: true, autoLineup: true },
     ...bots.map((b, i) => ({ id: i + 1, ...b, isUser: false, roster: [], starters: SLOTS.map(() => null), faab: FAAB_BUDGET, autoSub: true })),
   ]
   let order = shuffle(teams.map((t) => t.id))

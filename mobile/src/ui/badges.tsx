@@ -48,12 +48,12 @@ export function TeamTag({ code }: { code: string }) {
   )
 }
 
-/** A fantasy team's badge: its colour (muted by the theme) with initials. */
+/** A fantasy team's profile picture: its emoji on the team colour (muted by the theme). */
 export function TeamBadge({ team, size = 40 }: { team: FTeam; size?: number }) {
   const t = useTheme()
   return (
     <View style={{ width: size, height: size, borderRadius: size * 0.28, backgroundColor: t.team(team.color), alignItems: 'center', justifyContent: 'center' }}>
-      <Txt display weight={700} size={size * 0.36} style={{ color: t.c.teamInk }}>{initials(team.name)}</Txt>
+      <Txt size={size * 0.52} accessibilityLabel={team.name}>{team.avatar}</Txt>
     </View>
   )
 }

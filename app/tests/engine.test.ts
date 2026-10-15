@@ -12,8 +12,9 @@ import {
   addMode, beginReplay, botTradeVerdict, canFillLineup, chooseDraftPick, countedMatch, createLeague, currentWeek, dropPlayer,
   freeAgentAdd, isLocked, isOffRoster, lineupProblem, lockedPick, makePick, optimizeLineup, overLimit, placeClaim, playNext,
   proposeTrade, respondTrade, reviewTrade, ROSTER_SIZE, setMatchPick, slotLocked, SLOTS, teamOnClock,
-  TRADE_DEADLINE_WEEK, tradeProblem, weekMatches, withdrawTrade, type League,
+  TRADE_DEADLINE_WEEK, tradeProblem, upgradeLeague, weekMatches, withdrawTrade, type League,
 } from '../src/engine/league'
+import { BOT_AVATARS, USER_AVATARS } from '../src/engine/avatars'
 import { applyMove, swapTargets } from '../src/ui/lineup'
 import { computeLines } from '../src/engine/scoring'
 import { FLAG_LEGBYE, FLAG_NOBALL, type RawMatch } from '../src/engine/types'
@@ -523,5 +524,25 @@ describe('in-place match simulation', () => {
     expect(l.played).toBe(1)
     expect(l.replayMatch).toBeNull()
     expect(l.teams.map((t) => t.starters)).toEqual(direct.teams.map((t) => t.starters))
+  })
+})
+
+describe('team profile pictures', () => {
+  it('gives every team its own picture: AI managers theirs, you a random one', () => {
+    const l = createLeague(d, { name: 'Test', teamName: 'Me', numTeams: 10, draftSlot: 'random', timer: 0, speed: 'instant' })
+    const pics = l.teams.map((t) => t.avatar)
+    expect(new Set(pics).size).toBe(l.teams.length)
+    expect(USER_AVATARS).toContain(l.teams[0].avatar)
+    for (const t of l.teams.slice(1)) expect(t.avatar).toBe(BOT_AVATARS[t.owner.replace('AI · ', '')])
+  })
+
+  it('fills in pictures for leagues saved before they existed, the same way every load', () => {
+    const l = createLeague(d, { name: 'Test', teamName: 'Me', numTeams: 8, draftSlot: 'random', timer: 0, speed: 'instant' })
+    const old = structuredClone(l)
+    for (const t of old.teams) delete (t as { avatar?: string }).avatar
+    const a = upgradeLeague(old)
+    expect(a.teams.slice(1).map((t) => t.avatar)).toEqual(l.teams.slice(1).map((t) => t.avatar))
+    expect(USER_AVATARS).toContain(a.teams[0].avatar)
+    expect(upgradeLeague(old).teams[0].avatar).toBe(a.teams[0].avatar)
   })
 })

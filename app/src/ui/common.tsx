@@ -56,8 +56,8 @@ export function RoleTag({ p }: { p: Player }) {
 
 export function FTeamAvatar({ t, size }: { t: FTeam; size?: 'sm' | 'lg' }) {
   return (
-    <div className={`fteam-av ${size ?? ''}`} style={{ ['--c' as string]: t.color }}>
-      {initials(t.name)}
+    <div className={`fteam-av ${size ?? ''}`} style={{ ['--c' as string]: t.color }} role="img" aria-label={t.name}>
+      {t.avatar}
     </div>
   )
 }
