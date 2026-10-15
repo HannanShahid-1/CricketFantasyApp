@@ -209,20 +209,19 @@ function Hero({ p, league, closeAfter }: { p: Player; league: League | null; clo
         </View>
         {own?.action && (
           <Pressable
-            disabled={own.action.disabled}
             onPress={() => {
-              if (own.action?.disabled) return
-              haptic.tap()
+              if (own.action?.locked) haptic.error()
+              else haptic.tap()
               own.action?.onPress()
             }}
             accessibilityRole="button"
             accessibilityLabel={`${own.action.title} ${p.name}`}
-            accessibilityState={{ disabled: !!own.action.disabled }}
-            accessibilityHint={own.action.disabled ? 'Locked until this gameweek ends.' : undefined}
-            style={({ pressed }) => [s.pill, own.action?.disabled && { opacity: 0.5 }, pressed && { opacity: 0.7 }]}
+            accessibilityState={{ disabled: !!own.action.locked }}
+            style={({ pressed }) => [s.pill, own.action?.locked && { opacity: 0.55 }, pressed && { opacity: own.action?.locked ? 0.4 : 0.7 }]}
           >
             <Icon name={own.action.icon} size={13} weight="semibold" color={HERO.ink} />
             <Txt up size={14} weight={700} style={{ color: HERO.ink }}>{own.action.title}</Txt>
+            {own.action.locked && <Icon name="lock.fill" size={12} weight="semibold" color={HERO.ink} />}
           </Pressable>
         )}
       </View>
@@ -260,7 +259,12 @@ function HeroBackdrop({ color }: { color: string }) {
 
 // ---------------------------------------------------------------- ownership and actions
 
-interface Ownership { owner: string; detail: string | null; action: { title: string; icon: SFSymbol; disabled?: boolean; onPress: () => void } | null }
+interface Ownership {
+  owner: string
+  detail: string | null
+  /** locked: shown dimmed with a lock, and a tap explains why instead of acting */
+  action: { title: string; icon: SFSymbol; onPress: () => void; locked?: boolean } | null
+}
 
 /** Who has him, what that means this week, and the one thing you can do about it (null outside a league). */
 function useOwnership(p: Player, league: League | null, closeAfter: () => void): Ownership | null {
@@ -291,7 +295,9 @@ function useOwnership(p: Player, league: League | null, closeAfter: () => void):
     return {
       owner: 'Your team',
       detail: !season ? null : locked ? 'Locked: his match has started' : team.starters.includes(p.idx) ? 'Starting XI' : 'Bench',
-      action: season ? { title: 'Drop', icon: locked ? 'lock.fill' : 'trash', disabled: locked, onPress: onDrop } : null,
+      action: !season ? null : locked
+        ? { title: 'Drop', icon: 'trash', locked: true, onPress: () => Alert.alert(`Can't drop ${p.name} yet`, 'His match this week has started, so he stays on your team until the week ends.') }
+        : { title: 'Drop', icon: 'trash', onPress: onDrop },
     }
   }
   if (league.phase === 'draft') return { owner: 'Available', detail: 'Not drafted yet', action: null }
@@ -849,8 +855,8 @@ const styles = (t: Theme) => ({
   },
   main: { flex: 1, minWidth: 0, gap: 10, paddingLeft: 14, paddingRight: 16, paddingTop: 28, paddingBottom: 2 },
   owner: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 5, paddingRight: 34 },
-  facts: { flexDirection: 'row' as const },
-  fact: { flex: 1, alignItems: 'flex-start' as const, gap: 2 },
+  facts: { flexDirection: 'row' as const, gap: 22 }, // left-aligned under his name
+  fact: { gap: 2 },
   slots: { flexDirection: 'row' as const, justifyContent: 'center' as const, gap: 4, marginTop: 3 },
   pill: {
     flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'center' as const, gap: 7,
