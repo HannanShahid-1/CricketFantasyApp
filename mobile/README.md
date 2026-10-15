@@ -108,3 +108,42 @@ xcrun devicectl device install app --device <iPhone UDID> ~/Library/Developer/Xc
 `xcrun devicectl list devices` shows the UDID. With a free Apple ID the install stops opening after 7 days:
 rebuild and reinstall (the league is kept). The app icon comes from `scripts/make-icon.swift`
 (`swift scripts/make-icon.swift` redraws `assets/icon*.png`).
+
+## Updating an installed iPhone app over Wi-Fi with Codex
+
+On your own Mac, you can ask Codex:
+
+> Pull the latest mobile changes from feat/seam-prototype and update the existing Seam app on my paired iPhone over Wi-Fi. Preserve my league and local Apple signing settings. Build and check it before installing.
+
+The iPhone must already be paired with this Mac in Xcode, trusted, and have Developer Mode enabled. Connect it by
+cable for the initial setup if necessary; enable network connection in Xcode's device tools where offered. For later
+updates, keep the Mac and phone on the same Wi-Fi and unlock the phone. Network discovery must show the phone before
+attempting a wireless install. A first install still needs the setup described above.
+
+For Codex or another coding agent:
+
+1. Work in this repository's `mobile/` app. Check the current branch and local changes, fetch origin, and update
+   `feat/seam-prototype` without overwriting anyone's uncommitted work. Do not substitute a separate web preview
+   checkout or push changes as part of an install request.
+2. Use the developer's own git-ignored `.env.local` for signing. Never copy another developer's signing settings or
+   commit Apple IDs, device identifiers, credentials or league saves.
+3. If dependencies changed, install the locked dependencies in `app/` and `mobile/`. Run the repository's required
+   tests, build, lint and mobile type check. Run `npm run sync`, regenerate iOS with Expo prebuild as needed, and
+   install pods when the native dependencies change. Never hand-edit generated iOS project files.
+4. Discover the connected physical iPhone with `xcrun devicectl list devices` and Xcode's device tools. Confirm the
+   selected device is available over the local network; do not assume a simulator or another person's device is the
+   target. If several phones are available and the intended one is unclear, ask which one to use.
+5. Build the `Seam` scheme in Release from `mobile/ios/Seam.xcworkspace` for that discovered physical device using
+   `xcodebuild`, with the developer's existing provisioning setup. Use a temporary derived-data directory and check
+   that the build succeeded before installing.
+6. Use `xcrun devicectl device install app` to install the resulting `Seam.app` on the same device. Keep the existing
+   bundle identifier and install in place: do not uninstall the app, erase it, reset storage or delete its league.
+   Launch with `xcrun devicectl device process launch` using the built app's bundle identifier. If the phone is locked
+   or asks for trust, ask the developer to unlock or approve it and report installation separately from launch.
+7. Verify the installed update and report the commit used. If Wi-Fi discovery fails, explain the blocker and use a
+   cable only when the developer chooses to connect one. Do not claim a wireless update succeeded without checking
+   the install result.
+
+Each developer signs and installs on their own Mac and phone. Pushing to GitHub alone does not update an installed
+app; Codex needs access to that developer's local Xcode setup to build and install it. Free Apple signing expires, so
+an expired installation needs a new signed build and reinstall in place.
