@@ -1,6 +1,7 @@
 // Generates src/generated/* from the web app, so the web stays the single source of truth:
 //  - themes.ts: every theme's tokens (and light-mode tokens), read from ../app/src/themes/*.css (+ order/default from themes.ts)
-//  - photos.ts: player id -> bundled photo and list thumbnail, read from ../app/public/data/player-media.json
+//  - photos.ts: player id -> bundled photo and list thumbnail, and team code -> logo, read from
+//    ../app/public/data/player-media.json
 // Runs before `npm start`; run `npm run sync` after changing a web theme.
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
@@ -77,6 +78,9 @@ if (stale.length) {
     thumbs = false // no sips (not macOS): rows fall back to the full photos
   }
 }
+const logos = Object.entries(media.teams ?? {})
+  .map(([code, t]) => [code, join(web, 'public', t.logo ?? '')])
+  .filter(([, src]) => src.endsWith('.svg') && existsSync(src))
 const entry = (id, file) => {
   const rel = relative(out, file)
   return `  '${id}': require('${rel.startsWith('.') ? rel : `./${rel}`}'),`
@@ -93,7 +97,12 @@ ${photos.map(([id, src]) => entry(id, src)).join('\n')}
 export const THUMBS: Record<string, number> = ${thumbs ? `{
 ${photos.map(([id, src]) => entry(id, thumbOf(src))).join('\n')}
 }` : 'PHOTOS'}
+
+/** IPL team code -> its logo (SVG), for the teams whose logo file is there */
+export const LOGOS: Record<string, number> = {
+${logos.map(([code, src]) => entry(code, src)).join('\n')}
+}
 `,
 )
 
-console.log(`sync: ${order.length} themes (default ${defaultTheme}), ${photos.length} photos, ${stale.length} new thumbnails`)
+console.log(`sync: ${order.length} themes (default ${defaultTheme}), ${photos.length} photos, ${stale.length} new thumbnails, ${logos.length} team logos`)

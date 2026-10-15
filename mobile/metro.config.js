@@ -9,6 +9,8 @@ const shared = path.resolve(__dirname, '../app')
 config.watchFolders = [path.join(shared, 'src'), path.join(shared, 'public')]
 // player photo thumbnails (src/generated/thumbs) are HEIC: small, and they keep the cut-out's transparency
 config.resolver.assetExts.push('heic')
+// IPL team logos (../app/public/media/teams) are SVGs, drawn by expo-image
+if (!config.resolver.assetExts.includes('svg')) config.resolver.assetExts.push('svg')
 
 const resolve = config.resolver.resolveRequest
 config.resolver.resolveRequest = (context, moduleName, platform) => {

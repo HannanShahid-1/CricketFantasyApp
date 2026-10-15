@@ -1,7 +1,7 @@
 import { Image } from 'expo-image'
 import { useLocalSearchParams } from 'expo-router'
-import { memo, useCallback, useMemo, useState, type ReactNode } from 'react'
-import { Alert, LayoutAnimation, Linking, Pressable, ScrollView, View } from 'react-native'
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { Alert, Animated, LayoutAnimation, Pressable, ScrollView, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { matchProjection, ROLE_LABEL, ROLE_NAME, seasonToDate, type Player } from '@shared/engine/data'
 import { fantasyAdvice, type FantasyAdvice } from '@shared/engine/fantasyAdvice'
@@ -16,32 +16,40 @@ import { cardPlayed, gameLog, ptsBand, type LogEntry } from '@shared/ui/playerCa
 import { MatchPicker } from '@/components/MatchPicker'
 import { useSheetLeague } from '@/components/sheets/SheetChrome'
 import { ownersOf, recordOf } from '@/data/derived'
-import { PHOTOS } from '@/generated/photos'
+import { LOGOS, PHOTOS } from '@/generated/photos'
 import { intParam, nav } from '@/nav'
 import { alpha, mix, useStyles, useTheme, type Theme } from '@/theme/theme'
 import {
-  Button, Chip, type ChipTone, confirm, EmptyState, GroupHeader, GroupNote, haptic, Icon, report, Row, RowIcon, Section,
-  Segmented, type SFSymbol, SlotBadge, StatGrid, TeamBadge, TeamTag, Tiles, type Tone, Txt,
+  Button, Chip, type ChipTone, confirm, EmptyState, GroupHeader, GroupNote, haptic, Icon, report, roleColor, Row, RowIcon,
+  Section, type SFSymbol, SlotBadge, StatGrid, TeamTag, type Tone, Txt,
 } from '@/ui'
 
-// The player card: a team-branded hero with his photo, who owns him and what you can do about it, and which match
-// counts this week (your players). Below that, three tabs: Overview (season numbers, weekly projections, profile),
-// Outlook (start/bench opinion, scouting profile, match previews and recaps) and the full game log. Opens from every
-// player row, and from the draft room.
+// The player card, laid out like Sleeper's: a compact team-branded header (his photo, team and lineup slots, who
+// owns him, his bio in one row and the action you can take), then a sliding tab bar. Summary has his ranks and averages, which match
+// counts this week (your players), weekly projections, his season numbers and the fantasy outlook, with his match
+// previews and recaps folded away under a Player updates row at the bottom; Game log has every match. Opens from
+// every player row, and from the draft room.
 
-type Tab = 'overview' | 'outlook' | 'log'
+type Tab = 'summary' | 'log'
 const TABS: { key: Tab; label: string }[] = [
-  { key: 'overview', label: 'Overview' },
-  { key: 'outlook', label: 'Outlook' },
+  { key: 'summary', label: 'Summary' },
   { key: 'log', label: 'Game log' },
 ]
 
 export function PlayerScreen() {
   const pid = intParam(useLocalSearchParams<{ id: string }>().id)
   const [league, closeAfter] = useSheetLeague()
-  const [tab, setTab] = useState<Tab>('overview')
+  const [tab, setTab] = useState<Tab>('summary')
   const t = useTheme()
   const bottom = useSafeAreaInsets().bottom
+  // switching tabs while scrolled down starts the new tab at its top, just under the pinned tab bar
+  const scroller = useRef<ScrollView>(null)
+  const scrollY = useRef(0)
+  const heroHeight = useRef(0)
+  const switchTab = useCallback((next: Tab) => {
+    setTab(next)
+    if (scrollY.current > heroHeight.current) scroller.current?.scrollTo({ y: heroHeight.current, animated: false })
+  }, [])
   const p = getData().players[pid]
   if (!p) {
     return (
@@ -53,77 +61,168 @@ export function PlayerScreen() {
   const played = cardPlayed(league)
   return (
     <ScrollView
+      ref={scroller}
+      onScroll={(e) => { scrollY.current = e.nativeEvent.contentOffset.y }}
+      scrollEventThrottle={64}
       style={{ flex: 1, backgroundColor: t.c.bg }}
       contentInsetAdjustmentBehavior="never"
       contentContainerStyle={{ paddingBottom: bottom + 32 }}
+      stickyHeaderIndices={[1]}
     >
-      <Hero p={p} />
+      <View onLayout={(e) => { heroHeight.current = e.nativeEvent.layout.height }}>
+        <Hero p={p} league={league} closeAfter={closeAfter} />
+      </View>
+      <View style={{ backgroundColor: t.c.bg, paddingHorizontal: 16, paddingTop: 14 }}>
+        <TabBar value={tab} onChange={switchTab} />
+      </View>
       <View style={{ paddingHorizontal: 16, paddingTop: 20, gap: 24 }}>
-        {league && <Ownership p={p} league={league} closeAfter={closeAfter} />}
-        {league && <ThisWeek p={p} league={league} />}
-        <Segmented options={TABS} value={tab} onChange={setTab} />
-        {tab === 'overview' && (
+        {tab === 'summary' && (
           <>
-            <Season p={p} played={played} />
+            <Headline p={p} played={played} />
+            {league && <ThisWeek p={p} league={league} />}
             <Projections p={p} league={league} played={played} />
-            <Profile p={p} />
+            <Season p={p} played={played} />
+            <Outlook p={p} league={league} played={played} />
           </>
         )}
-        {tab === 'outlook' && <Outlook p={p} league={league} played={played} />}
         {tab === 'log' && <GameLog p={p} played={played} />}
       </View>
     </ScrollView>
   )
 }
 
-// ---------------------------------------------------------------- hero
+// ---------------------------------------------------------------- header
 
-// The hero is the one team-branded block in the app: the IPL team's own colours behind his photo, with white type
-// over a dark scrim so it reads the same in every theme.
+// The header is the one team-branded block in the app: the IPL team's colours (darkened so white type always
+// reads, even on CSK yellow) behind a small photo and a faded team logo (its code when there's no logo), with white
+// type in every theme.
 const HERO = {
-  height: 300,
   ink: '#fff',
-  soft: 'rgba(255, 255, 255, 0.82)',
+  soft: 'rgba(255, 255, 255, 0.78)',
+  faint: 'rgba(255, 255, 255, 0.6)',
+  plate: 'rgba(0, 0, 0, 0.15)',
+  button: 'rgba(255, 255, 255, 0.2)',
   base: '#0b1017',
   fallback: { color: '#33404d', accent: '#5b6876' },
 }
+const PHOTO_W = 136
 
-function Hero({ p }: { p: Player }) {
+const BATS: Record<string, string> = { 'Right-handed': 'RHB', 'Left-handed': 'LHB' }
+const BOWLS: Record<string, string> = {
+  'Off break': 'OB', 'Off Spin': 'OB', 'Leg break': 'LB', 'Leg spin': 'LB', 'Leg break googly': 'LBG',
+  'Slow left-arm orthodox': 'SLA', 'Left-arm wrist spin': 'SLC',
+  'Right-arm fast': 'RF', 'Right-arm fast medium': 'RFM', 'Right-arm medium fast': 'RMF', 'Right-arm medium': 'RM',
+  'Left-arm fast': 'LF', 'Left-arm fast medium': 'LFM', 'Left-arm medium fast': 'LMF', 'Left-arm medium': 'LM',
+}
+const COUNTRY: Record<string, string> = {
+  India: 'IND', 'South Africa': 'SA', Australia: 'AUS', England: 'ENG', 'New Zealand': 'NZ', 'Sri Lanka': 'SL',
+  'West Indies': 'WI', Afghanistan: 'AFG', Bangladesh: 'BAN', Zimbabwe: 'ZIM',
+}
+const initialsOf = (s: string) => s.split(/[\s-]+/).map((w) => w[0]).join('').toUpperCase()
+
+function Hero({ p, league, closeAfter }: { p: Player; league: League | null; closeAfter: () => void }) {
+  const t = useTheme()
   const s = useStyles(styles)
   const code = p.team || p.profileTeam || ''
   const team = getData().teams[code]
-  const { color, accent } = team ?? HERO.fallback
+  const { color } = team ?? HERO.fallback
   const photo = PHOTOS[p.id]
+  const bio = p.bio
+  const age = bio ? playerAge(bio.birthDate) : null
+  // short values in the header; VoiceOver reads the full ones
+  const facts = [
+    { label: 'Age', value: age !== null ? String(age) : '–', full: age !== null ? `${age} years` : 'not listed' },
+    { label: 'Bats', value: bio ? (BATS[bio.battingStyle] ?? initialsOf(bio.battingStyle)) : '–', full: bio?.battingStyle ?? 'not listed' },
+    {
+      label: 'Bowls',
+      value: bio?.bowlingStyle ? (BOWLS[bio.bowlingStyle] ?? initialsOf(bio.bowlingStyle)) : '–',
+      full: bio?.bowlingStyle ?? "doesn't bowl",
+    },
+    { label: 'From', value: bio ? (COUNTRY[bio.nationality] ?? bio.nationality.slice(0, 3).toUpperCase()) : '–', full: bio?.nationality ?? 'not listed' },
+  ]
+  // the surname keeps its lowercase particles: Quinton / de Kock
+  const words = p.fullName.trim().split(/\s+/)
+  let split = words.length - 1
+  while (split > 1 && /^[a-z]/.test(words[split - 1])) split--
+  const first = words.slice(0, split).join(' ')
+  const last = words.slice(split).join(' ')
+  const own = useOwnership(p, league, closeAfter)
   return (
     <View
       style={[s.hero, {
-        backgroundColor: color,
+        backgroundColor: mix(color, HERO.base, 0.45),
         experimental_backgroundImage:
-          `radial-gradient(circle at 74% 36%, rgba(255, 255, 255, 0.2) 0%, transparent 55%), ` +
-          `linear-gradient(160deg, ${color} 0%, ${mix(color, HERO.base, 0.5)} 100%)`,
+          `radial-gradient(circle at 12% 40%, ${alpha(color, 0.55)} 0%, transparent 60%), ` +
+          `linear-gradient(150deg, ${mix(color, HERO.base, 0.62)} 0%, ${mix(color, HERO.base, 0.26)} 100%)`,
       }]}
     >
-      {!!code && <Txt display weight={700} size={128} numberOfLines={1} style={s.watermark}>{code}</Txt>}
-      {photo ? (
-        <Image source={photo} style={s.photo} contentFit="contain" contentPosition="bottom" transition={160} accessibilityLabel={p.fullName} />
-      ) : (
-        <View style={s.noPhoto}><Txt display weight={700} size={64} style={{ color: HERO.soft }}>{initials(p.name)}</Txt></View>
-      )}
-      <View style={s.scrim} />
-      <View style={s.heroText}>
-        <Txt display weight={700} size={31} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.75} style={s.heroName} accessibilityRole="header">
-          {p.fullName}
-        </Txt>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
-          <View style={[s.swatch, { backgroundColor: accent }]} />
-          <Txt size={14} weight={600} numberOfLines={1} style={{ color: HERO.soft, flexShrink: 1 }}>
-            {team?.name ?? 'No IPL team'} · {ROLE_NAME[p.role]}
+      <View style={s.side}>
+        <View style={s.photoBox}>
+          {LOGOS[code] ? (
+            <Image source={LOGOS[code]} style={s.logo} contentFit="contain" accessible={false} />
+          ) : !!code && (
+            <Txt display weight={700} size={70} numberOfLines={1} style={s.watermark}>{code}</Txt>
+          )}
+          {photo ? (
+            <Image source={photo} style={s.photo} contentFit="contain" contentPosition="bottom" transition={160} accessibilityLabel={p.fullName} />
+          ) : (
+            <View style={s.noPhoto}><Txt display weight={700} size={40} style={{ color: HERO.soft }}>{initials(p.name)}</Txt></View>
+          )}
+        </View>
+        <View style={s.plate}>
+          <Txt display up weight={700} size={12} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.8} style={{ color: HERO.ink, textAlign: 'center' }}>
+            {team?.name ?? 'No IPL team'}
           </Txt>
+          <Txt size={12} weight={800} style={{ color: mix(roleColor(t, p.role), HERO.ink, 0.7), letterSpacing: 0.4 }}>
+            {ROLE_LABEL[p.role]}
+            {!!code && <Txt size={12} weight={600} style={{ color: HERO.faint }}>{`  ·  ${code}`}</Txt>}
+          </Txt>
+          <View style={s.slots} accessible accessibilityLabel={`Eligible for ${p.elig.join(', ')}`}>
+            {p.elig.map((e) => <SlotBadge key={e} slot={e} small />)}
+          </View>
         </View>
       </View>
-      <View style={[s.stripe, { backgroundColor: accent }]} />
+      <View style={s.main}>
+        {own && (
+          <View style={s.owner}>
+            <Icon name="arrow.right" size={11} weight="bold" color={HERO.soft} />
+            <Txt size={13} numberOfLines={1} style={{ color: HERO.soft, flexShrink: 1 }}>
+              <Txt size={13} weight={600} style={{ color: HERO.ink }}>{own.owner}</Txt>
+              {own.detail ? ` · ${own.detail}` : ''}
+            </Txt>
+          </View>
+        )}
+        <View accessible accessibilityRole="header" accessibilityLabel={p.fullName}>
+          {!!first && <Txt display up weight={700} size={18} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={{ color: HERO.ink }}>{first}</Txt>}
+          <Txt display up weight={800} size={27} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={{ color: HERO.ink, lineHeight: 32 }}>{last}</Txt>
+        </View>
+        <View style={s.facts}>
+          {facts.map((f) => (
+            <View key={f.label} style={s.fact} accessible accessibilityLabel={`${f.label}: ${f.full}`}>
+              <Txt up size={10} weight={600} numberOfLines={1} style={{ color: HERO.faint }}>{f.label}</Txt>
+              <Txt num weight={700} size={17} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} style={{ color: HERO.ink }}>
+                {f.value}
+              </Txt>
+            </View>
+          ))}
+        </View>
+        {own?.action && (
+          <Pressable
+            onPress={() => {
+              haptic.tap()
+              own.action?.onPress()
+            }}
+            accessibilityRole="button"
+            accessibilityLabel={`${own.action.title} ${p.name}`}
+            style={({ pressed }) => [s.pill, pressed && { opacity: 0.7 }]}
+          >
+            <Icon name={own.action.icon} size={13} weight="semibold" color={HERO.ink} />
+            <Txt up size={14} weight={700} style={{ color: HERO.ink }}>{own.action.title}</Txt>
+          </Pressable>
+        )}
+      </View>
       <Pressable onPress={nav.close} hitSlop={12} accessibilityRole="button" accessibilityLabel="Close" style={({ pressed }) => [s.close, pressed && { opacity: 0.6 }]}>
-        <Icon name="xmark" size={13} weight="bold" color={HERO.ink} />
+        <Icon name="xmark" size={12} weight="bold" color={HERO.ink} />
       </Pressable>
     </View>
   )
@@ -131,61 +230,88 @@ function Hero({ p }: { p: Player }) {
 
 // ---------------------------------------------------------------- ownership and actions
 
-function Ownership({ p, league, closeAfter }: { p: Player; league: League; closeAfter: () => void }) {
-  const t = useTheme()
+interface Ownership { owner: string; detail: string | null; action: { title: string; icon: SFSymbol; onPress: () => void } | null }
+
+/** Who has him, what that means this week, and the one thing you can do about it (null outside a league). */
+function useOwnership(p: Player, league: League | null, closeAfter: () => void): Ownership | null {
   const drop = useApp((s) => s.drop)
+  if (!league) return null
   const d = getData()
   const owners = ownersOf(league)
   const owner = owners.get(p.idx)
   const team = owner !== undefined ? league.teams[owner] : null
   const season = league.phase === 'season'
 
-  const onDrop = async () => {
-    if (!(await confirm({ title: `Drop ${p.name}?`, message: 'He goes on waivers.', ok: 'Drop', destructive: true }))) return
-    if (report(drop(p.idx), `Dropped ${p.name}`)) closeAfter()
-  }
-
-  let left: ReactNode
-  let title: string
-  let subtitle: string
-  let action: ReactNode = null
   if (team) {
     const mine = team.isUser
-    const locked = season && mine && isLocked(d, league, p.idx)
-    const starting = team.starters.includes(p.idx)
-    left = <TeamBadge team={team} size={36} />
-    title = mine ? 'On your team' : team.name
-    if (league.phase === 'draft') subtitle = mine ? 'You drafted him' : `Drafted by ${managerName(team)}`
-    else if (mine) subtitle = !season ? team.name : locked ? 'Locked: his match this week has started' : starting ? 'In your starting XI' : 'On your bench'
-    else subtitle = `${managerName(team)} · ${recordOf(league, team.id)}${season ? (starting ? ' · Starting' : ' · On the bench') : ''}`
-    if (season && mine && !locked) action = <Button title="Drop" icon="trash" kind="destructive" onPress={onDrop} />
-    if (season && !mine) {
-      // the trade sheet replaces the card, so sending the offer can go straight to the chat
-      action = <Button title="Trade" icon="arrow.left.arrow.right" kind="tinted" onPress={() => { nav.close(); nav.trade(team.id) }} />
+    if (league.phase === 'draft') return { owner: mine ? 'Your team' : team.name, detail: mine ? 'You drafted him' : `Drafted by ${managerName(team)}`, action: null }
+    if (!mine) {
+      return {
+        owner: team.name,
+        detail: `${managerName(team)} · ${recordOf(league, team.id)}`,
+        // the trade sheet replaces the card, so sending the offer can go straight to the chat
+        action: season ? { title: 'Trade', icon: 'arrow.left.arrow.right', onPress: () => { nav.close(); nav.trade(team.id) } } : null,
+      }
     }
-  } else if (league.phase === 'draft') {
-    left = <RowIcon name="person.crop.circle.badge.plus" color={t.c.muted} />
-    title = 'Available'
-    subtitle = 'Not drafted yet'
-  } else {
-    const mode = addMode(d, league, p.idx, owners)
-    const claim = league.claims.find((c) => c.teamId === ME && c.add === p.idx)
-    const waiver = mode === 'waiver'
-    left = <RowIcon name={waiver ? 'hourglass' : 'person.crop.circle.badge.plus'} color={waiver ? t.c.gold : t.c.accent} />
-    title = waiver ? 'On waivers' : 'Free agent'
-    subtitle = claim ? `Your $${claim.bid} claim is in` : waiver ? 'Claims are processed when the week ends' : season ? 'Add him straight to your roster' : 'Not on a roster'
-    if (mode !== 'none') action = <Button title={waiver ? 'Claim' : 'Add'} icon="plus" kind="filled" onPress={() => nav.add(p.idx)} />
+    const locked = season && isLocked(d, league, p.idx)
+    const onDrop = async () => {
+      if (!(await confirm({ title: `Drop ${p.name}?`, message: 'He goes on waivers.', ok: 'Drop', destructive: true }))) return
+      if (report(drop(p.idx), `Dropped ${p.name}`)) closeAfter()
+    }
+    return {
+      owner: 'Your team',
+      detail: !season ? null : locked ? 'Locked: his match has started' : team.starters.includes(p.idx) ? 'Starting XI' : 'Bench',
+      action: season && !locked ? { title: 'Drop', icon: 'trash', onPress: onDrop } : null,
+    }
   }
+  if (league.phase === 'draft') return { owner: 'Available', detail: 'Not drafted yet', action: null }
+  const mode = addMode(d, league, p.idx, owners)
+  const claim = league.claims.find((c) => c.teamId === ME && c.add === p.idx)
+  const waiver = mode === 'waiver'
+  return {
+    owner: waiver ? 'On waivers' : 'Free agent',
+    detail: claim ? `Your $${claim.bid} claim is in` : waiver ? 'Claims run when the week ends' : null,
+    action: mode !== 'none' ? { title: waiver ? 'Claim' : 'Add', icon: 'plus', onPress: () => nav.add(p.idx) } : null,
+  }
+}
 
+// ---------------------------------------------------------------- tab bar
+
+/** Sleeper-style tabs: equal-width labels over a track with an underline that slides to the selected one. */
+function TabBar({ value, onChange }: { value: Tab; onChange: (tab: Tab) => void }) {
+  const s = useStyles(styles)
+  const [width, setWidth] = useState(0)
+  const index = TABS.findIndex((x) => x.key === value)
+  const x = useRef(new Animated.Value(0)).current
+  useEffect(() => {
+    Animated.timing(x, { toValue: (index * width) / TABS.length, duration: 180, useNativeDriver: true }).start()
+  }, [index, width, x])
   return (
-    <Section inset={64}>
-      <Row left={<View style={{ width: 36, alignItems: 'center' }}>{left}</View>} title={title} subtitle={subtitle} right={action} />
-      <Row
-        left={<View style={{ width: 36, alignItems: 'center' }}><RowIcon name="square.grid.2x2" color={t.c.muted} /></View>}
-        title="Eligible"
-        right={<View style={{ flexDirection: 'row', gap: 5 }}>{p.elig.map((e) => <SlotBadge key={e} slot={e} />)}</View>}
-      />
-    </Section>
+    <View onLayout={(e) => setWidth(e.nativeEvent.layout.width)} accessibilityRole="tablist">
+      <View style={{ flexDirection: 'row' }}>
+        {TABS.map((tab) => {
+          const selected = tab.key === value
+          return (
+            <Pressable
+              key={tab.key}
+              onPress={() => {
+                if (selected) return
+                haptic.select()
+                onChange(tab.key)
+              }}
+              accessibilityRole="tab"
+              accessibilityState={{ selected }}
+              style={s.tab}
+            >
+              <Txt up size={13} weight={700} tone={selected ? 'text' : 'muted'}>{tab.label}</Txt>
+            </Pressable>
+          )
+        })}
+      </View>
+      <View style={s.track}>
+        {width > 0 && <Animated.View style={[s.indicator, { width: width / TABS.length, transform: [{ translateX: x }] }]} />}
+      </View>
+    </View>
   )
 }
 
@@ -206,47 +332,60 @@ function ThisWeek({ p, league }: { p: Player; league: League }) {
   )
 }
 
-// ---------------------------------------------------------------- overview: season numbers
+// ---------------------------------------------------------------- summary: ranks, averages and season numbers
 
-function Season({ p, played }: { p: Player; played: number }) {
+/** The numbers at the top of Summary: his ranks, FPTS per game and season totals (scrolls sideways if it must). */
+function Headline({ p, played }: { p: Player; played: number }) {
   const d = getData()
-  const { season, ranks, stats, last3 } = useMemo(() => {
+  const { season, ranks, last3 } = useMemo(() => {
     const profile = scoutingProfile(d, p, played)
     return {
       season: seasonToDate(p, played),
       ranks: playerRanks(d, p, played),
-      stats: playerSeasonStats(d, p, played).stats.map(([label, value]) => ({ label, value })),
       last3: profile.currentApps >= 3 ? profile.recentAverage : null,
     }
   }, [d, p, played])
   const rank = (n: number | null) => (n ? `#${n}` : '–')
+  const groups = [
+    { title: 'Player rank', cells: [{ value: rank(ranks.role), label: ROLE_LABEL[p.role] }, { value: rank(ranks.overall), label: 'Overall' }] },
+    { title: 'FPTS / game', cells: [{ value: season.apps ? fmt(season.avg, 1) : '–', label: 'Season' }, { value: last3 !== null ? fmt(last3, 1) : '–', label: 'Last 3' }] },
+    { title: `IPL ${d.raw.simSeason}`, cells: [{ value: fmt(season.pts, 1), label: 'FPTS' }, { value: String(season.apps), label: 'Matches' }] },
+  ]
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -16 }} contentContainerStyle={{ paddingHorizontal: 16, gap: 30 }}>
+      {groups.map((g) => (
+        <View key={g.title} style={{ gap: 10 }}>
+          <Txt up size={11} weight={700} tone="muted">{g.title}</Txt>
+          <View style={{ flexDirection: 'row', gap: 20 }}>
+            {g.cells.map((c) => (
+              <View key={c.label} style={{ gap: 2 }}>
+                <Txt num weight={700} size={21}>{c.value}</Txt>
+                <Txt up size={10.5} weight={700} tone="dim">{c.label}</Txt>
+              </View>
+            ))}
+          </View>
+        </View>
+      ))}
+    </ScrollView>
+  )
+}
+
+function Season({ p, played }: { p: Player; played: number }) {
+  const d = getData()
+  const stats = useMemo(() => playerSeasonStats(d, p, played).stats.map(([label, value]) => ({ label, value })), [d, p, played])
   return (
     <View>
-      <GroupHeader title={`IPL ${d.raw.simSeason} season`} />
-      <View style={{ gap: 8 }}>
-        <Tiles
-          items={[
-            { label: 'Total FPTS', value: fmt(season.pts, 1), tone: 'accent' },
-            { label: 'FPTS / game', value: season.apps ? fmt(season.avg, 1) : '–' },
-            { label: 'Matches', value: String(season.apps) },
-            { label: `${ROLE_LABEL[p.role]} rank`, value: rank(ranks.role) },
-            { label: 'Overall rank', value: rank(ranks.overall) },
-            { label: 'Last 3 avg', value: last3 !== null ? fmt(last3, 1) : '–' },
-          ]}
-        />
-        <StatGrid items={stats} columns={stats.length === 4 ? 2 : 3} />
-      </View>
+      <GroupHeader title={`IPL ${d.raw.simSeason} stats`} />
+      <StatGrid items={stats} columns={stats.length === 4 ? 2 : 3} />
       <GroupNote>
-        {season.apps
-          ? `Ranks are by total FPTS, among ${ROLE_NAME[p.role].toLowerCase()}s and among all players; ties share a rank. `
-          : 'Ranks start once he plays. '}
-        Last 3 avg is his FPTS per game over his last three matches.
+        Ranks above are by total FPTS, among {ROLE_NAME[p.role].toLowerCase()}s and among all players; ties share a rank.
+        Last 3 is his FPTS per game over his last three matches.
       </GroupNote>
     </View>
   )
 }
 
-// ---------------------------------------------------------------- overview: weekly projections
+// ---------------------------------------------------------------- summary: weekly projections
 
 const HOW_PROJECTIONS =
   'Each projection starts from his average and his estimated chance of playing, then adjusts for the venue, how ' +
@@ -420,39 +559,7 @@ function InfoButton({ title, message }: { title: string; message: string }) {
   )
 }
 
-// ---------------------------------------------------------------- overview: profile
-
-function Profile({ p }: { p: Player }) {
-  const t = useTheme()
-  const bio = p.bio
-  const age = bio ? playerAge(bio.birthDate) : null
-  const item = (icon: SFSymbol, color: string, title: string, value: string | null | undefined) => (
-    <Row
-      left={<RowIcon name={icon} color={color} />}
-      title={title}
-      right={<Txt size={15} tone={value ? 'muted' : 'dim'} numberOfLines={2} style={{ maxWidth: '62%', textAlign: 'right' }}>{value || 'Not listed'}</Txt>}
-    />
-  )
-  const openSource = (url: string) => Linking.openURL(url).catch(() => report("Couldn't open the profile link."))
-  return (
-    <Section title="Profile" inset={58}>
-      {item('birthday.cake', t.c.gold, 'Age', age !== null ? `${age} years` : null)}
-      {item('globe', t.c.sky, 'Nationality', bio?.nationality)}
-      {item('figure.cricket', t.c.bat, 'Batting', bio?.battingStyle)}
-      {item('cricket.ball', t.c.bowl, 'Bowling', bio?.bowlingStyle)}
-      {bio?.source && (
-        <Row
-          left={<RowIcon name="safari" color={t.c.accent} />}
-          title="Profile source"
-          right={<Icon name="arrow.up.right" size={13} color={t.c.dim} weight="semibold" />}
-          onPress={() => openSource(bio.source)}
-        />
-      )}
-    </Section>
-  )
-}
-
-// ---------------------------------------------------------------- outlook
+// ---------------------------------------------------------------- summary: outlook
 
 const REC_TONE: Record<FantasyAdvice['recommendation'], ChipTone> = {
   'Strong start': 'accent',
@@ -510,12 +617,31 @@ function Outlook({ p, league, played }: { p: Player; league: League | null; play
           <Txt size={12} tone="dim" style={{ lineHeight: 16, marginTop: 4 }}>{USAGE_NOTE}</Txt>
         </Disclosure>
       </Section>
-      <Section title="Player updates" footer="Automated summaries of the ball-by-ball data. A replay, not live news.">
-        {reports.length
-          ? reports.map((r) => <ReportRow key={r.key} r={r} name={p.fullName} />)
-          : <Row title="No updates yet" subtitle="He isn't in an IPL squad this season." />}
-      </Section>
+      <PlayerUpdates p={p} reports={reports} />
     </>
+  )
+}
+
+/** His match previews and recaps, folded away under one row until you open it. */
+function PlayerUpdates({ p, reports }: { p: Player; reports: PlayerReport[] }) {
+  const t = useTheme()
+  const [open, setOpen] = useState(false)
+  const n = reports.length
+  return (
+    <Section footer={open ? 'Automated summaries of the ball-by-ball data. A replay, not live news.' : undefined}>
+      <Row
+        left={<RowIcon name="newspaper" color={t.c.accent} />}
+        title="Player updates"
+        subtitle={n ? `${n} match ${n === 1 ? 'preview or recap' : 'previews and recaps'}` : "He isn't in an IPL squad this season."}
+        right={n ? <Icon name={open ? 'chevron.up' : 'chevron.down'} size={12} color={t.c.dim} weight="semibold" /> : undefined}
+        onPress={n ? () => {
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+          haptic.select()
+          setOpen((o) => !o)
+        } : undefined}
+      />
+      {open && reports.map((r) => <ReportRow key={r.key} r={r} name={p.fullName} />)}
+    </Section>
   )
 }
 
@@ -684,25 +810,36 @@ const LogRow = memo(function LogRow({ e, open, onToggle }: { e: LogEntry; open: 
 })
 
 const styles = (t: Theme) => ({
-  hero: { height: HERO.height, overflow: 'hidden' as const },
-  watermark: { position: 'absolute' as const, left: 14, top: 6, color: 'rgba(255, 255, 255, 0.09)', letterSpacing: -3 },
-  photo: { position: 'absolute' as const, right: -12, bottom: 0, width: 290, height: 290 },
+  hero: { flexDirection: 'row' as const, overflow: 'hidden' as const },
+  side: { width: PHOTO_W },
+  photoBox: { flex: 1, minHeight: 168, justifyContent: 'flex-end' as const, overflow: 'hidden' as const },
+  logo: { position: 'absolute' as const, left: 10, top: 10, width: PHOTO_W - 20, height: PHOTO_W - 20, opacity: 0.32 },
+  watermark: { position: 'absolute' as const, left: 8, top: 10, color: 'rgba(255, 255, 255, 0.1)', letterSpacing: -2 },
+  photo: { width: PHOTO_W, height: 160 },
   noPhoto: {
-    position: 'absolute' as const, right: 36, top: 40, width: 150, height: 150, borderRadius: 75,
+    alignSelf: 'center' as const, marginBottom: 24, width: 88, height: 88, borderRadius: 44,
     alignItems: 'center' as const, justifyContent: 'center' as const, backgroundColor: 'rgba(255, 255, 255, 0.12)',
   },
-  scrim: {
-    position: 'absolute' as const, left: 0, right: 0, bottom: 0, height: 170,
-    experimental_backgroundImage: 'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%)',
+  plate: {
+    alignItems: 'center' as const, gap: 3, paddingHorizontal: 8, paddingTop: 9, paddingBottom: 11,
+    backgroundColor: HERO.plate, borderTopRightRadius: t.r.lg,
   },
-  heroText: { position: 'absolute' as const, left: 20, right: 20, bottom: 22, gap: 6 },
-  heroName: { color: HERO.ink, lineHeight: 35, textShadowColor: 'rgba(0, 0, 0, 0.35)', textShadowRadius: 10 },
-  swatch: { width: 8, height: 8, borderRadius: 4, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.6)' },
-  stripe: { position: 'absolute' as const, left: 0, right: 0, bottom: 0, height: 4 },
+  main: { flex: 1, minWidth: 0, gap: 12, paddingLeft: 14, paddingRight: 16, paddingTop: 16, paddingBottom: 18 },
+  owner: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 5, paddingRight: 34 },
+  facts: { flexDirection: 'row' as const },
+  fact: { flex: 1, alignItems: 'center' as const, gap: 2 },
+  slots: { flexDirection: 'row' as const, justifyContent: 'center' as const, gap: 4, marginTop: 3 },
+  pill: {
+    flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'center' as const, gap: 7,
+    height: 38, borderRadius: 999, backgroundColor: HERO.button, marginTop: 'auto' as const, // level with the team plate
+  },
   close: {
-    position: 'absolute' as const, top: 14, right: 14, width: 30, height: 30, borderRadius: 15,
+    position: 'absolute' as const, top: 12, right: 12, width: 28, height: 28, borderRadius: 14,
     alignItems: 'center' as const, justifyContent: 'center' as const, backgroundColor: 'rgba(0, 0, 0, 0.3)',
   },
+  tab: { flex: 1, alignItems: 'center' as const, paddingBottom: 10, paddingTop: 2 },
+  track: { height: 3, borderRadius: 2, backgroundColor: t.c.line2 },
+  indicator: { height: 3, borderRadius: 2, backgroundColor: t.c.accent },
   stepper: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 12, paddingHorizontal: 12, paddingVertical: 10 },
   step: {
     width: 34, height: 34, borderRadius: 17, alignItems: 'center' as const, justifyContent: 'center' as const,
