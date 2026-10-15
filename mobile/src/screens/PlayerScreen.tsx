@@ -103,7 +103,7 @@ const HERO = {
   plate: 'rgba(0, 0, 0, 0.15)',
   button: 'rgba(255, 255, 255, 0.2)',
   base: '#0b1017',
-  fallback: { color: '#33404d', accent: '#5b6876' },
+  fallback: { color: '#33404d' },
 }
 const PHOTO_W = 136
 
@@ -156,6 +156,7 @@ function Hero({ p, league, closeAfter }: { p: Player; league: League | null; clo
           `linear-gradient(150deg, ${mix(color, HERO.base, 0.62)} 0%, ${mix(color, HERO.base, 0.26)} 100%)`,
       }]}
     >
+      <HeroBackdrop color={color} />
       <View style={s.side}>
         <View style={s.photoBox}>
           {LOGOS[code] ? (
@@ -224,6 +225,31 @@ function Hero({ p, league, closeAfter }: { p: Player; league: League | null; clo
       <Pressable onPress={nav.close} hitSlop={12} accessibilityRole="button" accessibilityLabel="Close" style={({ pressed }) => [s.close, pressed && { opacity: 0.6 }]}>
         <Icon name="xmark" size={12} weight="bold" color={HERO.ink} />
       </Pressable>
+    </View>
+  )
+}
+
+/**
+ * The abstract layer behind the header, all in shades of the team's own colour: a light glow in the top corner,
+ * a deep shade pooling at the bottom, three diagonal bands sweeping across and a faint ring.
+ */
+function HeroBackdrop({ color }: { color: string }) {
+  const s = useStyles(styles)
+  const light = mix(color, HERO.ink, 0.55)
+  const deep = mix(color, HERO.base, 0.15)
+  return (
+    <View style={s.backdrop} pointerEvents="none">
+      <View
+        style={[s.backdrop, {
+          experimental_backgroundImage:
+            `radial-gradient(circle at 96% 0%, ${alpha(light, 0.45)} 0%, transparent 45%), ` +
+            `radial-gradient(circle at 40% 120%, ${alpha(deep, 0.8)} 0%, transparent 55%)`,
+        }]}
+      />
+      <View style={[s.band, { left: 170, width: 110, experimental_backgroundImage: `linear-gradient(180deg, ${alpha(light, 0.14)} 0%, transparent 85%)` }]} />
+      <View style={[s.band, { left: 292, width: 36, experimental_backgroundImage: `linear-gradient(180deg, ${alpha(light, 0.22)} 0%, transparent 90%)` }]} />
+      <View style={[s.band, { left: 340, width: 7, backgroundColor: alpha(light, 0.12) }]} />
+      <View style={[s.ring, { borderColor: alpha(light, 0.08) }]} />
     </View>
   )
 }
@@ -812,6 +838,12 @@ const LogRow = memo(function LogRow({ e, open, onToggle }: { e: LogEntry; open: 
 const styles = (t: Theme) => ({
   hero: { flexDirection: 'row' as const, overflow: 'hidden' as const },
   side: { width: PHOTO_W },
+  backdrop: { position: 'absolute' as const, top: 0, right: 0, bottom: 0, left: 0 },
+  band: { position: 'absolute' as const, top: -140, height: 560, transform: [{ rotate: '26deg' }] },
+  ring: {
+    position: 'absolute' as const, right: -110, top: -150, width: 300, height: 300, borderRadius: 150,
+    borderWidth: 22,
+  },
   photoBox: { flex: 1, minHeight: 168, justifyContent: 'flex-end' as const, overflow: 'hidden' as const },
   logo: { position: 'absolute' as const, left: 10, top: 10, width: PHOTO_W - 20, height: PHOTO_W - 20, opacity: 0.32 },
   watermark: { position: 'absolute' as const, left: 8, top: 10, color: 'rgba(255, 255, 255, 0.1)', letterSpacing: -2 },
