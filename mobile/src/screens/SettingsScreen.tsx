@@ -20,6 +20,7 @@ export function SettingsScreen() {
   const themeId = useThemeStore((s) => s.id)
   const mode = useThemeStore((s) => s.mode)
   const testingTools = usePrefs((s) => s.testingTools)
+  const glassMatchup = usePrefs((s) => s.glassMatchup)
   const hasLeague = useApp((s) => s.league !== null)
 
   return (
@@ -63,6 +64,10 @@ export function SettingsScreen() {
           footer="Sim buttons, the Simulate menu and Quick start. Turn them off for the clean look of the real app: the season then moves on as you watch matches live."
         >
           <SwitchRow title="Testing tools" icon="hammer" value={testingTools} onChange={(v) => usePrefs.getState().setPref('testingTools', v)} />
+        </Section>
+
+        <Section title="Experiments" footer="Liquid Glass cards on the Matchup tab. Turn it off for the original look.">
+          <SwitchRow title="Glass matchup" icon="sparkles" value={glassMatchup} onChange={(v) => usePrefs.getState().setPref('glassMatchup', v)} />
         </Section>
 
         <Section>

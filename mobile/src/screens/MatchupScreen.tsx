@@ -17,11 +17,12 @@ import { liveTeamScore, teamStarters, weekRecap, weekSummary } from '@shared/ui/
 import { useGameLeague } from '@/data/gameLeague'
 import { WeekPills } from '@/components/WeekPills'
 import { recordOf } from '@/data/derived'
+import { usePrefs } from '@/data/prefs'
 import { nav } from '@/nav'
 import { alpha, useStyles, useTheme, type Theme } from '@/theme/theme'
 import {
-  Button, Chip, EmptyState, Icon, MatchBalls, Meter, PlayerAvatar, PlayerLink, Screen, Seam, Section, SlotBadge,
-  TeamBadge, Segmented, Txt, useSettingsButton, useNextMatchMenu, useTabTitle,
+  Button, Chip, EmptyState, Glass, GlassSection, GlassSlotBadge, Icon, MatchBalls, Meter, PlayerAvatar, PlayerLink, Screen,
+  Seam, Section, sideWash, SlotBadge, TeamBadge, Segmented, Txt, useSettingsButton, useNextMatchMenu, useTabTitle,
 } from '@/ui'
 
 // Home tab: this week's head-to-head. Mirrors the web's MatchupView (same engine helpers), laid out for a phone:
@@ -93,21 +94,22 @@ export function MatchupScreen() {
 function SimulationControls() {
   const sim = useMatchupSimulation()!
   const league = useGameLeague()!
+  const Group = usePrefs((p) => p.glassMatchup) ? GlassSection : Section
   if (!sim.m) {
     const next = league.phase === 'season' ? getData().matches[league.played] : null
     return next ? (
-      <Section>
+      <Group>
         <View style={{ padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <Txt display weight={600} size={15} style={{ flex: 1 }}>{next.teams.join(' v ')}</Txt>
           <Button title="Simulate live" icon="play.fill" kind="tinted" onPress={sim.start} />
         </View>
-      </Section>
+      </Group>
     ) : null
   }
   const m = sim.m
   const last = sim.st?.last
   return (
-    <Section>
+    <Group>
       <View style={{ padding: 14, gap: 12 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <Chip label={sim.playing ? 'LIVE SIM' : 'PAUSED'} tone="live" />
@@ -119,7 +121,7 @@ function SimulationControls() {
           <Button title="Finish" onPress={sim.finish} />
         </View>
       </View>
-    </Section>
+    </Group>
   )
 }
 
@@ -142,11 +144,29 @@ function Champion({ league }: { league: League }) {
 
 function Carousel({ ms, index, onIndex }: { ms: Matchup[]; index: number; onIndex: (i: number) => void }) {
   const t = useTheme()
+  const s = useStyles(styles)
   const league = useGameLeague()!
   const width = useWindowDimensions().width - 32
+  const glass = usePrefs((p) => p.glassMatchup)
   const label = (m: Matchup) => (m.a === ME || m.b === ME ? 'Your matchup' : m.label ?? `${league.teams[m.a].name} v ${league.teams[m.b].name}`)
+  const shown = oriented(ms[index])
+  // glass: the shown matchup's two colours glow out from their own sides of the card
+  const glow = glass
+    ? { borderRadius: t.r.lg, boxShadow: `-5px 0 22px ${alpha(t.team(league.teams[shown.a].color), 0.35)}, 5px 0 22px ${alpha(t.team(league.teams[shown.b].color), 0.35)}` }
+    : undefined
+  const pager = ms.length > 1 && (
+    <>
+      <Txt tone={glass ? 'text' : 'muted'} size={13} weight={600} numberOfLines={1}>{label(ms[index])}</Txt>
+      <View style={{ flexDirection: 'row', gap: 6 }}>
+        {ms.map((_, i) => (
+          <View key={i} style={{ width: i === index ? 20 : 7, height: 7, borderRadius: 4, backgroundColor: i === index ? t.c.accent : alpha(t.c.tint, 0.2) }} />
+        ))}
+      </View>
+    </>
+  )
   return (
-    <View style={{ gap: 8 }}>
+    <View style={{ gap: glass ? 14 : 8 }}>
+      <View style={glow}>
       <ScrollView
         horizontal
         pagingEnabled
@@ -157,16 +177,8 @@ function Carousel({ ms, index, onIndex }: { ms: Matchup[]; index: number; onInde
       >
         {ms.map((m, i) => <Scoreboard key={i} m={m} width={width} />)}
       </ScrollView>
-      {ms.length > 1 && (
-        <View style={{ alignItems: 'center', gap: 5 }}>
-          <Txt tone="muted" size={13} weight={600} numberOfLines={1}>{label(ms[index])}</Txt>
-          <View style={{ flexDirection: 'row', gap: 6 }}>
-            {ms.map((_, i) => (
-              <View key={i} style={{ width: i === index ? 20 : 7, height: 7, borderRadius: 4, backgroundColor: i === index ? t.c.accent : alpha(t.c.tint, 0.2) }} />
-            ))}
-          </View>
-        </View>
-      )}
+      </View>
+      {pager && (glass ? <Glass radius={22} style={s.pagerGlass}>{pager}</Glass> : <View style={{ alignItems: 'center', gap: 5 }}>{pager}</View>)}
     </View>
   )
 }
@@ -199,6 +211,7 @@ function Scoreboard({ m: raw, width }: { m: Matchup; width: number }) {
   const remainingShare = final ? 0 : mis.filter((mi) => mi >= league.played).length / mis.length
   const pA = final ? (sa.score > sb.score ? 1 : sa.score < sb.score ? 0 : 0.5) : winProbability(sa.proj, sb.proj, sa.score, sb.score, remainingShare)
   const winner = final ? matchupWinner(league, m) : null
+  const glass = usePrefs((p) => p.glassMatchup)
   const side = (id: number, mine: typeof sa, other: typeof sa, right: boolean) => {
     const team = league.teams[id]
     return (
@@ -215,8 +228,8 @@ function Scoreboard({ m: raw, width }: { m: Matchup; width: number }) {
       </View>
     )
   }
-  return (
-    <View style={[s.board, { width }]}>
+  const body = (
+    <>
       {m.label && <Chip label={m.label.toUpperCase()} tone="gold" />}
       <View style={{ flexDirection: 'row', gap: 12 }}>
         {side(m.a, sa, sb, false)}
@@ -234,12 +247,18 @@ function Scoreboard({ m: raw, width }: { m: Matchup; width: number }) {
           <Txt num size={12.5} style={{ flex: 1, textAlign: 'right' }}>{Math.round((1 - pA) * 100)}%</Txt>
         </View>
       </View>
-    </View>
+    </>
   )
+  if (!glass) return <View style={[s.board, { width }]}>{body}</View>
+  // each team's colour washes in from its own side, under the glass
+  const wash = sideWash(t.team(league.teams[m.a].color), t.team(league.teams[m.b].color), 0.9)
+  return <Glass radius={t.r.lg} wash={wash} style={[s.boardGlass, { width }]}>{body}</Glass>
 }
 
 function Lineups({ m: raw }: { m: Matchup }) {
+  const t = useTheme()
   const s = useStyles(styles)
+  const d = getData()
   const m = oriented(raw)
   const league = useGameLeague()!
   const week = m.week
@@ -251,8 +270,17 @@ function Lineups({ m: raw }: { m: Matchup }) {
   const bA = bench(m.a, stA)
   const bB = bench(m.b, stB)
   const editable = m.a === ME && league.phase === 'season' && week === currentWeek(getData(), league) && !final
+  const glass = usePrefs((p) => p.glassMatchup)
+  const Group = glass ? GlassSection : Section
+  const Slot = glass ? GlassSlotBadge : SlotBadge
+  // glass: each player's IPL colour comes in from his own side of the row
+  const colour = (pid: number | null) => {
+    const p = pid === null ? null : d.players[pid]
+    const team = p && d.teams[p.team || p.profileTeam || '']
+    return team ? t.team(team.color) : null
+  }
   const row = (key: string, slot: string, a: number | null, b: number | null, dim = false, i?: number) => (
-    <View key={key} style={[s.mrow, dim && { opacity: 0.7 }]}>
+    <View key={key} style={[s.mrow, dim && { opacity: 0.7 }, glass && { experimental_backgroundImage: sideWash(colour(a), colour(b), 0.16, 28) }]}>
       <Cell teamId={m.a} pid={a} week={week} played={played} right={false} />
       <Pressable
         style={{ width: 50, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
@@ -261,18 +289,18 @@ function Lineups({ m: raw }: { m: Matchup }) {
         accessibilityLabel={`Swap your ${slot} player`}
         accessibilityState={{ disabled: !editable || i === undefined }}
         onPress={() => { if (i !== undefined) nav.swap(i, week, a) }}
-      ><SlotBadge slot={slot} /></Pressable>
+      ><Slot slot={slot} /></Pressable>
       <Cell teamId={m.b} pid={b} week={week} played={played} right />
     </View>
   )
   return (
     <>
-      <Section title="Starting XI" inset={0}>
+      <Group title="Starting XI" inset={0}>
         {SLOTS.map((slot, i) => row(`s${i}`, slot, stA[i], stB[i], false, i))}
-      </Section>
-      <Section title="Bench" inset={0}>
+      </Group>
+      <Group title="Bench" inset={0}>
         {Array.from({ length: Math.max(bA.length, bB.length) }, (_, i) => row(`b${i}`, 'BN', bA[i] ?? null, bB[i] ?? null, true))}
-      </Section>
+      </Group>
     </>
   )
 }
@@ -327,6 +355,8 @@ function Cell({ teamId, pid, week, played, right }: { teamId: number; pid: numbe
 
 const styles = (t: Theme) => ({
   board: { paddingHorizontal: 16, paddingVertical: 13, gap: 10, backgroundColor: t.c.feature, borderRadius: t.r.lg },
+  boardGlass: { paddingHorizontal: 16, paddingVertical: 13, gap: 10 },
+  pagerGlass: { alignSelf: 'center' as const, alignItems: 'center' as const, gap: 6, paddingHorizontal: 22, paddingVertical: 9, maxWidth: '100%' as const },
   mrow: { flexDirection: 'row' as const, alignItems: 'center' as const, minHeight: 58 },
   cell: { flex: 1, flexDirection: 'row' as const, alignItems: 'center' as const, gap: 7, paddingVertical: 7, paddingHorizontal: 10 },
   cellR: { flexDirection: 'row-reverse' as const },

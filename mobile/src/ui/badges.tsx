@@ -11,7 +11,7 @@ import { Txt } from './text'
 
 // Cricket-specific building blocks shared by every screen: slots, roles, teams, players.
 
-const slotColor = (t: Theme, slot: string) =>
+export const slotColor = (t: Theme, slot: string) =>
   slot === 'WK' ? t.c.wk : slot === 'BAT' ? t.c.bat : slot === 'BOWL' ? t.c.bowl : slot === 'FLEX' ? t.c.flex : t.c.dim
 
 /** A playing role's colour: AR-BAT and AR-BOWL share the all-rounder colour. */

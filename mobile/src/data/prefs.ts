@@ -9,17 +9,19 @@ interface Prefs {
    * real app, where matches happen at their real times (the season still moves on by watching matches live).
    */
   testingTools: boolean
+  /** Experiment: Liquid Glass cards on the Matchup tab (src/ui/glass.tsx). Off is the original look. */
+  glassMatchup: boolean
 }
 
 const KEY = 'seam-prefs'
-const DEFAULTS: Prefs = { testingTools: true }
+const DEFAULTS: Prefs = { testingTools: true, glassMatchup: false }
 
 export const usePrefs = create<Prefs & { setPref: <K extends keyof Prefs>(k: K, v: Prefs[K]) => void }>((set, get) => ({
   ...DEFAULTS,
   setPref: (k, v) => {
     set({ [k]: v } as Partial<Prefs>)
-    const { testingTools } = get()
-    AsyncStorage.setItem(KEY, JSON.stringify({ testingTools } satisfies Prefs)).catch(() => {})
+    const { testingTools, glassMatchup } = get()
+    AsyncStorage.setItem(KEY, JSON.stringify({ testingTools, glassMatchup } satisfies Prefs)).catch(() => {})
   },
 }))
 
