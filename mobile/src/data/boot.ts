@@ -1,9 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { AppState } from 'react-native'
 import { startBots } from '@shared/bots'
 import { buildData, type PlayerBio, type PlayerMedia } from '@shared/engine/data'
 import { chooseDraftPick, createLeague, makePick, teamOnClock, upgradeLeague } from '@shared/engine/league'
 import type { RawData } from '@shared/engine/types'
-import { getData, setData, setStorage, useApp } from '@shared/store'
+import { getData, setCloner, setData, setStorage, useApp, type KeyValueStorage } from '@shared/store'
 import { loadThemeChoice } from '@/theme/theme'
 import { loadPrefs } from './prefs'
 
@@ -15,12 +16,47 @@ const bios = require('../../../app/public/data/player-bios.json') as Record<stri
 
 let booted: Promise<void> | null = null
 
+/** The league is plain JSON (it is saved as JSON), and this is far faster on Hermes than its structuredClone polyfill. */
+const jsonClone = <T>(v: T): T => JSON.parse(JSON.stringify(v))
+
+/**
+ * AsyncStorage, saving at most every half second: the AI managers change the league several times a second while
+ * they chat, and each save writes the whole league. Anything waiting is written as soon as Seam leaves the screen.
+ */
+function batchedStorage(): KeyValueStorage {
+  let waiting: [string, string] | null = null
+  let timer: ReturnType<typeof setTimeout> | null = null
+  const flush = () => {
+    if (timer) clearTimeout(timer)
+    timer = null
+    if (!waiting) return
+    const [key, value] = waiting
+    waiting = null
+    AsyncStorage.setItem(key, value).catch(() => {})
+  }
+  AppState.addEventListener('change', (state) => {
+    if (state !== 'active') flush()
+  })
+  return {
+    getItem: (key) => AsyncStorage.getItem(key),
+    setItem: (key, value) => {
+      waiting = [key, value]
+      timer ??= setTimeout(flush, 500)
+    },
+    removeItem: (key) => {
+      if (waiting?.[0] === key) waiting = null
+      return AsyncStorage.removeItem(key)
+    },
+  }
+}
+
 /** Same start-up as the web App.tsx, with the phone's storage instead of localStorage. */
 export function boot(): Promise<void> {
   booted ??= (async () => {
     const d = buildData(raw, media, bios)
     setData(d)
-    setStorage(AsyncStorage)
+    setStorage(batchedStorage())
+    setCloner(jsonClone)
     await Promise.all([useApp.persist.rehydrate(), loadThemeChoice(), loadPrefs()])
     const l = useApp.getState().league
     if (l && l.dataVersion !== d.version) useApp.getState().reset()

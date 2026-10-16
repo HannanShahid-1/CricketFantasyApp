@@ -1,20 +1,21 @@
 import { Stack } from 'expo-router'
 import { matchProjection } from '@shared/engine/data'
-import { useMemo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native'
 import { useShallow } from 'zustand/react/shallow'
 import {
-  currentWeek, isOffRoster, LAST_WEEK, matchupsForWeek, matchupWinner, playerWeek, REG_WEEKS, slotLocked, SLOTS, winProbability,
-  type League, type Matchup,
+  countedMatch, currentWeek, isOffRoster, LAST_WEEK, matchupsForWeek, matchupWinner, playerWeek, REG_WEEKS, slotLocked, SLOTS,
+  type Matchup,
 } from '@shared/engine/league'
-import { simulatedTeamScore } from '@shared/ui/matchupSimulation'
+import { simulatedFromBase, teamWeekBase } from '@shared/ui/matchupSimulation'
 import { REPLAY_SPEEDS } from '@shared/ui/replay'
-import { SimulationContext, useMatchupSimulation, useSimulation } from '@/data/matchupSimulation'
+import { SimulationContext, useMatchupSimulation, useSimulation } from '@/data/simulation'
 import { fmt } from '@shared/engine/scoring'
 import { getData, ME, useApp } from '@shared/store'
 import { fmtDate, weekLabel } from '@shared/ui/format'
-import { liveTeamScore, teamStarters, weekRecap, weekSummary } from '@shared/ui/helpers'
+import { matchupOdds, teamStarters, weekRecap, weekSummary } from '@shared/ui/helpers'
 import { useGameLeague } from '@/data/gameLeague'
+import { ChampionCard } from '@/components/league/ChampionCard'
 import { WeekPills } from '@/components/WeekPills'
 import { recordOf } from '@/data/derived'
 import { usePrefs } from '@/data/prefs'
@@ -22,7 +23,7 @@ import { nav } from '@/nav'
 import { alpha, useStyles, useTheme, type Theme } from '@/theme/theme'
 import {
   Button, canLiquid, Chip, EmptyState, Glass, GlassSection, GlassSlotBadge, Icon, LiquidPager, MatchBalls, Meter, PlayerAvatar, PlayerLink, Screen,
-  Seam, Section, sideWash, SlotBadge, TeamBadge, Segmented, Txt, useSettingsButton, useNextMatchMenu, useTabTitle,
+  Section, sideWash, SlotBadge, TeamBadge, Segmented, Txt, useSettingsButton, useNextMatchMenu, useTabTitle,
 } from '@/ui'
 
 // Home tab: this week's head-to-head. Mirrors the web's MatchupView (same engine helpers), laid out for a phone:
@@ -51,10 +52,12 @@ export function MatchupScreen() {
   const headerItems = useMemo(() => () => (next ? [next, ...settings()] : settings()), [next, settings])
   const title = useTabTitle(weekLabel(week))
   const playedIn = g.mis.filter((mi) => mi < league.played).length
+  // a stable object: a new one re-sets the header (and its menu) on every simulation tick
+  const options = useMemo(() => ({ ...title, unstable_headerRightItems: headerItems }), [title, headerItems])
 
   return (
     <>
-      <Stack.Screen options={{ ...title, unstable_headerRightItems: headerItems }} />
+      <Stack.Screen options={options} />
       <SimulationContext.Provider value={simulation}>
       <Screen gap={14}>
         <SimulationControls />
@@ -64,7 +67,7 @@ export function MatchupScreen() {
           </Txt>
           <WeekPills league={league} week={week} onChange={(w) => { if (simulation.m) return useApp.getState().notify('Finish the current match before switching weeks.', 'info'); setViewWeek(w); setPicked({ week: w, i: 0 }) }} />
         </View>
-        {league.champion !== null && week === LAST_WEEK && <Champion league={league} />}
+        {league.champion !== null && week === LAST_WEEK && <ChampionCard team={league.teams[league.champion]} />}
         {ms.length === 0 ? (
           <EmptyState
             icon="trophy"
@@ -122,23 +125,6 @@ function SimulationControls() {
         </View>
       </View>
     </Group>
-  )
-}
-
-function Champion({ league }: { league: League }) {
-  const t = useTheme()
-  const team = league.teams[league.champion!]
-  return (
-    <View style={{ alignItems: 'center', gap: 10, padding: 22, borderRadius: t.r.lg, backgroundColor: alpha(t.c.gold, 0.08), borderWidth: 1, borderColor: alpha(t.c.gold, 0.3) }}>
-      <Icon name="trophy.fill" size={34} color={t.c.gold} />
-      <Txt up size={12} weight={700} tone="gold">League champion</Txt>
-      <Seam style={{ alignSelf: 'stretch' }} />
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-        <TeamBadge team={team} size={44} />
-        <Txt display weight={700} size={24}>{team.name}</Txt>
-      </View>
-      <Txt tone="muted" size={14}>{team.isUser ? 'You won the league. Take a lap of honour. 🏆' : `${team.owner} lifts the trophy.`}</Txt>
-    </View>
   )
 }
 
@@ -204,22 +190,16 @@ function Scoreboard({ m: raw, width, bare }: { m: Matchup; width: number; bare?:
   const final = !!res
   const live = !final && week === currentWeek(d, league) && (league.replayMatch != null || league.played > d.gameweeks[week - 1].mis[0])
   const simulation = useMatchupSimulation()
-  let sa = liveTeamScore(d, league, m.a, week)
-  let sb = liveTeamScore(d, league, m.b, week)
-  if (simulation?.m && week === simulation.m.gw) {
-    sa = simulatedTeamScore(d, league, m.a, week, simulation.m, simulation.scores)
-    sb = simulatedTeamScore(d, league, m.b, week, simulation.m, simulation.scores)
-  }
-  if (res) {
-    sa.proj = res.proj[m.a]
-    sb.proj = res.proj[m.b]
-  }
-  const mis = d.gameweeks[week - 1].mis
-  const remainingShare = final ? 0 : mis.filter((mi) => mi >= league.played).length / mis.length
-  const pA = final ? (sa.score > sb.score ? 1 : sa.score < sb.score ? 0 : 0.5) : winProbability(sa.proj, sb.proj, sa.score, sb.score, remainingShare)
+  const simM = simulation?.m && week === simulation.m.gw ? simulation.m : null
+  // what doesn't change ball to ball, worked out once per league change rather than on every tick
+  const bases = useMemo(
+    () => (simM ? { [m.a]: teamWeekBase(d, league, m.a, week), [m.b]: teamWeekBase(d, league, m.b, week) } : null),
+    [d, league, m.a, m.b, week, simM],
+  )
+  const { sa, sb, pA } = matchupOdds(d, league, m, bases && simM ? (id) => simulatedFromBase(bases[id], simM, simulation!.scores) : undefined)
   const winner = final ? matchupWinner(league, m) : null
   const glass = usePrefs((p) => p.glassMatchup)
-  const side = (id: number, mine: typeof sa, other: typeof sa, right: boolean) => {
+  const side = (id: number, mine: typeof sa, right: boolean) => {
     const team = league.teams[id]
     return (
       <View style={{ flex: 1, alignItems: right ? 'flex-end' : 'flex-start', gap: 2 }}>
@@ -239,8 +219,8 @@ function Scoreboard({ m: raw, width, bare }: { m: Matchup; width: number; bare?:
     <>
       {m.label && <Chip label={m.label.toUpperCase()} tone="gold" />}
       <View style={{ flexDirection: 'row', gap: 12 }}>
-        {side(m.a, sa, sb, false)}
-        {side(m.b, sb, sa, true)}
+        {side(m.a, sa, false)}
+        {side(m.b, sb, true)}
       </View>
       <View style={{ gap: 5 }}>
         <Meter value={pA} height={4} color={t.team(league.teams[m.a].color)} rest={t.team(league.teams[m.b].color)} />
@@ -294,9 +274,20 @@ function Lineups({ m: raw }: { m: Matchup }) {
     const team = p && d.teams[p.team || p.profileTeam || '']
     return team ? t.team(team.color) : null
   }
+  // live numbers for players in the simulated match, as plain values, so only their cells re-render each tick
+  const sim = useMatchupSimulation()
+  const simM = sim?.m && week === sim.m.gw ? sim.m : null
+  const live = (teamId: number, pid: number | null): LiveProps => {
+    if (!simM || pid === null || countedMatch(d, league, teamId, pid, week) !== simM.mi) return {}
+    const score = sim!.scores.get(pid)
+    if (!score) return {}
+    const line = sim!.st?.lines.get(pid)
+    const summary = line ? [line.batted ? `${line.r} (${line.b})` : '', line.bb ? `${line.w}/${line.rc}` : ''].filter(Boolean).join(' · ') : ''
+    return { livePoints: score.points, liveProjection: score.projection, liveDelta: score.projection - score.baseline, liveSummary: summary || 'Yet to contribute' }
+  }
   const row = (key: string, slot: string, a: number | null, b: number | null, dim = false, i?: number) => (
     <View key={key} style={[s.mrow, dim && { opacity: 0.7 }]}>
-      <Cell teamId={m.a} pid={a} week={week} played={played} right={false} />
+      <Cell teamId={m.a} pid={a} week={week} played={played} right={false} {...live(m.a, a)} />
       <Pressable
         style={{ width: 50, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
         disabled={!editable || i === undefined}
@@ -305,7 +296,7 @@ function Lineups({ m: raw }: { m: Matchup }) {
         accessibilityState={{ disabled: !editable || i === undefined }}
         onPress={() => { if (i !== undefined) nav.swap(i, week, a) }}
       ><Slot slot={slot} /></Pressable>
-      <Cell teamId={m.b} pid={b} week={week} played={played} right />
+      <Cell teamId={m.b} pid={b} week={week} played={played} right {...live(m.b, b)} />
     </View>
   )
   type RowArgs = readonly [string, string, number | null, number | null, boolean, number | undefined]
@@ -324,12 +315,16 @@ function Lineups({ m: raw }: { m: Matchup }) {
   )
 }
 
-function Cell({ teamId, pid, week, played, right }: { teamId: number; pid: number | null; week: number; played: number; right: boolean }) {
+/** a player's numbers while his match is being simulated (none otherwise) */
+interface LiveProps { livePoints?: number; liveProjection?: number; liveDelta?: number; liveSummary?: string }
+
+const Cell = memo(function Cell({ teamId, pid, week, played, right, livePoints, liveProjection, liveDelta = 0, liveSummary }: {
+  teamId: number; pid: number | null; week: number; played: number; right: boolean
+} & LiveProps) {
   const t = useTheme()
   const s = useStyles(styles)
   const d = getData()
   const league = useGameLeague()!
-  const simulation = useMatchupSimulation()
   const wp = pid === null ? null : playerWeek(d, league, teamId, pid, week, played)
   // Reconstruct the original forecast using only history available before this fixture.
   const mi = wp?.mi ?? null
@@ -339,13 +334,11 @@ function Cell({ teamId, pid, week, played, right }: { teamId: number; pid: numbe
   }
   const p = d.players[pid]
   const locked = !league.results[week] && week === currentWeek(d, league) && slotLocked(d, league, teamId, pid, week)
-  const active = simulation?.m && week === simulation.m.gw && wp.mi === simulation.m.mi ? simulation.scores.get(pid) : undefined
+  const active = livePoints !== undefined
   const completed = mi !== null && mi < played
-  const projection = active?.projection ?? (completed ? baseline : wp.remaining > 0 ? wp.total : null)
-  const delta = active ? active.projection - active.baseline : 0
-  const projectionTone = !active || Math.abs(delta) < 0.5 ? 'dim' : delta > 0 ? 'win' : 'loss'
-  const liveLine = active ? simulation?.st?.lines.get(pid) : undefined
-  const summary = active ? liveLine ? [liveLine.batted ? `${liveLine.r} (${liveLine.b})` : '', liveLine.bb ? `${liveLine.w}/${liveLine.rc}` : ''].filter(Boolean).join(' · ') || 'Yet to contribute' : 'Yet to contribute' : weekSummary(d, p, wp.mi, played)
+  const projection = liveProjection ?? (completed ? baseline : wp.remaining > 0 ? wp.total : null)
+  const projectionTone = !active || Math.abs(liveDelta) < 0.5 ? 'dim' : liveDelta > 0 ? 'win' : 'loss'
+  const summary = liveSummary ?? weekSummary(d, p, wp.mi, played)
   const offRoster = !league.results[week] && isOffRoster(league, teamId, pid)
   return (
     <PlayerLink pid={pid} style={{ flex: 1 }}>
@@ -364,13 +357,13 @@ function Cell({ teamId, pid, week, played, right }: { teamId: number; pid: numbe
           </Txt>
         </View>
         <View style={{ alignItems: right ? 'flex-start' : 'flex-end', minWidth: 34 }}>
-          <Txt num weight={700} size={16} tone="text">{fmt(active?.points ?? wp.banked)}</Txt>
+          <Txt num weight={700} size={16} tone="text">{fmt(livePoints ?? wp.banked)}</Txt>
           {projection !== null && <Txt num tone={projectionTone} size={10.5}>{fmt(projection, 1)}</Txt>}
         </View>
       </View>
     </PlayerLink>
   )
-}
+})
 
 const styles = (t: Theme) => ({
   board: { paddingHorizontal: 16, paddingVertical: 13, gap: 10, backgroundColor: t.c.feature, borderRadius: t.r.lg },

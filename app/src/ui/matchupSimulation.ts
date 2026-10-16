@@ -1,5 +1,5 @@
 import { matchProjection, type Data, type Match } from '../engine/data'
-import { countedMatch, playerWeek, type League } from '../engine/league'
+import { playerWeek, type League } from '../engine/league'
 import { score } from '../engine/scoring'
 import type { ReplayState } from './replay'
 
@@ -28,15 +28,27 @@ export function liveFantasyScore(d: Data, m: Match, pid: number, state: ReplaySt
   return { points, projection, baseline, pace: Math.abs(delta) < 0.5 ? 'even' : delta > 0 ? 'ahead' : 'behind' }
 }
 
-/** Weekly team totals, replacing just this fixture's counted projections with live points and estimates. */
-export function simulatedTeamScore(d: Data, l: League, team: number, week: number, m: Match, scores: Map<number, LiveFantasyScore>) {
-  let score = 0, proj = 0
-  for (const pid of l.teams[team].starters) {
-    if (pid === null) continue
-    const live = week === m.gw && countedMatch(d, l, team, pid, week) === m.mi ? scores.get(pid) : undefined
+/** Each starter's counted match and week numbers: the part of a simulated team score that doesn't change ball to ball. */
+export type TeamWeekBase = { pid: number; mi: number | null; banked: number; total: number }[]
+
+export function teamWeekBase(d: Data, l: League, team: number, week: number): TeamWeekBase {
+  return l.teams[team].starters.flatMap((pid) => {
+    if (pid === null) return []
     const wp = playerWeek(d, l, team, pid, week)
-    score += live?.points ?? wp.banked
-    proj += live?.projection ?? wp.total
+    return [{ pid, mi: wp.mi, banked: wp.banked, total: wp.total }]
+  })
+}
+
+/**
+ * A team's weekly total (the in-place simulation): its base, with live points and estimates swapped in for the
+ * players whose counted match is the one being simulated (`m`).
+ */
+export function simulatedFromBase(base: TeamWeekBase, m: Match, scores: Map<number, LiveFantasyScore>) {
+  let score = 0, proj = 0
+  for (const r of base) {
+    const live = r.mi === m.mi ? scores.get(r.pid) : undefined
+    score += live?.points ?? r.banked
+    proj += live?.projection ?? r.total
   }
   return { score, proj }
 }

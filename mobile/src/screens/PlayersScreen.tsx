@@ -8,7 +8,7 @@ import { fmt } from '@shared/engine/scoring'
 import { getData, ME } from '@shared/store'
 import { weekLabel } from '@shared/ui/format'
 import {
-  playerRows, STATUS_LABEL, type PlayerRow, type PlayerStatus, type RoleFilter, type SortKey,
+  allPlayerRows, filterPlayerRows, STATUS_LABEL, type PlayerRow, type PlayerStatus, type RoleFilter, type SortKey,
 } from '@shared/ui/playerList'
 import { useGameLeague } from '@/data/gameLeague'
 import { RolePills } from '@/components/RolePills'
@@ -91,7 +91,9 @@ export function PlayersScreen() {
   const week = currentWeek(d, league)
   const labels = useMemo(() => statLabels(d, week), [d, week])
 
-  const rows = useMemo(() => playerRows(d, league, { status, role, team, q: query }, sort), [d, league, status, role, team, query, sort])
+  // projections once per league change; a filter, sort or search keystroke only filters and sorts them
+  const all = useMemo(() => allPlayerRows(d, league), [d, league])
+  const rows = useMemo(() => filterPlayerRows(all, { status, role, team, q: query }, sort), [all, status, role, team, query, sort])
 
   // Header: search bar, IPL-team filter and sort menus, then the league "…" menu. Kept independent of the search
   // text so typing doesn't reconfigure the native header on every keystroke.

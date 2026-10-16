@@ -152,6 +152,7 @@ export function TeamScreen() {
     }
     return () => [trade, lineup, ...settings()]
   }, [t, settings, done, autoSub, autoLineup, firstRival, optimize, toggleAutoSub, toggleAutoLineup])
+  const options = useMemo(() => ({ unstable_headerRightItems: headerItems }), [headerItems])
 
   // while moving, the Starting XI header says who (or why nothing lights up) and offers Cancel
   const moving = !sel
@@ -164,7 +165,7 @@ export function TeamScreen() {
 
   return (
     <Screen gap={18}>
-      <Stack.Screen options={{ unstable_headerRightItems: headerItems }} />
+      <Stack.Screen options={options} />
       <TeamHeader league={league} week={week} />
       {over > 0 && !done && <OverLimit league={league} over={over} />}
 

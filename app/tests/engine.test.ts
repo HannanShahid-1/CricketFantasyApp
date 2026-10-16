@@ -7,7 +7,8 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import { dmChannel, emptyChat, markRead, post, toggleReaction, unreadCount } from '../src/engine/chat'
 import type { Data } from '../src/engine/data'
 import { loadData } from '../src/loadData'
-import { restOfSeason } from '../src/engine/data'
+import { matchProjection, restOfSeason } from '../src/engine/data'
+import { matchupAdjustment } from '../src/engine/matchupForecast'
 import {
   addMode, beginReplay, botTradeVerdict, canFillLineup, chooseDraftPick, countedMatch, createLeague, currentWeek, dropPlayer,
   freeAgentAdd, isLocked, isOffRoster, lineupProblem, lockedPick, makePick, optimizeLineup, overLimit, placeClaim, playNext,
@@ -544,5 +545,23 @@ describe('team profile pictures', () => {
     expect(a.teams.slice(1).map((t) => t.avatar)).toEqual(l.teams.slice(1).map((t) => t.avatar))
     expect(USER_AVATARS).toContain(a.teams[0].avatar)
     expect(upgradeLeague(old).teams[0].avatar).toBe(a.teams[0].avatar)
+  })
+})
+
+describe('forecast caches', () => {
+  it('give the same projections whatever order the cutoffs are asked for in', () => {
+    const p = d.pool.find((p) => p.games.size > 5)!
+    const mi = d.teamMis[p.team].at(-1)!
+    for (let c = 0; c <= mi; c++) matchProjection(d, p, mi, c)
+    // a fresh copy starts with empty caches; build its snapshots out of order, later cutoffs first
+    const fresh = structuredClone(d), q = fresh.players[p.idx]
+    for (const c of [mi, 0, Math.floor(mi / 2), mi - 1, 3, Math.floor(mi / 2) + 1]) {
+      expect(matchProjection(fresh, q, mi, c)).toEqual(matchProjection(d, p, mi, c))
+      expect(restOfSeason(fresh, q, c)).toBe(restOfSeason(d, p, c))
+    }
+    // the 'learned' mode's fitted weights are built on first use
+    const learned = matchupAdjustment(fresh, q, mi, 20, 10, 'learned')
+    expect(learned).toEqual(matchupAdjustment(d, p, mi, 20, 10, 'learned'))
+    expect(learned.components.every((c) => Number.isFinite(c.points))).toBe(true)
   })
 })

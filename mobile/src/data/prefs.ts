@@ -13,17 +13,19 @@ interface Prefs {
   glassMatchup: boolean
   /** Experiment, with glassMatchup: scoreboards that melt together as you swipe (iOS 26 system glass). */
   liquidSwipe: boolean
+  /** Your matchup as a Live Activity: Lock Screen and Dynamic Island (src/data/liveActivity.ts) */
+  liveActivity: boolean
 }
 
 const KEY = 'seam-prefs'
-const DEFAULTS: Prefs = { testingTools: true, glassMatchup: false, liquidSwipe: true }
+const DEFAULTS: Prefs = { testingTools: true, glassMatchup: false, liquidSwipe: true, liveActivity: false }
 
 export const usePrefs = create<Prefs & { setPref: <K extends keyof Prefs>(k: K, v: Prefs[K]) => void }>((set, get) => ({
   ...DEFAULTS,
   setPref: (k, v) => {
     set({ [k]: v } as Partial<Prefs>)
-    const { testingTools, glassMatchup, liquidSwipe } = get()
-    AsyncStorage.setItem(KEY, JSON.stringify({ testingTools, glassMatchup, liquidSwipe } satisfies Prefs)).catch(() => {})
+    const { testingTools, glassMatchup, liquidSwipe, liveActivity } = get()
+    AsyncStorage.setItem(KEY, JSON.stringify({ testingTools, glassMatchup, liquidSwipe, liveActivity } satisfies Prefs)).catch(() => {})
   },
 }))
 

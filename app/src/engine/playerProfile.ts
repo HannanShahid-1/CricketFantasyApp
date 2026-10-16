@@ -1,6 +1,7 @@
 // Evidence-based scouting profiles. Historical replay cutoffs apply to every observation.
 import type { Data, Player } from './data'
-import { computeLines, fmt, score, type StatLine } from './scoring'
+import { priorLines } from './matchupForecast'
+import { fmt, score, type StatLine } from './scoring'
 import { FLAG_NOBALL, FLAG_WIDE, type RawMatch } from './types'
 
 interface Observation {
@@ -42,7 +43,7 @@ function observations(d: Data) {
     }
   }
   const previous = Object.entries(d.raw.seasons).filter(([season]) => Number(season) < Number(d.raw.simSeason))
-  for (const [, matches] of previous) for (const m of [...matches].sort((a, b) => a.date.localeCompare(b.date))) addMatch(m, -1, computeLines(m))
+  for (const [, matches] of previous) for (const m of [...matches].sort((a, b) => a.date.localeCompare(b.date))) addMatch(m, -1, priorLines(m))
   for (const m of d.matches) addMatch(m.raw, m.mi, m.lines)
   cache.set(d, all)
   return all

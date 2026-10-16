@@ -212,7 +212,7 @@ const Scorebug = memo(function Scorebug({ m, st, progress }: { m: Match; st: Rep
         <>
           <View style={s.overRow}>
             <Txt up size={10.5} weight={600} tone="dim" style={{ width: 54 }}>Over {over}</Txt>
-            {st.over.map((e, i) => <BallChip key={st.overStart + i} e={e} size={28} pop={i === st.over.length - 1} />)}
+            {st.over.map((e, i) => <BallChip key={st.overStart + i} e={e} pop={i === st.over.length - 1} />)}
           </View>
           <View style={s.crease}>
             <View style={{ flex: 1, gap: 4 }}>
@@ -301,7 +301,7 @@ const CommentaryRow = memo(function CommentaryRow({ e, brk }: { e: BallEvent; br
     <View>
       <View style={[s.comm, e.cls === 'bw' ? { backgroundColor: alpha(t.c.live, 0.1) } : big && { backgroundColor: alpha(t.c.accent, 0.05) }]}>
         <Txt num size={13} tone="dim" style={{ width: 34, textAlign: 'right' }}>{e.label}</Txt>
-        <BallChip e={e} size={28} />
+        <BallChip e={e} />
         <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
           <Txt size={12.5} tone="muted" numberOfLines={1}>{d.players[e.bowler].name} to {d.players[e.batter].name}</Txt>
           <Txt size={14.5} weight={big ? 700 : 500} tone={e.cls === 'bw' ? 'live' : 'text'}>{e.desc}</Txt>

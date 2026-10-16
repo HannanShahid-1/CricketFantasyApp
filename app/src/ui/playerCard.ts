@@ -1,17 +1,10 @@
 // The player card's numbers (season rank, game log), shared by the web and iPhone screens.
-import { seasonToDate, type Data, type GameRow, type Player } from '../engine/data'
+import type { Data, GameRow, Player } from '../engine/data'
 import type { League } from '../engine/league'
 import { batLine, bowlLine, fieldLine } from '../engine/scoring'
 
 /** Matches played as far as the card is concerned: none until the season starts. */
 export const cardPlayed = (league: League | null) => (!league || league.phase === 'draft' ? 0 : league.played)
-
-/** His rank by season points among players with the same role (1 = best), or 0 until he has played. */
-export function roleRank(d: Data, p: Player, played: number): number {
-  const s = seasonToDate(p, played)
-  if (!s.apps) return 0
-  return 1 + d.pool.filter((x) => x.role === p.role && seasonToDate(x, played).pts > s.pts).length
-}
 
 export interface LogEntry {
   mi: number

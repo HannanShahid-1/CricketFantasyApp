@@ -39,10 +39,9 @@ export function Section({ title, footer, action, inset = 16, children, style }: 
 }
 
 /** A tappable list row: optional leading view, title + subtitle, trailing value, chevron when it navigates. */
-export function Row({ title, subtitle, left, right, value, chevron, onPress, onLongPress, destructive, disabled, selected, style, children }: {
+export function Row({ title, subtitle, left, right, value, chevron, onPress, destructive, style, children }: {
   title?: ReactNode; subtitle?: ReactNode; left?: ReactNode; right?: ReactNode; value?: string; chevron?: boolean
-  onPress?: () => void; onLongPress?: () => void; destructive?: boolean; disabled?: boolean; selected?: boolean
-  style?: StyleProp<ViewStyle>; children?: ReactNode
+  onPress?: () => void; destructive?: boolean; style?: StyleProp<ViewStyle>; children?: ReactNode
 }) {
   const t = useTheme()
   const s = useStyles(styles)
@@ -59,28 +58,22 @@ export function Row({ title, subtitle, left, right, value, chevron, onPress, onL
       {chevron && <Icon name="chevron.right" size={13} color={t.c.dim} weight="semibold" />}
     </>
   )
-  if (!onPress && !onLongPress) return <View style={[s.row, selected && s.selected, style]}>{body}</View>
+  if (!onPress) return <View style={[s.row, style]}>{body}</View>
   return (
-    <Pressable
-      onPress={onPress}
-      onLongPress={onLongPress}
-      disabled={disabled}
-      style={({ pressed }) => [s.row, selected && s.selected, pressed && s.pressed, disabled && { opacity: 0.45 }, style]}
-    >
+    <Pressable onPress={onPress} style={({ pressed }) => [s.row, pressed && s.pressed, style]}>
       {body}
     </Pressable>
   )
 }
 
 /** Row with a native switch (settings such as auto-sub). */
-export function SwitchRow({ title, subtitle, icon, value, onChange }: {
-  title: string; subtitle?: string; icon?: SFSymbol; value: boolean; onChange: (v: boolean) => void
+export function SwitchRow({ title, icon, value, onChange }: {
+  title: string; icon?: SFSymbol; value: boolean; onChange: (v: boolean) => void
 }) {
   const t = useTheme()
   return (
     <Row
       title={title}
-      subtitle={subtitle}
       left={icon && <RowIcon name={icon} color={value ? t.c.accent : t.c.muted} />}
       right={
         <Switch
@@ -106,12 +99,12 @@ export function RowIcon({ name, color }: { name: SFSymbol; color: string }) {
 }
 
 /** Stat tiles in a wrapping grid, e.g. season points / matches / rank. */
-export function Tiles({ items, columns = 3 }: { items: { label: string; value: string; tone?: 'accent' | 'text' | 'gold' | 'loss' }[]; columns?: number }) {
+export function Tiles({ items }: { items: { label: string; value: string; tone?: 'accent' | 'text' | 'gold' | 'loss' }[] }) {
   const s = useStyles(styles)
   return (
     <View style={s.tiles}>
       {items.map((it) => (
-        <View key={it.label} style={[s.tile, { flexBasis: `${100 / columns - 3}%` }]}>
+        <View key={it.label} style={s.tile}>
           <Txt num weight={700} size={21} tone={it.tone ?? 'text'} numberOfLines={1}>{it.value}</Txt>
           <Txt up size={10} weight={600} tone="dim" numberOfLines={1}>{it.label}</Txt>
         </View>
@@ -163,9 +156,9 @@ const styles = (t: Theme) => ({
   footer: { paddingHorizontal: 16, paddingTop: 7, lineHeight: 17 },
   row: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 12, minHeight: 50, paddingHorizontal: 16, paddingVertical: 10 },
   pressed: { backgroundColor: alpha(t.c.tint, 0.07) },
-  selected: { backgroundColor: alpha(t.c.accent, 0.14) },
   tiles: { flexDirection: 'row' as const, flexWrap: 'wrap' as const, gap: 8 },
-  tile: { flexGrow: 1, gap: 3, padding: 12, borderRadius: t.r.md, backgroundColor: t.c.panel },
+  // three to a row
+  tile: { flexGrow: 1, flexBasis: '30%' as const, gap: 3, padding: 12, borderRadius: t.r.md, backgroundColor: t.c.panel },
   statRow: { flexDirection: 'row' as const },
   statRowSep: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: t.c.line2 },
   stat: { flex: 1, minWidth: 0, gap: 2, paddingHorizontal: 14, paddingVertical: 11 },

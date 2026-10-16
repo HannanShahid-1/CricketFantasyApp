@@ -33,19 +33,17 @@ export interface PlayerRow {
   mode: AddMode
 }
 
+/** Filtered and sorted rows (the web screen). The iPhone keeps `allPlayerRows` per league and filters that. */
 export function playerRows(d: Data, league: League, f: PlayerFilter, sort: SortKey): PlayerRow[] {
+  return filterPlayerRows(allPlayerRows(d, league), f, sort)
+}
+
+/** Every player's row: the expensive part (projections), worth computing once per league change. */
+export function allPlayerRows(d: Data, league: League): PlayerRow[] {
   const owned = rosteredBy(league)
   const week = currentWeek(d, league)
-  const needle = f.q.trim().toLowerCase()
-  const rows: PlayerRow[] = []
-  for (const p of d.pool) {
+  return d.pool.map((p) => {
     const owner = owned.get(p.idx)
-    if (f.status === 'avail' && owner !== undefined) continue
-    if (f.status === 'mine' && owner !== 0) continue
-    if (f.status === 'rostered' && owner === undefined) continue
-    if (f.role === 'AR' ? !(p.role === 'ARB' || p.role === 'ARW') : f.role !== 'ALL' && p.role !== f.role) continue
-    if (f.team !== 'ALL' && p.team !== f.team) continue
-    if (needle && !`${p.name} ${p.fullName} ${p.rawName}`.toLowerCase().includes(needle)) continue
     let last: number | null = null
     let lastMi = -1
     for (const g of p.games.values()) {
@@ -55,15 +53,28 @@ export function playerRows(d: Data, league: League, f: PlayerFilter, sort: SortK
       }
     }
     const nextMi = d.teamMis[p.team]?.find((mi) => mi >= league.played)
-    rows.push({
+    return {
       p, owner, last,
       next: nextMi === undefined ? null : { mi: nextMi, total: matchProjection(d, p, nextMi, league.played).total },
       week: playerWeek(d, league, owner ?? null, p.idx, week),
       season: seasonToDate(p, league.played),
       ros: restOfSeason(d, p, league.played),
       mode: owner === undefined ? addMode(d, league, p.idx, owned) : 'none',
-    })
-  }
+    }
+  })
+}
+
+/** The rows that pass the filter, best first by `sort` (a new array; `rows` is left as it is). */
+export function filterPlayerRows(rows: PlayerRow[], f: PlayerFilter, sort: SortKey): PlayerRow[] {
+  const needle = f.q.trim().toLowerCase()
+  const shown = rows.filter(({ p, owner }) => {
+    if (f.status === 'avail' && owner !== undefined) return false
+    if (f.status === 'mine' && owner !== 0) return false
+    if (f.status === 'rostered' && owner === undefined) return false
+    if (f.role === 'AR' ? !(p.role === 'ARB' || p.role === 'ARW') : f.role !== 'ALL' && p.role !== f.role) return false
+    if (f.team !== 'ALL' && p.team !== f.team) return false
+    return !needle || `${p.name} ${p.fullName} ${p.rawName}`.toLowerCase().includes(needle)
+  })
   const key: Record<SortKey, (r: PlayerRow) => number> = {
     season: (r) => r.season.pts,
     avg: (r) => r.season.avg,
@@ -73,5 +84,5 @@ export function playerRows(d: Data, league: League, f: PlayerFilter, sort: SortK
     last: (r) => r.last ?? -99,
     prev: (r) => r.p.s25.avg,
   }
-  return rows.sort((a, b) => key[sort](b) - key[sort](a))
+  return shown.sort((a, b) => key[sort](b) - key[sort](a))
 }

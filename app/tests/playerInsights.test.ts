@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { beforeAll, expect, it } from 'vitest'
 import { availability, matchProjection, perMatchProj, type Data } from '../src/engine/data'
-import { liveFantasyScore, simulatedTeamScore } from '../src/ui/matchupSimulation'
+import { liveFantasyScore, simulatedFromBase, teamWeekBase } from '../src/ui/matchupSimulation'
 import { replayState } from '../src/ui/replay'
 import { ballEvents } from '../src/ui/scorecard'
 import { playerRows } from '../src/ui/playerList'
@@ -213,5 +213,5 @@ it('live fantasy scores use partial deliveries and converge to real final points
   const league = createLeague(d, { name: 'Live score', teamName: 'Me', numTeams: 8, draftSlot: 'random', timer: 0, speed: 'instant' })
   league.teams[0].starters = [p.idx, ...Array(10).fill(null)]
   const scores = new Map([[p.idx, before]])
-  expect(simulatedTeamScore(d, league, 0, m.gw, m, scores)).toEqual({ score: before.points, proj: before.projection })
+  expect(simulatedFromBase(teamWeekBase(d, league, 0, m.gw), m, scores)).toEqual({ score: before.points, proj: before.projection })
 })

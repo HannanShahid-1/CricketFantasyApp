@@ -1,7 +1,7 @@
 // Loads the Cricsheet-derived data file and pre-computes stat lines, fantasy points and projections.
 import { computeLines, score, type Points, type StatLine } from './scoring'
 import type { RawData, RawMatch, RawTeam, Role, SlotType } from './types'
-import { matchupAdjustment } from './matchupForecast'
+import { matchupAdjustment, priorLines } from './matchupForecast'
 import { playerDisplayName } from './playerNames'
 
 export interface PlayerMedia {
@@ -145,7 +145,7 @@ export function buildData(raw: RawData, media: PlayerMedia, bios: Record<string,
   const prev = Object.keys(raw.seasons).filter((s) => s !== raw.simSeason)
   for (const s of prev) {
     for (const m of raw.seasons[s]) {
-      const lines = computeLines(m)
+      const lines = priorLines(m)
       for (const [p, l] of lines) {
         if (!l.played) continue
         const pts = score(l, players[p].role).total
@@ -253,10 +253,25 @@ export function availability(d: Data, p: Player, played: number): number {
   return (p.prior.avail * k + apps) / (k + teamPlayed)
 }
 
+const rosMemo = new WeakMap<Data, Map<number, Map<number, number>>>()
+
 /** Rest-of-season value. Only one match per player counts each week, so this counts the weeks he still has
  *  a match in, not the matches. Uses the first remaining fixture per week for generic player value;
  *  actual team projections honor the selected match through `playerWeek` in league.ts.) */
 export function restOfSeason(d: Data, p: Player, played: number, lastGw = 8): number {
+  if (lastGw !== 8) return valueThrough(d, p, played, lastGw)
+  // Whole rosters and the free-agent pool are valued at every week end (waivers, trades, roster trims, often inside
+  // sort comparators) and on every player-list filter. Data never changes, so memoise per cutoff and player.
+  let byCutoff = rosMemo.get(d)
+  if (!byCutoff) rosMemo.set(d, byCutoff = new Map())
+  let byPlayer = byCutoff.get(played)
+  if (!byPlayer) byCutoff.set(played, byPlayer = new Map())
+  let total = byPlayer.get(p.idx)
+  if (total === undefined) byPlayer.set(p.idx, total = valueThrough(d, p, played, lastGw))
+  return total
+}
+
+function valueThrough(d: Data, p: Player, played: number, lastGw: number): number {
   let total = 0
   for (const [gw, mis] of Object.entries(d.teamGw[p.team] ?? {})) {
     if (Number(gw) > lastGw) continue

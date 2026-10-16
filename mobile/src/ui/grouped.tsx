@@ -18,12 +18,6 @@ export function GroupHeader({ title, detail, style }: { title: string; detail?: 
   )
 }
 
-/** Small explanatory text under a group, matching `Section`'s footer. */
-export function GroupNote({ children }: { children: ReactNode }) {
-  const s = useStyles(styles)
-  return <Txt size={12.5} tone="dim" style={s.note}>{children}</Txt>
-}
-
 /** One cell of a group: the first rounds the top, the last the bottom, with a hairline between cells. */
 export function GroupCell({ first, last, inset = 16, style, children }: {
   first: boolean; last: boolean; inset?: number; style?: StyleProp<ViewStyle>; children: ReactNode
@@ -39,7 +33,6 @@ export function GroupCell({ first, last, inset = 16, style, children }: {
 
 const styles = (t: Theme) => ({
   header: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8, paddingHorizontal: 16, paddingBottom: 7 },
-  note: { paddingHorizontal: 16, paddingTop: 7, lineHeight: 17 },
   cell: { backgroundColor: t.c.panel, overflow: 'hidden' as const },
   first: { borderTopLeftRadius: t.r.lg, borderTopRightRadius: t.r.lg },
   last: { borderBottomLeftRadius: t.r.lg, borderBottomRightRadius: t.r.lg },

@@ -61,14 +61,14 @@ export function DraftBoardScreen() {
       renderSectionHeader={({ section }) => <GroupHeader title={section.title} detail={section.detail} style={{ paddingTop: 24 }} />}
       renderItem={({ item, index, section }) => (
         <GroupCell first={index === 0} last={index === section.data.length - 1} inset={INSET}>
-          <PickRow pk={item} showTeam={mode === 'round'} />
+          <DraftPickRow pk={item} showTeam={mode === 'round'} />
         </GroupCell>
       )}
     />
   )
 }
 
-const PickRow = memo(function PickRow({ pk, showTeam }: { pk: Pick; showTeam: boolean }) {
+const DraftPickRow = memo(function DraftPickRow({ pk, showTeam }: { pk: Pick; showTeam: boolean }) {
   const t = useTheme()
   const s = useStyles(styles)
   const team = useApp((st) => st.league!.teams[pk.teamId])

@@ -46,6 +46,9 @@ export const mix = (a: string, b: string, pct: number): string => {
   return css(x.map((v, i) => v * pct + y[i] * (1 - pct)) as RGBA)
 }
 
+/** `#rrggbb`, opacity dropped (for native code that takes plain hex, like the Live Activity) */
+export const hex = (c: string): string => '#' + parse(c).slice(0, 3).map((v) => Math.round(v).toString(16).padStart(2, '0')).join('')
+
 // ---------- fonts ----------
 
 /** Font files (loaded in the root layout); the web's CSS font stacks map onto these by family + weight. */

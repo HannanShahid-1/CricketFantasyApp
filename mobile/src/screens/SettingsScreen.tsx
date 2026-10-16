@@ -2,11 +2,12 @@ import { Stack } from 'expo-router'
 import { View } from 'react-native'
 import { getData, useApp } from '@shared/store'
 import { useLaunchIntro } from '@/components/LaunchIntro'
+import { liveActivityProblem } from '@/data/liveActivity'
 import { usePrefs } from '@/data/prefs'
 import { nav } from '@/nav'
 import { THEME_ORDER } from '@/generated/themes'
 import { hasLightMode, themeLooks, useTheme, useThemeStore, type ColorMode, type ThemeId } from '@/theme/theme'
-import { canLiquid, confirm, haptic, Icon, Row, RowIcon, Screen, Section, Segmented, SwitchRow, Txt } from '@/ui'
+import { canLiquid, confirm, haptic, Icon, report, Row, RowIcon, Screen, Section, Segmented, SwitchRow, Txt } from '@/ui'
 
 const MODES: { key: ColorMode; label: string }[] = [
   { key: 'system', label: 'Automatic' },
@@ -22,6 +23,7 @@ export function SettingsScreen() {
   const testingTools = usePrefs((s) => s.testingTools)
   const glassMatchup = usePrefs((s) => s.glassMatchup)
   const liquidSwipe = usePrefs((s) => s.liquidSwipe)
+  const liveActivity = usePrefs((s) => s.liveActivity)
   const hasLeague = useApp((s) => s.league !== null)
 
   return (
@@ -58,6 +60,22 @@ export function SettingsScreen() {
               <Segmented options={MODES} value={mode} onChange={(m) => useThemeStore.getState().setMode(m)} />
             </View>
           )}
+        </Section>
+
+        <Section
+          title="Live Activity"
+          footer="Your matchup on the Lock Screen and in the Dynamic Island: both scores, and your chance to win when you press and hold. It updates while Seam is open."
+        >
+          <SwitchRow
+            title="Show your matchup"
+            icon="platter.filled.top.iphone"
+            value={liveActivity}
+            onChange={(v) => {
+              const problem = v ? liveActivityProblem() : null
+              if (problem) return report(problem)
+              usePrefs.getState().setPref('liveActivity', v)
+            }}
+          />
         </Section>
 
         <Section

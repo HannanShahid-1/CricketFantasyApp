@@ -2,14 +2,14 @@ import { ChevronLeft, ChevronRight, Crown, Lock, Maximize2, Sparkles, Trophy } f
 import { useLayoutEffect, useRef, useState } from 'react'
 import { LEAGUE_CHANNEL } from '../../engine/chat'
 import {
-  currentWeek, LAST_WEEK, matchupsForWeek, matchupWinner, playerWeek, REG_WEEKS, slotLocked, SLOTS, standings, winProbability,
+  currentWeek, LAST_WEEK, matchupsForWeek, matchupWinner, playerWeek, REG_WEEKS, slotLocked, SLOTS, standings,
   type Matchup,
 } from '../../engine/league'
 import { fmt } from '../../engine/scoring'
 import { getData, ME, useApp } from '../../store'
 import { FTeamAvatar, MatchBalls, PlayerAvatar, RoleTag, TeamChip } from '../common'
 import { weekLabel } from '../format'
-import { liveTeamScore, teamStarters, weekRecap, weekSummary } from '../helpers'
+import { matchupOdds, teamStarters, weekRecap, weekSummary } from '../helpers'
 import { Conversation } from './ChatView'
 import { useShallow } from 'zustand/react/shallow'
 
@@ -179,16 +179,7 @@ function Scoreboard({ m: raw }: { m: Matchup }) {
   const live = !final && week === cur && league.played > d.gameweeks[week - 1].mis[0]
   const A = league.teams[m.a]
   const B = league.teams[m.b]
-  const sa = liveTeamScore(d, league, m.a, week)
-  const sb = liveTeamScore(d, league, m.b, week)
-  const res = league.results[week]
-  if (res) {
-    sa.proj = res.proj[m.a]
-    sb.proj = res.proj[m.b]
-  }
-  const mis = d.gameweeks[week - 1].mis
-  const remainingShare = final ? 0 : mis.filter((mi) => mi >= league.played).length / mis.length
-  const pA = final ? (sa.score > sb.score ? 1 : sa.score < sb.score ? 0 : 0.5) : winProbability(sa.proj, sb.proj, sa.score, sb.score, remainingShare)
+  const { sa, sb, pA } = matchupOdds(d, league, m)
   const winner = final ? matchupWinner(league, m) : null
   const rec = (id: number) => {
     const r = standings(league).find((x) => x.teamId === id)!

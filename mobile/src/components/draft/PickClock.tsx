@@ -8,8 +8,11 @@ import { Txt } from '@/ui'
  * lives here so the draft room doesn't re-render every second; give it a `key` per pick so each pick restarts it.
  * `paused` freezes it; `onExpire` runs once when it reaches zero.
  */
-export function PickClock({ total, paused, onExpire, size = 50, stroke = 4.5 }: {
-  total: number; paused: boolean; onExpire: () => void; size?: number; stroke?: number
+const size = 50
+const stroke = 4.5
+
+export function PickClock({ total, paused, onExpire }: {
+  total: number; paused: boolean; onExpire: () => void
 }) {
   const t = useTheme()
   const [left, setLeft] = useState(total)

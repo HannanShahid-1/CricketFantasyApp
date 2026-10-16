@@ -1,5 +1,5 @@
 import type { Data, Player } from '../engine/data'
-import { matchupsForWeek, matchupWinner, playerWeek, type League } from '../engine/league'
+import { matchupsForWeek, matchupWinner, playerWeek, winProbability, type League, type Matchup } from '../engine/league'
 import { batLine, bowlLine, fmt } from '../engine/scoring'
 import { opponentLabel } from './format'
 
@@ -39,6 +39,25 @@ export function liveTeamScore(d: Data, l: League, teamId: number, week: number, 
     proj += wp.total
   }
   return { score, proj }
+}
+
+/**
+ * A matchup's scoreboard: each side's score and projection (the frozen projection once the week is final) and side A's
+ * chance to win. `score` replaces how a side's live total is found (the iPhone's in-place match simulation).
+ */
+export function matchupOdds(d: Data, l: League, m: Matchup, score = (teamId: number) => liveTeamScore(d, l, teamId, m.week)) {
+  const res = l.results[m.week]
+  const final = !!res
+  const sa = score(m.a)
+  const sb = score(m.b)
+  if (res) {
+    sa.proj = res.proj[m.a]
+    sb.proj = res.proj[m.b]
+  }
+  const mis = d.gameweeks[m.week - 1].mis
+  const remainingShare = final ? 0 : mis.filter((mi) => mi >= l.played).length / mis.length
+  const pA = final ? (sa.score > sb.score ? 1 : sa.score < sb.score ? 0 : 0.5) : winProbability(sa.proj, sb.proj, sa.score, sb.score, remainingShare)
+  return { sa, sb, pA, final }
 }
 
 /** Template-driven weekly recap. Stand-in for an LLM-written recap later. */

@@ -2,9 +2,10 @@ import { useMemo } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { LAST_WEEK, managerName, REG_WEEKS } from '@shared/engine/league'
 import { fmt } from '@shared/engine/scoring'
-import { getData, useApp } from '@shared/store'
+import { getData } from '@shared/store'
 import { playoffBracket, type BracketGame, type BracketSlot } from '@shared/ui/bracket'
 import { fmtDate, weekLabel } from '@shared/ui/format'
+import { ChampionCard } from '@/components/league/ChampionCard'
 import { useGameLeague } from '@/data/gameLeague'
 import { nav } from '@/nav'
 import { alpha, mix, useStyles, useTheme, type Theme } from '@/theme/theme'
@@ -28,7 +29,7 @@ export function PlayoffsScreen() {
             : `If the season ended today${b.weeksPlayed ? ` (after ${weekLabel(b.weeksPlayed)})` : ''}. The top four after ${weekLabel(REG_WEEKS)} make the semifinals.`}
         </Txt>
       </View>
-      {league.champion !== null && <Champion teamId={league.champion} />}
+      {league.champion !== null && <ChampionCard team={league.teams[league.champion]} />}
       <View>
         <GroupHeader title="Championship" />
         <View style={{ gap: 10 }}>
@@ -56,23 +57,6 @@ function Advance() {
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 2 }}>
       <Icon name="arrow.down" size={11} color={t.c.dim} weight="semibold" />
       <Txt size={12} tone="dim">Winners meet in the final</Txt>
-    </View>
-  )
-}
-
-function Champion({ teamId }: { teamId: number }) {
-  const s = useStyles(styles)
-  const t = useTheme()
-  const team = useApp((st) => st.league!.teams[teamId])
-  return (
-    <View style={s.champion}>
-      <Icon name="trophy.fill" size={34} color={t.c.gold} />
-      <Txt up size={12} weight={700} tone="gold">League champion</Txt>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-        <TeamBadge team={team} size={44} />
-        <Txt display weight={700} size={24} numberOfLines={1} style={{ flexShrink: 1 }}>{team.name}</Txt>
-      </View>
-      <Txt tone="muted" size={14}>{team.isUser ? 'You won the league.' : `${managerName(team)} lifts the trophy.`}</Txt>
     </View>
   )
 }
@@ -148,8 +132,4 @@ const styles = (t: Theme) => ({
   seed: { width: 16, textAlign: 'center' as const },
   placeholder: { width: 32, height: 32, borderRadius: 9, borderWidth: 1.5, borderStyle: 'dashed' as const, borderColor: t.c.line2 },
   sep: { height: StyleSheet.hairlineWidth, marginLeft: 16 + 10 + 32 + 10, backgroundColor: t.c.line2 },
-  champion: {
-    alignItems: 'center' as const, gap: 10, padding: 22, borderRadius: t.r.lg,
-    backgroundColor: alpha(t.c.gold, 0.08), borderWidth: 1, borderColor: alpha(t.c.gold, 0.3),
-  },
 })

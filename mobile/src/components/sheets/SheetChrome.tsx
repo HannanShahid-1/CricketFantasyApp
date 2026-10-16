@@ -31,11 +31,11 @@ export const SHEET_HEADER_HEIGHT = 62
  * Title row for a sheet without a native header (the add sheet): Cancel on the left, the title centred. Render it
  * after the ScrollView: it pins itself over the top, and the content scrolls under it (pad it by SHEET_HEADER_HEIGHT).
  */
-export function SheetHeader({ title, onCancel = nav.close, cancelLabel = 'Cancel' }: { title: string; onCancel?: () => void; cancelLabel?: string }) {
+export function SheetHeader({ title, cancelLabel = 'Cancel' }: { title: string; cancelLabel?: string }) {
   const s = useStyles(styles)
   return (
     <View style={s.header}>
-      <Pressable onPress={onCancel} hitSlop={12} accessibilityRole="button" style={s.side}>
+      <Pressable onPress={nav.close} hitSlop={12} accessibilityRole="button" style={s.side}>
         {({ pressed }) => <Txt size={17} tone="accent" style={{ opacity: pressed ? 0.45 : 1 }}>{cancelLabel}</Txt>}
       </Pressable>
       <Txt size={17} weight={600} numberOfLines={1} style={s.title} accessibilityRole="header">{title}</Txt>

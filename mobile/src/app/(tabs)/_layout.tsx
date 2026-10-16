@@ -1,9 +1,18 @@
 import { NativeTabs } from 'expo-router/unstable-native-tabs'
 import { LEAGUE_CHANNEL } from '@shared/engine/chat'
+import type { League } from '@shared/engine/league'
 import { useApp } from '@shared/store'
 import { totalUnread } from '@shared/ui/chat/chatText'
-import { useChatNotifications, useOpenChannel } from '@/components/chat/notifications'
+import { useChatNotifications, useOpenChannel } from '@/data/chatNotifications'
 import { useTheme } from '@/theme/theme'
+
+// counted once per chat change, not on every store update (typing dots, toasts)
+const unreadCache = new WeakMap<League['chat'], number>()
+function unreadOf(l: League) {
+  let n = unreadCache.get(l.chat)
+  if (n === undefined) unreadCache.set(l.chat, (n = totalUnread(l)))
+  return n
+}
 
 /**
  * The native iOS tab bar (Liquid Glass). Each tab is its own navigation stack. The bar hides inside a conversation,
@@ -11,7 +20,7 @@ import { useTheme } from '@/theme/theme'
  */
 export default function TabsLayout() {
   const t = useTheme()
-  const unread = useApp((s) => (s.league ? totalUnread(s.league) : 0))
+  const unread = useApp((s) => (s.league ? unreadOf(s.league) : 0))
   // the league chat is the Chat tab's first screen, so the bar stays there; a DM hides it
   const inConversation = useOpenChannel((s) => s.channel !== null && s.channel !== LEAGUE_CHANNEL)
   useChatNotifications()

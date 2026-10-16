@@ -289,7 +289,9 @@ Score only exists at week end. Live numbers on screen are computed on the fly by
 
 **`store.ts`** holds the league plus UI state (current tab, open modal ids, toast, chat channel, typing indicators).
 
-- Every game action goes through `mutate(fn)`: `structuredClone` the league, run the engine function, `set` the copy.
+- Every game action goes through `mutate(fn)`: clone the league, run the engine function, `set` the copy. The clone
+  is `structuredClone` on the web; the iPhone plugs in a JSON round-trip with `setCloner` (Hermes' `structuredClone` is
+  a slow JavaScript polyfill, and the league is plain JSON).
 - Chat-only actions use `mutateChat(fn)`, which copies only `chat`. Rosters, results etc. keep their identity, so
   memoised screens don't recompute when someone sends a message.
 - Actions that can fail return an error string (or `null`); screens show it as a toast.

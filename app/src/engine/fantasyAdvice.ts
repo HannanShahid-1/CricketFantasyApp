@@ -12,8 +12,18 @@ export interface FantasyAdvice {
 export function fantasyAdvice(d: Data, p: Player, played: number, leagueSize = 8): FantasyAdvice {
   const size = Math.max(1, leagueSize)
   const profile = scoutingProfile(d, p, played)
-  const known = (x: Player) => x.history.length + [...x.games.keys()].filter((mi) => mi < played).length
-  const value = (x: Player) => perMatchProj(d, x, played) * availability(d, x, played)
+  const known = (x: Player) => {
+    let n = x.history.length
+    for (const mi of x.games.keys()) if (mi < played) n++
+    return n
+  }
+  // Both rankings below compare most of the pool against him, so each player's value is computed once per call.
+  const values = new Map<Player, number>()
+  const value = (x: Player) => {
+    let v = values.get(x)
+    if (v === undefined) values.set(x, v = perMatchProj(d, x, played) * availability(d, x, played))
+    return v
+  }
   const chance = availability(d, p, played)
   const explanation = `Editorial tiers compare expected FPTS among established players in the same primary role: ${size} players per tier in this ${size}-team league. Start advice also considers competition for eligible starting slots and estimated playing probability. These are opinions, not season-total ranks.`
   if (profile.limited) return { tier: null, recommendation: 'Unproven', opinion: `${p.name} is a watchlist option for now. There is not enough history to call him a reliable fantasy starter; look for repeated opportunities before buying into a breakout.`, explanation }

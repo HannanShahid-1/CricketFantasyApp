@@ -10,6 +10,7 @@ import { View } from 'react-native'
 import { useApp } from '@shared/store'
 import { LaunchIntro, useLaunchIntro } from '@/components/LaunchIntro'
 import { boot } from '@/data/boot'
+import { MatchupActivitySync } from '@/data/liveActivity'
 import { useTheme } from '@/theme/theme'
 import { ToastHost } from '@/ui/Toast'
 
@@ -69,6 +70,7 @@ function App() {
         </Stack.Protected>
       </Stack>
       <ToastHost />
+      <MatchupActivitySync />
     </ThemeProvider>
   )
 }

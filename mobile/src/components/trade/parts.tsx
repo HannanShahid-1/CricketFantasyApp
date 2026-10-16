@@ -5,7 +5,7 @@ import { managerName, PERSONA_LABEL, type FTeam } from '@shared/engine/league'
 import { getData } from '@shared/store'
 import { nav } from '@/nav'
 import { alpha, useStyles, useTheme, type Theme } from '@/theme/theme'
-import { Icon, PlayerAvatar, RoleTag, TeamBadge, TeamTag, Txt, type SFSymbol } from '@/ui'
+import { Icon, PlayerAvatar, RoleTag, TeamBadge, TeamTag, Txt } from '@/ui'
 
 // Pieces of the trade sheet: the board pinned over the roster lists, the summary on the review screen, and the
 // plain-words value check.
@@ -149,18 +149,6 @@ export function TradeSummary({ me, them, give, get }: { me: FTeam; them: FTeam; 
       </View>
     </View>
   )
-}
-
-/** How the two sides' rest-of-season projections compare, in words (no numbers). */
-export function tradeVerdict(give: number, get: number): {
-  title: string; detail: string; icon: SFSymbol; tone: 'sky' | 'win' | 'loss'
-} {
-  if (Math.abs(get - give) / Math.max(give, get, 1) < 0.1) {
-    return { title: 'About even', detail: 'Both sides project to score about the same from here.', icon: 'equal.circle.fill', tone: 'sky' }
-  }
-  return get > give
-    ? { title: 'Leans your way', detail: "You'd get more projected points than you give up.", icon: 'arrow.up.circle.fill', tone: 'win' }
-    : { title: 'Leans their way', detail: "You'd give up more projected points than you get.", icon: 'arrow.down.circle.fill', tone: 'loss' }
 }
 
 const styles = (t: Theme) => ({

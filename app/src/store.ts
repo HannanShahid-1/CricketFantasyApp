@@ -90,7 +90,12 @@ interface AppState {
   simTo: (week: number) => void
 }
 
-const clone = (l: League): League => structuredClone(l)
+/** How actions copy the league before changing it. The iPhone plugs in a JSON round-trip with `setCloner`: Hermes'
+ *  structuredClone is a slow JavaScript polyfill, and the league is plain JSON (it is saved as JSON). */
+let clone = <T>(v: T): T => structuredClone(v)
+export const setCloner = (fn: <T>(v: T) => T) => {
+  clone = fn
+}
 
 type Saved = Pick<AppState, 'league' | 'tab' | 'chatChannel'>
 
@@ -150,7 +155,7 @@ export const useApp = create<AppState>()(
       const mutateChat = (fn: (l: League, d: Data) => void) => {
         const cur = get().league
         if (!cur) return
-        const l = { ...cur, chat: structuredClone(cur.chat) }
+        const l = { ...cur, chat: clone(cur.chat) }
         fn(l, getData())
         set({ league: l })
       }

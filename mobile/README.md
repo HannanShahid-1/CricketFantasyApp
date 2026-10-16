@@ -37,13 +37,16 @@ file the config falls back to `com.example.seam` and no team, which is fine for 
 - `npm run sync` (runs before `start`/`ios`) generates `src/generated/`: theme tokens from `../app/src/themes/*.css`
   and the player-photo maps from `../app/public/data/player-media.json` (`PHOTOS` full size for the player card,
   `THUMBS` 144px HEIC thumbnails made with macOS `sips` for avatars). Never edit generated files.
-- Storage: `setStorage(AsyncStorage)` + `useApp.persist.rehydrate()` in `src/data/boot.ts`.
+- Storage: `src/data/boot.ts` plugs in AsyncStorage (`setStorage`), batching writes to at most one every half second
+  and flushing as soon as the app leaves the foreground, then `useApp.persist.rehydrate()`. It also sets the store's
+  cloner to a JSON round-trip (`setCloner`), much faster on Hermes than its `structuredClone` polyfill.
 
 ## Layout
 
 - `src/app/`: routes only (thin files that render a screen). Root `_layout.tsx` guards by league phase (setup → draft
   → season) and registers the sheets; `(tabs)/_layout.tsx` is the native tab bar; each tab folder is a native stack.
-- `src/screens/<Name>Screen.tsx`: one screen each (named export). `src/components/`: pieces shared by screens.
+- `src/screens/<Name>Screen.tsx`: one screen each (named export). `src/components/`: pieces shared by screens, and a
+  folder per big screen's parts (`player/`, `match/`, `trade/`, `draft/`, `chat/`).
 - `src/ui/` (import from `@/ui`): the design system. `src/theme/theme.ts`: tokens → React Native.
 - `src/nav.ts`: every route the app opens. `src/data/boot.ts`: start-up. `src/data/derived.ts`: per-league caches.
 
@@ -94,7 +97,9 @@ under `../app/src/ui/` (plain TS, no React/DOM), switch the web view to it, and 
 game rules in the engine.
 
 **Efficiency.** Lists longer than ~30 rows use `FlatList` (`contentInsetAdjustmentBehavior="automatic"`, stable
-keys, memoised row components). Derive arrays in `useMemo` keyed on the league. Static styles via
+keys, memoised row components). Derive arrays in `useMemo` keyed on the league. Anything that changes many times a
+second (the in-place simulation) passes rows plain values and memoised rows re-render only when theirs change (see
+`Cell` on Matchup); give `<Stack.Screen options>` a memoised object, since a new one re-sets the native header. Static styles via
 `useStyles((t) => ({...}))` declared at the bottom of the file; small one-off inline styles are fine.
 
 **Navigation.** Only through `nav` (`@/nav`). Set a screen's title with `<Stack.Screen options={{ title }} />`.
@@ -166,9 +171,30 @@ against the pre-match expectation while its estimated finish updates. After the 
 returns to the original pre-match projection in the regular colour. Red/green pace colours apply only while
 the fixture is being simulated; an on-pace estimate also uses the regular colour.
 
-The replay uses `data/matchupSimulation.tsx` and the shared `ui/matchupSimulation.ts` helpers. Estimates use revealed
+The replay uses `data/simulation.ts` and the shared `ui/matchupSimulation.ts` helpers. Estimates use revealed
 innings progress, dismissals and bowling workload, not future results. These are rough estimates. The existing
 scoring engine supplies all actual points. Starting a simulation persists `League.replayMatch`, settles pre-match
 actions and locks the relevant players and match selections. Finishing records the match once through `playNext`.
 The ball cursor is local to the screen: after restarting the app, an unfinished match is paused and can be replayed
 from its beginning with its player locks intact. Watch live remains the separate commentary replay.
+
+## Live Activity (Dynamic Island)
+
+Settings → Live Activity → **Show your matchup** (off by default) puts this week's matchup on the Lock Screen and in
+the Dynamic Island. Compact: both scores, the leader bright. Press and hold: each badge and score beside the camera,
+the team names, your win chance as a bar on a quiet track and one status line (a live dot, then the simulated match
+and over, or the week and matches played). Every expanded region shares one left and right edge; the centre region
+stays empty because iOS puts it below the camera, out of line with the sides. The Lock Screen adds projections.
+Minimal (beside another app's activity): your win chance as a ring.
+
+- `targets/matchup-activity/`: the SwiftUI widget extension, linked by `@bacons/apple-targets` at `expo prebuild`
+  (edit it in Xcode under `expo:targets`; the files stay here, outside the generated `ios/`).
+- `modules/seam-live-activity/`: a local Expo module the app calls to start, update and end the activity.
+  `MatchupAttributes.swift` is in both folders and must stay identical: ActivityKit pairs them by the type's name.
+- `src/data/liveActivity.ts`: builds the content from the shared engine (`matchupOdds`, the simulation feed
+  `useLiveSim`) and sends it at most once a second. Colours are theme tokens sent as hex.
+
+There is no push server, so the activity only changes while Seam is open (playing or simulating a match, lineup
+changes); it doesn't move on its own in the background. Multiplayer with a server could push updates later. It needs
+an Xcode build (not Expo Go) and iOS Settings → Seam → Live Activities on; the Simulator shows it too. A new week or
+opponent replaces the activity; swiping it away hides it until the matchup changes or Seam restarts.

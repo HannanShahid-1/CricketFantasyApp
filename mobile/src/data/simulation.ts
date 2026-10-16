@@ -1,11 +1,17 @@
 import { useIsFocused } from 'expo-router'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { create } from 'zustand'
 import { currentWeek, type League } from '@shared/engine/league'
-import { matchProjection } from '@shared/engine/data'
+import { matchProjection, type Match } from '@shared/engine/data'
 import { getData, useApp } from '@shared/store'
-import { liveFantasyScore } from '@shared/ui/matchupSimulation'
+import { liveFantasyScore, type LiveFantasyScore } from '@shared/ui/matchupSimulation'
 import { isNextMatch, REPLAY_SPEEDS, replayState } from '@shared/ui/replay'
 import { ballEvents } from '@shared/ui/scorecard'
+
+/** The running simulation for what lives outside the Matchup screen (the Live Activity, src/data/liveActivity.ts). */
+export const useLiveSim = create<{ m: Match | null; scores: Map<number, LiveFantasyScore>; over: string | null }>(() => ({
+  m: null, scores: new Map(), over: null,
+}))
 
 export function useSimulation(league: League) {
   const d = getData()
@@ -27,6 +33,8 @@ export function useSimulation(league: League) {
     const timer = setInterval(() => setK((n) => Math.min(total, n + step)), ms * step)
     return () => clearInterval(timer)
   }, [m, focused, playing, speed, total, k >= total])
+  const over = st?.last?.label ?? null
+  useEffect(() => useLiveSim.setState({ m, scores, over }), [m, scores, over])
   const recorded = useRef<number | null>(null)
   useEffect(() => {
     if (!m || !st?.finished || recorded.current === m.mi) return

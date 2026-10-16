@@ -2,7 +2,7 @@
 // Every inference snapshot excludes target and unreplayed matches.
 import type { Data, Player } from './data'
 import { computeLines, score, type StatLine } from './scoring'
-import type { Role } from './types'
+import type { RawMatch, Role } from './types'
 
 interface RecordLine { total: number; bat: number; bowl: number; balls: number; bowled: number }
 interface Aggregate { n: number; sum: number }
@@ -11,8 +11,9 @@ interface Snapshot {
   venue: Map<string, Aggregate>
   opponent: Map<string, Aggregate>
 }
-interface Model { weights: number[]; trainingSamples: number; prior: Snapshot; snapshots: Map<number, Snapshot> }
+interface Model { weights?: number[]; trainingSamples: number; prior: Snapshot; snapshots: Map<number, Snapshot> }
 const models = new WeakMap<Data, Model>()
+const priorLineCache = new WeakMap<RawMatch, Map<number, StatLine>>()
 const LIMIT = 0.25
 // User-selected rough-estimate preset: transparent weights, not fitted probabilities.
 const ROUGH_WEIGHTS = [0.65, 0.65, 0.45, 0.25, 0.25]
@@ -41,6 +42,14 @@ function features(s: Snapshot, p: Player, venue: string, opponent: string, base:
   return { xs: [venueContext.effect, opponentContext.effect, form, batWork, bowlWork], venueContext, opponentContext }
 }
 function blank(): Snapshot { return { players: new Map(), venue: new Map(), opponent: new Map() } }
+// Registered rows are never changed, so a copy needs only new arrays and new running sums (no deep clone).
+function copy(s: Snapshot): Snapshot {
+  const out = blank()
+  for (const [id, rows] of s.players) out.players.set(id, rows.slice())
+  for (const [id, a] of s.venue) out.venue.set(id, { n: a.n, sum: a.sum })
+  for (const [id, a] of s.opponent) out.opponent.set(id, { n: a.n, sum: a.sum })
+  return out
+}
 function register(d: Data, s: Snapshot, lines: Map<number, StatLine>, venue: string, teams: [string, string], squads: Record<string, number[]>, bases: Map<number, number>) {
   for (const [id, line] of lines) {
     if (!line.played) continue
@@ -77,35 +86,65 @@ function solve(rows: { xs: number[]; y: number }[]) {
   }
   return matrix.map((row) => row[size])
 }
-function trainingModel(d: Data): Model {
-  const cached = models.get(d)
-  if (cached) return cached
-  const prior = blank(), rows: { xs: number[]; y: number }[] = []
+/** Stat lines of a prior-season match, computed once and shared (read-only): buildData, the forecast's replay and
+ *  scouting profiles all walk the prior seasons. It lives here because data.ts already imports this module. */
+export function priorLines(m: RawMatch) {
+  let lines = priorLineCache.get(m)
+  if (!lines) { lines = computeLines(m); priorLineCache.set(m, lines) }
+  return lines
+}
+// Replays the prior seasons in date order. Only the 'learned' mode needs the regression rows, so they are optional.
+function replayPrior(d: Data, rows?: { xs: number[]; y: number }[]) {
+  const prior = blank()
+  let samples = 0
   const matches = Object.entries(d.raw.seasons).filter(([season]) => Number(season) < Number(d.raw.simSeason)).flatMap(([, ms]) => ms).sort((a, b) => a.date.localeCompare(b.date))
   for (const m of matches) {
-    const lines = computeLines(m), bases = new Map<number, number>()
+    const lines = priorLines(m), bases = new Map<number, number>()
     for (const [id, line] of lines) {
       const p = d.players[id], history = prior.players.get(id) ?? []
       const base = (mean(history, 'total') * history.length + d.roleBaseline[p.role] * 3) / (history.length + 3)
       bases.set(id, base)
+      if (!line.played || history.length < 3) continue
+      samples++
+      if (!rows) continue
       const own = Object.entries(m.squads).find(([, ids]) => ids.includes(id))?.[0]
       const opponent = m.teams.find((t) => t !== own) ?? ''
-      const f = features(prior, p, m.venue, opponent, base)
-      if (line.played && history.length >= 3) rows.push({ xs: f.xs, y: score(line, p.role).total - base })
+      rows.push({ xs: features(prior, p, m.venue, opponent, base).xs, y: score(line, p.role).total - base })
     }
     register(d, prior, lines, m.venue, m.teams, m.squads, bases)
   }
-  const model = { weights: solve(rows), trainingSamples: rows.length, prior, snapshots: new Map<number, Snapshot>() }
+  return { prior, samples }
+}
+function trainingModel(d: Data): Model {
+  const cached = models.get(d)
+  if (cached) return cached
+  const { prior, samples } = replayPrior(d)
+  const model: Model = { trainingSamples: samples, prior, snapshots: new Map() }
   models.set(d, model)
   return model
+}
+// Fitted on first use: nothing shown by default uses the 'learned' mode, and fitting replays the prior seasons again.
+function learnedWeights(d: Data, model: Model) {
+  if (!model.weights) {
+    const rows: { xs: number[]; y: number }[] = []
+    replayPrior(d, rows)
+    model.weights = solve(rows)
+  }
+  return model.weights
 }
 function snapshot(d: Data, cutoff: number) {
   const model = trainingModel(d)
   const existing = model.snapshots.get(cutoff)
   if (existing) return { model, state: existing }
-  const state: Snapshot = structuredClone(model.prior)
+  // Continue from the nearest cached earlier cutoff (or the prior seasons) rather than replaying from match 0.
+  let from = 0, source = model.prior
+  for (let c = cutoff - 1; c >= 0; c--) {
+    const s = model.snapshots.get(c)
+    if (s) { from = c; source = s; break }
+  }
+  const state = copy(source)
   // Build in chronological order; neither target nor future match squads/balls are consulted.
-  for (const m of d.matches.slice(0, cutoff)) {
+  for (const m of d.matches.slice(from, cutoff)) {
     const bases = new Map<number, number>()
     for (const [id] of m.lines) {
       const p = d.players[id], current = [...p.games.values()].filter((g) => g.mi < m.mi)
@@ -123,7 +162,7 @@ export function matchupAdjustment(d: Data, p: Player, mi: number, cutoff: number
   const m = d.matches[mi], opponent = m.teams.find((t) => t !== p.team) ?? ''
   const f = features(state, p, m.raw.venue, opponent, base)
   const labels = ['Venue history', 'Opponent by role', 'Recent fantasy form', 'Batting workload', 'Bowling workload']
-  const weights = mode === 'rough' ? ROUGH_WEIGHTS : model.weights
+  const weights = mode === 'rough' ? ROUGH_WEIGHTS : learnedWeights(d, model)
   const components = f.xs.map((x, i) => ({ label: labels[i], points: x * weights[i] }))
   const raw = components.reduce((n, c) => n + c.points, 0)
   const delta = bounded(raw, base * LIMIT)

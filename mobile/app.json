@@ -14,7 +14,8 @@
         "tinted": "./assets/icon-tinted.png"
       },
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSSupportsLiveActivities": true
       }
     },
     "plugins": [
@@ -23,6 +24,7 @@
       "expo-image",
       "expo-font",
       "./plugins/withSceneLifecycle",
+      "@bacons/apple-targets",
       [
         "expo-splash-screen",
         {

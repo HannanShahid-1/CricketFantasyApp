@@ -3,7 +3,7 @@ import { Animated, Easing, StyleSheet, View, type StyleProp, type ViewStyle } fr
 import { getData } from '@shared/store'
 import type { BallEvent } from '@shared/ui/scorecard'
 import { alpha, useTheme, type Theme } from '@/theme/theme'
-import { Txt, type Weight } from '@/ui'
+import { Txt } from '@/ui'
 
 // Building blocks of the match screens: the live replay and the scorecard.
 
@@ -21,7 +21,9 @@ function ballColors(t: Theme, cls: BallEvent['cls']) {
  * One delivery as a circle: a dot, runs, 4 (sky), 6 (accent), W (live red) or an extra (gold). With `pop` it springs
  * in when it first appears (the newest ball of the over).
  */
-export const BallChip = memo(function BallChip({ e, size = 30, pop = false }: { e: BallEvent; size?: number; pop?: boolean }) {
+const BALL = 28
+
+export const BallChip = memo(function BallChip({ e, pop = false }: { e: BallEvent; pop?: boolean }) {
   const t = useTheme()
   const popOnMount = useRef(pop).current
   const v = useRef(new Animated.Value(popOnMount ? 0 : 1)).current
@@ -40,16 +42,16 @@ export const BallChip = memo(function BallChip({ e, size = 30, pop = false }: { 
     <Animated.View
       accessible
       accessibilityLabel={e.desc}
-      style={[{ width: size, height: size, borderRadius: size / 2, borderWidth: 1, borderColor: c.border, backgroundColor: c.bg, alignItems: 'center', justifyContent: 'center' }, motion]}
+      style={[{ width: BALL, height: BALL, borderRadius: BALL / 2, borderWidth: 1, borderColor: c.border, backgroundColor: c.bg, alignItems: 'center', justifyContent: 'center' }, motion]}
     >
-      <Txt display weight={700} size={size * 0.4} numberOfLines={1} style={{ color: c.fg }}>{e.short}</Txt>
+      <Txt display weight={700} size={BALL * 0.4} numberOfLines={1} style={{ color: c.fg }}>{e.short}</Txt>
     </Animated.View>
   )
 })
 
 /** A score that flashes the accent colour (with a glow and a slight pop) whenever it changes: live points. */
-export const FlashNum = memo(function FlashNum({ value, size, color, weight = 700, align = 'right', dim, style }: {
-  value: string; size: number; color: string; weight?: Weight; align?: 'left' | 'right' | 'center'; dim?: boolean; style?: StyleProp<ViewStyle>
+export const FlashNum = memo(function FlashNum({ value, size, color, align = 'right', dim, style }: {
+  value: string; size: number; color: string; align?: 'left' | 'right' | 'center'; dim?: boolean; style?: StyleProp<ViewStyle>
 }) {
   const t = useTheme()
   const v = useRef(new Animated.Value(0)).current
@@ -66,9 +68,9 @@ export const FlashNum = memo(function FlashNum({ value, size, color, weight = 70
   const text = { textAlign: align }
   return (
     <Animated.View style={[{ transform: [{ scale }], opacity: dim ? 0.45 : 1 }, style]}>
-      <Txt num weight={weight} size={size} style={[text, { color }]}>{value}</Txt>
+      <Txt num weight={700} size={size} style={[text, { color }]}>{value}</Txt>
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { opacity: v }]}>
-        <Txt num weight={weight} size={size} style={[text, { color: t.c.accent, textShadowColor: alpha(t.c.accent, 0.8), textShadowRadius: 12 }]}>{value}</Txt>
+        <Txt num weight={700} size={size} style={[text, { color: t.c.accent, textShadowColor: alpha(t.c.accent, 0.8), textShadowRadius: 12 }]}>{value}</Txt>
       </Animated.View>
     </Animated.View>
   )
