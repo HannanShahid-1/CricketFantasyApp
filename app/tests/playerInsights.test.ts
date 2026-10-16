@@ -2,6 +2,9 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { beforeAll, expect, it } from 'vitest'
 import { availability, matchProjection, perMatchProj, type Data } from '../src/engine/data'
+import { liveFantasyScore, simulatedTeamScore } from '../src/ui/matchupSimulation'
+import { replayState } from '../src/ui/replay'
+import { ballEvents } from '../src/ui/scorecard'
 import { playerRows } from '../src/ui/playerList'
 import { loadData } from '../src/loadData'
 import { fantasyAdvice, gameVerdict } from '../src/engine/fantasyAdvice'
@@ -184,4 +187,31 @@ it('next-game list projections advance after a fixture and stop at season end', 
   expect(rows.every((r, i) => i === 0 || (rows[i - 1].next?.total ?? -Infinity) >= (r.next?.total ?? -Infinity))).toBe(true)
   l.played = d.matches.length
   expect(playerRows(d, l, filter, 'next').every((r) => r.next === null)).toBe(true)
+})
+
+it('live fantasy scores use partial deliveries and converge to real final points', () => {
+  const m = d.matches[0], evs = ballEvents(d, m.raw)
+  const p = d.players[[...m.xi][0]]
+  const start = replayState(d, m, evs, 0)
+  const initial = liveFantasyScore(d, m, p.idx, start, 15)
+  expect(initial.points).toBe(1)
+  expect(initial.projection).toBeCloseTo(15)
+  expect(initial.pace).toBe('even')
+  const final = replayState(d, m, evs, evs.length)
+  for (const pid of m.xi) {
+    const value = liveFantasyScore(d, m, pid, final, 15)
+    expect(value.points).toBe(m.points.get(pid)?.total ?? 0)
+    expect(value.projection).toBe(value.points)
+    expect(value.pace).toBe(value.points > 15.5 ? 'ahead' : value.points < 14.5 ? 'behind' : 'even')
+  }
+  const partial = replayState(d, m, evs, 25)
+  const before = liveFantasyScore(d, m, p.idx, partial, 15)
+  const copy = structuredClone(m)
+  copy.points.clear()
+  copy.raw.innings.forEach((inn, i) => { inn.balls = inn.balls.slice(0, i === 0 ? 25 : 0) })
+  expect(liveFantasyScore(d, copy, p.idx, partial, 15)).toEqual(before)
+  const league = createLeague(d, { name: 'Live score', teamName: 'Me', numTeams: 8, draftSlot: 'random', timer: 0, speed: 'instant' })
+  league.teams[0].starters = [p.idx, ...Array(10).fill(null)]
+  const scores = new Map([[p.idx, before]])
+  expect(simulatedTeamScore(d, league, 0, m.gw, m, scores)).toEqual({ score: before.points, proj: before.projection })
 })

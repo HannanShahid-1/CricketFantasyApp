@@ -135,6 +135,8 @@ export interface League {
   phase: 'draft' | 'season' | 'complete'
   draft: DraftState
   played: number
+  /** Match currently being replayed; results are not recorded until it finishes. */
+  replayMatch: number | null
   schedule: Matchup[]
   results: Record<number, WeekResult>
   claims: Claim[]
@@ -154,6 +156,7 @@ export function upgradeLeague(l: League): League {
   return {
     ...l,
     commissionerId: l.commissionerId ?? 0,
+    replayMatch: l.replayMatch === l.played ? l.replayMatch : null,
     settings: { tradeReview: l.settings?.tradeReview ?? 'commissioner' },
     trades: l.trades ?? [],
     chat: l.chat ?? emptyChat(),
@@ -212,6 +215,7 @@ export function createLeague(d: Data, o: LeagueOptions): League {
     phase: 'draft',
     draft: { order, picks: [], rounds: ROSTER_SIZE, timer: o.timer, speed: o.speed, queue: [], startedAt: Date.now() },
     played: 0,
+    replayMatch: null,
     schedule: roundRobin(teams.map((t) => t.id)),
     results: {},
     claims: [],
@@ -349,7 +353,7 @@ export function isLocked(d: Data, l: League, p: number, week = currentWeek(d, l)
   if (l.played >= d.matches.length) return true
   const pl = d.players[p]
   const mis = d.teamGw[pl.team]?.[week] ?? []
-  return mis.some((mi) => mi < l.played)
+  return mis.some((mi) => mi < l.played || mi === l.replayMatch)
 }
 
 /** Traded away this week, but still in this week's lineup because his counting match had started (Sleeper's
@@ -426,7 +430,7 @@ export function slotLocked(d: Data, l: League, teamId: number, p: number, week =
   const cur = currentWeek(d, l)
   if (week !== cur) return week < cur
   const c = countedMatch(d, l, teamId, p, week)
-  return c !== null && c < l.played
+  return c !== null && (c < l.played || c === l.replayMatch)
 }
 
 /** A player's week: points (or projection) from his counted match only. */
@@ -599,12 +603,25 @@ function autoSubs(d: Data, l: League, mi: number) {
   }
 }
 
+/** Start the next replay without revealing its result; lock players and settle pre-match actions now. */
+export function beginReplay(d: Data, l: League): string | null {
+  if (l.phase !== 'season' || l.played >= d.matches.length) return 'There is no upcoming match.'
+  if (l.replayMatch === l.played) return null
+  endReviewPeriod(d, l)
+  autoSubs(d, l, l.played)
+  l.replayMatch = l.played
+  return null
+}
+
 export function playNext(d: Data, l: League) {
   if (l.phase !== 'season' || l.played >= d.matches.length) return
   const mi = l.played
-  endReviewPeriod(d, l)
-  autoSubs(d, l, mi)
+  if (l.replayMatch !== mi) {
+    endReviewPeriod(d, l)
+    autoSubs(d, l, mi)
+  }
   l.played++
+  l.replayMatch = null
   const week = d.matches[mi].gw
   const lastOfWeek = l.played >= d.matches.length || d.matches[l.played].gw !== week
   if (lastOfWeek) endWeek(d, l, week)

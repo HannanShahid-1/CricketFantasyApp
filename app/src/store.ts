@@ -5,7 +5,7 @@ import {
 } from './engine/chat'
 import type { Data } from './engine/data'
 import {
-  botTradeVerdict, chooseDraftPick, createLeague, currentWeek, dropPlayer, freeAgentAdd, lineupProblem, makePick,
+  beginReplay, botTradeVerdict, chooseDraftPick, createLeague, currentWeek, dropPlayer, freeAgentAdd, lineupProblem, makePick,
   optimizeLineup, placeClaim, playNext, proposeTrade, respondTrade, reviewTrade, say, setMatchPick, teamOnClock,
   withdrawTrade,
   type League, type LeagueOptions,
@@ -84,6 +84,7 @@ interface AppState {
   botsReadAll: () => void
   setTyping: (channel: ChannelId, teamId: number, on: boolean) => void
 
+  beginReplay: () => string | null
   simMatch: () => void
   simWeek: () => void
   simTo: (week: number) => void
@@ -311,6 +312,11 @@ export const useApp = create<AppState>()(
             return { typing: { ...s.typing, [channel]: next } }
           }),
 
+        beginReplay: () => {
+          let err: string | null = null
+          mutate((l, d) => { err = beginReplay(d, l) })
+          return err
+        },
         simMatch: () => mutate((l, d) => playNext(d, l)),
         simWeek: () =>
           mutate((l, d) => {

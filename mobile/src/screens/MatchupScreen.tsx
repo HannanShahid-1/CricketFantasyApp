@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router'
+import { matchProjection } from '@shared/engine/data'
 import { useMemo, useState } from 'react'
 import { Pressable, ScrollView, useWindowDimensions, View } from 'react-native'
 import { useShallow } from 'zustand/react/shallow'
@@ -6,6 +7,9 @@ import {
   currentWeek, isOffRoster, LAST_WEEK, matchupsForWeek, matchupWinner, playerWeek, REG_WEEKS, slotLocked, SLOTS, winProbability,
   type League, type Matchup,
 } from '@shared/engine/league'
+import { simulatedTeamScore } from '@shared/ui/matchupSimulation'
+import { REPLAY_SPEEDS } from '@shared/ui/replay'
+import { SimulationContext, useMatchupSimulation, useSimulation } from '@/data/matchupSimulation'
 import { fmt } from '@shared/engine/scoring'
 import { getData, ME, useApp } from '@shared/store'
 import { fmtDate, weekLabel } from '@shared/ui/format'
@@ -17,7 +21,7 @@ import { nav } from '@/nav'
 import { alpha, useStyles, useTheme, type Theme } from '@/theme/theme'
 import {
   Button, Chip, EmptyState, Icon, MatchBalls, Meter, PlayerAvatar, PlayerLink, Screen, Seam, Section, SlotBadge,
-  TeamBadge, Txt, useSettingsButton, useNextMatchMenu, useTabTitle,
+  TeamBadge, Segmented, Txt, useSettingsButton, useNextMatchMenu, useTabTitle,
 } from '@/ui'
 
 // Home tab: this week's head-to-head. Mirrors the web's MatchupView (same engine helpers), laid out for a phone:
@@ -41,7 +45,8 @@ export function MatchupScreen() {
   const g = d.gameweeks[week - 1]
   // the play button (next match: watch live / sim) sits left of "…"
   const settings = useSettingsButton()
-  const next = useNextMatchMenu()
+  const simulation = useSimulation(league)
+  const next = useNextMatchMenu(simulation.start)
   const headerItems = useMemo(() => () => (next ? [next, ...settings()] : settings()), [next, settings])
   const title = useTabTitle(weekLabel(week))
   const playedIn = g.mis.filter((mi) => mi < league.played).length
@@ -49,12 +54,14 @@ export function MatchupScreen() {
   return (
     <>
       <Stack.Screen options={{ ...title, unstable_headerRightItems: headerItems }} />
+      <SimulationContext.Provider value={simulation}>
       <Screen gap={14}>
+        <SimulationControls />
         <View style={{ gap: 12 }}>
           <Txt tone="muted" size={14}>
             {fmtDate(g.start, false)} – {fmtDate(g.end, false)} · {week === cur && league.phase === 'season' ? `${playedIn} of ${g.mis.length} IPL matches played` : `${g.mis.length} IPL matches`}
           </Txt>
-          <WeekPills league={league} week={week} onChange={(w) => { setViewWeek(w); setPicked({ week: w, i: 0 }) }} />
+          <WeekPills league={league} week={week} onChange={(w) => { if (simulation.m) return useApp.getState().notify('Finish the current match before switching weeks.', 'info'); setViewWeek(w); setPicked({ week: w, i: 0 }) }} />
         </View>
         {league.champion !== null && week === LAST_WEEK && <Champion league={league} />}
         {ms.length === 0 ? (
@@ -78,7 +85,41 @@ export function MatchupScreen() {
           </Section>
         )}
       </Screen>
+      </SimulationContext.Provider>
     </>
+  )
+}
+
+function SimulationControls() {
+  const sim = useMatchupSimulation()!
+  const league = useGameLeague()!
+  if (!sim.m) {
+    const next = league.phase === 'season' ? getData().matches[league.played] : null
+    return next ? (
+      <Section>
+        <View style={{ padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <Txt display weight={600} size={15} style={{ flex: 1 }}>{next.teams.join(' v ')}</Txt>
+          <Button title="Simulate live" icon="play.fill" kind="tinted" onPress={sim.start} />
+        </View>
+      </Section>
+    ) : null
+  }
+  const m = sim.m
+  const last = sim.st?.last
+  return (
+    <Section>
+      <View style={{ padding: 14, gap: 12 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <Chip label={sim.playing ? 'LIVE SIM' : 'PAUSED'} tone="live" />
+          <Txt size={13} tone="muted" style={{ flex: 1 }} numberOfLines={1}>{`${m.teams.join(' v ')} · ${last ? `${last.label} · ${last.desc}` : 'Ready for the first ball'}`}</Txt>
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Button icon={sim.playing ? 'pause.fill' : 'play.fill'} accessibilityLabel={sim.playing ? 'Pause simulation' : 'Resume simulation'} onPress={sim.toggle} />
+          <Segmented options={REPLAY_SPEEDS.map((speed, i) => ({ key: String(i), label: speed.label }))} value={String(sim.speed)} onChange={(v) => sim.setSpeed(Number(v))} style={{ flex: 1 }} />
+          <Button title="Finish" onPress={sim.finish} />
+        </View>
+      </View>
+    </Section>
   )
 }
 
@@ -142,9 +183,14 @@ function Scoreboard({ m: raw, width }: { m: Matchup; width: number }) {
   const week = m.week
   const res = league.results[week]
   const final = !!res
-  const live = !final && week === currentWeek(d, league) && league.played > d.gameweeks[week - 1].mis[0]
-  const sa = liveTeamScore(d, league, m.a, week)
-  const sb = liveTeamScore(d, league, m.b, week)
+  const live = !final && week === currentWeek(d, league) && (league.replayMatch != null || league.played > d.gameweeks[week - 1].mis[0])
+  const simulation = useMatchupSimulation()
+  let sa = liveTeamScore(d, league, m.a, week)
+  let sb = liveTeamScore(d, league, m.b, week)
+  if (simulation?.m && week === simulation.m.gw) {
+    sa = simulatedTeamScore(d, league, m.a, week, simulation.m, simulation.scores)
+    sb = simulatedTeamScore(d, league, m.b, week, simulation.m, simulation.scores)
+  }
   if (res) {
     sa.proj = res.proj[m.a]
     sb.proj = res.proj[m.b]
@@ -164,7 +210,7 @@ function Scoreboard({ m: raw, width }: { m: Matchup; width: number }) {
             <Txt tone="dim" size={11.5}>{team.isUser ? 'You' : team.owner.replace('AI · ', '')} · {recordOf(league, id)}</Txt>
           </View>
         </View>
-        <Txt num weight={700} size={34} style={{ color: mine.score > other.score ? t.c.accent : t.c.hi, marginTop: 6, lineHeight: 38 }}>{fmt(mine.score)}</Txt>
+        <Txt num weight={700} size={34} style={{ color: t.c.hi, marginTop: 6, lineHeight: 38 }}>{fmt(mine.score)}</Txt>
         <Txt tone="dim" size={12}>Proj {fmt(mine.proj, 1)}</Txt>
       </View>
     )
@@ -236,12 +282,23 @@ function Cell({ teamId, pid, week, played, right }: { teamId: number; pid: numbe
   const s = useStyles(styles)
   const d = getData()
   const league = useGameLeague()!
-  if (pid === null) {
+  const simulation = useMatchupSimulation()
+  const wp = pid === null ? null : playerWeek(d, league, teamId, pid, week, played)
+  // Reconstruct the original forecast using only history available before this fixture.
+  const mi = wp?.mi ?? null
+  const baseline = useMemo(() => pid === null || mi === null ? null : matchProjection(d, d.players[pid], mi, mi).total, [d, pid, mi])
+  if (pid === null || wp === null) {
     return <View style={[s.cell, right && s.cellR]}><Txt tone="dim" size={13} style={{ fontStyle: 'italic' }}>Empty</Txt></View>
   }
   const p = d.players[pid]
-  const wp = playerWeek(d, league, teamId, pid, week, played)
   const locked = !league.results[week] && week === currentWeek(d, league) && slotLocked(d, league, teamId, pid, week)
+  const active = simulation?.m && week === simulation.m.gw && wp.mi === simulation.m.mi ? simulation.scores.get(pid) : undefined
+  const completed = mi !== null && mi < played
+  const projection = active?.projection ?? (completed ? baseline : wp.remaining > 0 ? wp.total : null)
+  const delta = active ? active.projection - active.baseline : 0
+  const projectionTone = !active || Math.abs(delta) < 0.5 ? 'dim' : delta > 0 ? 'win' : 'loss'
+  const liveLine = active ? simulation?.st?.lines.get(pid) : undefined
+  const summary = active ? liveLine ? [liveLine.batted ? `${liveLine.r} (${liveLine.b})` : '', liveLine.bb ? `${liveLine.w}/${liveLine.rc}` : ''].filter(Boolean).join(' · ') || 'Yet to contribute' : 'Yet to contribute' : weekSummary(d, p, wp.mi, played)
   const offRoster = !league.results[week] && isOffRoster(league, teamId, pid)
   return (
     <PlayerLink pid={pid} style={{ flex: 1 }}>
@@ -256,12 +313,12 @@ function Cell({ teamId, pid, week, played, right }: { teamId: number; pid: numbe
           <Txt tone="dim" size={10.5} numberOfLines={1}>
             {/* traded away after playing: his points still count for this team this week */}
             {offRoster && <Txt size={10.5} weight={700} tone="gold">Off roster · </Txt>}
-            {weekSummary(d, p, wp.mi, played)}
+            {summary}
           </Txt>
         </View>
         <View style={{ alignItems: right ? 'flex-start' : 'flex-end', minWidth: 34 }}>
-          <Txt num weight={700} size={16} style={{ color: wp.banked >= 25 ? t.c.accent : t.c.text }}>{fmt(wp.banked)}</Txt>
-          {wp.remaining > 0 && <Txt num tone="dim" size={10.5}>{fmt(wp.total, 1)}</Txt>}
+          <Txt num weight={700} size={16} tone="text">{fmt(active?.points ?? wp.banked)}</Txt>
+          {projection !== null && <Txt num tone={projectionTone} size={10.5}>{fmt(projection, 1)}</Txt>}
         </View>
       </View>
     </PlayerLink>

@@ -74,12 +74,12 @@ export function useSettingsButton(): () => NativeStackHeaderItem[] {
  * The Matchup tab's play button: a small menu naming the next IPL match, to watch it live (or, with testing tools,
  * sim it, the week or the season). Keeps the matchup itself at the top of the screen. Null once the season is over.
  */
-export function useNextMatchMenu(): NativeStackHeaderItem | null {
+export function useNextMatchMenu(onSimulate?: () => void): NativeStackHeaderItem | null {
   const t = useTheme()
-  const { next, week } = useApp(useShallow((s) => {
+  const { next, week, replaying } = useApp(useShallow((s) => {
     const l = s.league
     const running = !!l && l.phase === 'season' && l.played < getData().matches.length
-    return { next: running ? l.played : null, week: l ? currentWeek(getData(), l) : 1 }
+    return { next: running ? l.played : null, week: l ? currentWeek(getData(), l) : 1, replaying: l?.replayMatch != null }
   }))
   const testingTools = usePrefs((s) => s.testingTools)
   return useMemo(() => {
@@ -99,8 +99,9 @@ export function useNextMatchMenu(): NativeStackHeaderItem | null {
       menu: {
         title: `Next: ${m.teams[0]} v ${m.teams[1]} · ${fmtDate(m.raw.date)}, ${m.raw.time}`,
         items: [
-          { type: 'action', label: 'Watch live', icon: { type: 'sfSymbol', name: 'play.circle' }, onPress: () => nav.live(next) },
-          ...(!testingTools ? [] : [
+          ...(onSimulate ? [{ type: 'action' as const, label: replaying ? 'Resume simulation' : 'Simulate live', icon: { type: 'sfSymbol' as const, name: 'play.fill' as const }, onPress: onSimulate }] : []),
+          { type: 'action', disabled: replaying, label: 'Watch live', icon: { type: 'sfSymbol', name: 'play.circle' }, onPress: () => nav.live(next) },
+          ...(!testingTools || replaying ? [] : [
             { type: 'action' as const, label: 'Sim match', icon: { type: 'sfSymbol' as const, name: 'forward.end' as const }, onPress: sim(simMatch, 'Match simulated') },
             { type: 'action' as const, label: `Sim rest of ${weekLabel(week)}`, icon: { type: 'sfSymbol' as const, name: 'forward' as const }, onPress: sim(simWeek, `${weekLabel(week)} complete`) },
             { type: 'action' as const, label: 'Sim to playoffs', icon: { type: 'sfSymbol' as const, name: 'flag.checkered' as const }, hidden: week > REG_WEEKS, onPress: sim(() => simTo(REG_WEEKS), 'Regular season complete') },
@@ -109,5 +110,5 @@ export function useNextMatchMenu(): NativeStackHeaderItem | null {
         ],
       },
     }
-  }, [t, next, week, testingTools])
+  }, [t, next, week, testingTools, replaying, onSimulate])
 }

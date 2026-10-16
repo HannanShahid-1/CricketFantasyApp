@@ -9,8 +9,8 @@ import type { Data } from '../src/engine/data'
 import { loadData } from '../src/loadData'
 import { restOfSeason } from '../src/engine/data'
 import {
-  addMode, botTradeVerdict, canFillLineup, chooseDraftPick, countedMatch, createLeague, currentWeek, dropPlayer,
-  freeAgentAdd, isOffRoster, lineupProblem, lockedPick, makePick, optimizeLineup, overLimit, placeClaim, playNext,
+  addMode, beginReplay, botTradeVerdict, canFillLineup, chooseDraftPick, countedMatch, createLeague, currentWeek, dropPlayer,
+  freeAgentAdd, isLocked, isOffRoster, lineupProblem, lockedPick, makePick, optimizeLineup, overLimit, placeClaim, playNext,
   proposeTrade, respondTrade, reviewTrade, ROSTER_SIZE, setMatchPick, slotLocked, SLOTS, teamOnClock,
   TRADE_DEADLINE_WEEK, tradeProblem, weekMatches, withdrawTrade, type League,
 } from '../src/engine/league'
@@ -496,5 +496,32 @@ describe('matchup swap choices', () => {
     expect(swapTargets(d, l, 0, 2, slot)).toEqual([])
     l.phase = 'complete'
     expect(swapTargets(d, l, 0, 1, slot)).toEqual([])
+  })
+})
+
+describe('in-place match simulation', () => {
+  it('locks the live fixture without revealing results, then records it once through the existing engine', () => {
+    const l = drafted()
+    const me = l.teams[0]
+    me.autoSub = false
+    const p = d.pool.find((p) => d.teamMis[p.team][0] === 0 && p.elig.includes('BAT'))!
+    const slot = SLOTS.indexOf('BAT')
+    me.roster = [p.idx, ...me.roster.filter((id) => id !== p.idx)].slice(0, ROSTER_SIZE)
+    me.starters = SLOTS.map(() => null)
+    me.starters[slot] = p.idx
+    const direct = structuredClone(l)
+    expect(beginReplay(d, l)).toBeNull()
+    expect(l.played).toBe(0)
+    expect(l.results).toEqual({})
+    expect(l.replayMatch).toBe(0)
+    expect(isLocked(d, l, p.idx)).toBe(true)
+    expect(slotLocked(d, l, 0, p.idx)).toBe(true)
+    expect(lineupProblem(d, l, 0, SLOTS.map(() => null))).toMatch(/locked/)
+    expect(beginReplay(d, l)).toBeNull()
+    playNext(d, l)
+    playNext(d, direct)
+    expect(l.played).toBe(1)
+    expect(l.replayMatch).toBeNull()
+    expect(l.teams.map((t) => t.starters)).toEqual(direct.teams.map((t) => t.starters))
   })
 })

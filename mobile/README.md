@@ -147,3 +147,19 @@ For Codex or another coding agent:
 Each developer signs and installs on their own Mac and phone. Pushing to GitHub alone does not update an installed
 app; Codex needs access to that developer's local Xcode setup to build and install it. Free Apple signing expires, so
 an expired installation needs a new signed build and reinstall in place.
+
+## In-place fantasy simulation
+
+On Matchup, **Simulate live** replays the next IPL fixture while keeping both fantasy lineups visible. Controls offer
+pause/resume, 1×/4×/20× speeds and Finish. Only the selected counting match contributes to the weekly total; bench
+points remain separate. Actual player scores always use the normal theme text colour. The smaller projection below turns green/red
+against the pre-match expectation while its estimated finish updates. After the fixture ends, that smaller number
+returns to the original pre-match projection in the regular colour. Red/green pace colours apply only while
+the fixture is being simulated; an on-pace estimate also uses the regular colour.
+
+The replay uses `data/matchupSimulation.tsx` and the shared `ui/matchupSimulation.ts` helpers. Estimates use revealed
+innings progress, dismissals and bowling workload, not future results. These are rough estimates. The existing
+scoring engine supplies all actual points. Starting a simulation persists `League.replayMatch`, settles pre-match
+actions and locks the relevant players and match selections. Finishing records the match once through `playNext`.
+The ball cursor is local to the screen: after restarting the app, an unfinished match is paused and can be replayed
+from its beginning with its player locks intact. Watch live remains the separate commentary replay.
