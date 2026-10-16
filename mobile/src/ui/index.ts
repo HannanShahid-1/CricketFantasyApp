@@ -1,6 +1,6 @@
 // The app's design system: import screens' building blocks from '@/ui'.
 export { Chip, Button, Pill, Segmented, type ChipTone } from './controls'
-export { Glass, GlassSection, GlassSlotBadge, sideWash } from './glass'
+export { canLiquid, Glass, GlassSection, GlassSlotBadge, LiquidPager, sideWash } from './glass'
 export { EmptyState, Row, RowIcon, Section, StatGrid, SwitchRow, Tiles } from './list'
 export { GroupCell, GroupHeader, GroupNote } from './grouped'
 export { MatchBalls, PlayerAvatar, PlayerLine, RoleTag, roleColor, SlotBadge, TeamBadge, TeamTag } from './badges'

@@ -11,17 +11,19 @@ interface Prefs {
   testingTools: boolean
   /** Experiment: Liquid Glass cards on the Matchup tab (src/ui/glass.tsx). Off is the original look. */
   glassMatchup: boolean
+  /** Experiment, with glassMatchup: scoreboards that melt together as you swipe (iOS 26 system glass). */
+  liquidSwipe: boolean
 }
 
 const KEY = 'seam-prefs'
-const DEFAULTS: Prefs = { testingTools: true, glassMatchup: false }
+const DEFAULTS: Prefs = { testingTools: true, glassMatchup: false, liquidSwipe: true }
 
 export const usePrefs = create<Prefs & { setPref: <K extends keyof Prefs>(k: K, v: Prefs[K]) => void }>((set, get) => ({
   ...DEFAULTS,
   setPref: (k, v) => {
     set({ [k]: v } as Partial<Prefs>)
-    const { testingTools, glassMatchup } = get()
-    AsyncStorage.setItem(KEY, JSON.stringify({ testingTools, glassMatchup } satisfies Prefs)).catch(() => {})
+    const { testingTools, glassMatchup, liquidSwipe } = get()
+    AsyncStorage.setItem(KEY, JSON.stringify({ testingTools, glassMatchup, liquidSwipe } satisfies Prefs)).catch(() => {})
   },
 }))
 

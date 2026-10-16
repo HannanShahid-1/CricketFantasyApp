@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router'
 import { matchProjection } from '@shared/engine/data'
 import { useMemo, useState } from 'react'
-import { Pressable, ScrollView, useWindowDimensions, View } from 'react-native'
+import { Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native'
 import { useShallow } from 'zustand/react/shallow'
 import {
   currentWeek, isOffRoster, LAST_WEEK, matchupsForWeek, matchupWinner, playerWeek, REG_WEEKS, slotLocked, SLOTS, winProbability,
@@ -21,7 +21,7 @@ import { usePrefs } from '@/data/prefs'
 import { nav } from '@/nav'
 import { alpha, useStyles, useTheme, type Theme } from '@/theme/theme'
 import {
-  Button, Chip, EmptyState, Glass, GlassSection, GlassSlotBadge, Icon, MatchBalls, Meter, PlayerAvatar, PlayerLink, Screen,
+  Button, canLiquid, Chip, EmptyState, Glass, GlassSection, GlassSlotBadge, Icon, LiquidPager, MatchBalls, Meter, PlayerAvatar, PlayerLink, Screen,
   Seam, Section, sideWash, SlotBadge, TeamBadge, Segmented, Txt, useSettingsButton, useNextMatchMenu, useTabTitle,
 } from '@/ui'
 
@@ -146,14 +146,13 @@ function Carousel({ ms, index, onIndex }: { ms: Matchup[]; index: number; onInde
   const t = useTheme()
   const s = useStyles(styles)
   const league = useGameLeague()!
-  const width = useWindowDimensions().width - 32
+  const screen = useWindowDimensions().width
+  const width = screen - 32
   const glass = usePrefs((p) => p.glassMatchup)
+  const liquid = usePrefs((p) => p.liquidSwipe) && glass && canLiquid
+  // glass: pages span the screen with the card inset in each, so cards keep their edges and glow while swiping
+  const page = glass ? screen : width
   const label = (m: Matchup) => (m.a === ME || m.b === ME ? 'Your matchup' : m.label ?? `${league.teams[m.a].name} v ${league.teams[m.b].name}`)
-  const shown = oriented(ms[index])
-  // glass: the shown matchup's two colours glow out from their own sides of the card
-  const glow = glass
-    ? { borderRadius: t.r.lg, boxShadow: `-5px 0 22px ${alpha(t.team(league.teams[shown.a].color), 0.35)}, 5px 0 22px ${alpha(t.team(league.teams[shown.b].color), 0.35)}` }
-    : undefined
   const pager = ms.length > 1 && (
     <>
       <Txt tone={glass ? 'text' : 'muted'} size={13} weight={600} numberOfLines={1}>{label(ms[index])}</Txt>
@@ -166,18 +165,25 @@ function Carousel({ ms, index, onIndex }: { ms: Matchup[]; index: number; onInde
   )
   return (
     <View style={{ gap: glass ? 14 : 8 }}>
-      <View style={glow}>
+      {liquid ? (
+        <LiquidPager count={ms.length} index={index} radius={t.r.lg} onIndex={onIndex}>
+          {(i, w) => <Scoreboard m={ms[i]} width={w} bare />}
+        </LiquidPager>
+      ) : (
       <ScrollView
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        contentOffset={{ x: index * width, y: 0 }}
-        onMomentumScrollEnd={(e) => onIndex(Math.round(e.nativeEvent.contentOffset.x / width))}
-        style={{ borderRadius: t.r.lg }}
+        contentOffset={{ x: index * page, y: 0 }}
+        onMomentumScrollEnd={(e) => onIndex(Math.round(e.nativeEvent.contentOffset.x / page))}
+        style={glass ? s.pagerFull : { borderRadius: t.r.lg }}
+        contentContainerStyle={glass ? { paddingVertical: 24 } : undefined}
       >
-        {ms.map((m, i) => <Scoreboard key={i} m={m} width={width} />)}
+        {ms.map((m, i) => glass
+          ? <View key={i} style={{ width: page, paddingHorizontal: 16 }}><Scoreboard m={m} width={width} /></View>
+          : <Scoreboard key={i} m={m} width={width} />)}
       </ScrollView>
-      </View>
+      )}
       {pager && (glass ? <Glass radius={22} style={s.pagerGlass}>{pager}</Glass> : <View style={{ alignItems: 'center', gap: 5 }}>{pager}</View>)}
     </View>
   )
@@ -186,7 +192,8 @@ function Carousel({ ms, index, onIndex }: { ms: Matchup[]; index: number; onInde
 /** keep your team on the left */
 const oriented = (m: Matchup): Matchup => (m.b === ME ? { ...m, a: m.b, b: m.a } : m)
 
-function Scoreboard({ m: raw, width }: { m: Matchup; width: number }) {
+/** `bare`: only the content and colour wash, for a card that `LiquidPager` provides */
+function Scoreboard({ m: raw, width, bare }: { m: Matchup; width: number; bare?: boolean }) {
   const t = useTheme()
   const s = useStyles(styles)
   const m = oriented(raw)
@@ -250,9 +257,18 @@ function Scoreboard({ m: raw, width }: { m: Matchup; width: number }) {
     </>
   )
   if (!glass) return <View style={[s.board, { width }]}>{body}</View>
-  // each team's colour washes in from its own side, under the glass
-  const wash = sideWash(t.team(league.teams[m.a].color), t.team(league.teams[m.b].color), 0.9)
-  return <Glass radius={t.r.lg} wash={wash} style={[s.boardGlass, { width }]}>{body}</Glass>
+  // each team's colour washes in from its own side, under the glass, and glows out from that side of the card
+  const [ca, cb] = [t.team(league.teams[m.a].color), t.team(league.teams[m.b].color)]
+  if (bare) {
+    return (
+      <View style={[s.boardGlass, { width }]}>
+        <View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderRadius: t.r.lg, experimental_backgroundImage: sideWash(ca, cb, 0.35) }]} />
+        {body}
+      </View>
+    )
+  }
+  const glow = `-5px 0 22px ${alpha(ca, 0.35)}, 5px 0 22px ${alpha(cb, 0.35)}`
+  return <Glass radius={t.r.lg} wash={sideWash(ca, cb, 0.45)} style={[s.boardGlass, { width, boxShadow: glow }]}>{body}</Glass>
 }
 
 function Lineups({ m: raw }: { m: Matchup }) {
@@ -271,16 +287,15 @@ function Lineups({ m: raw }: { m: Matchup }) {
   const bB = bench(m.b, stB)
   const editable = m.a === ME && league.phase === 'season' && week === currentWeek(getData(), league) && !final
   const glass = usePrefs((p) => p.glassMatchup)
-  const Group = glass ? GlassSection : Section
   const Slot = glass ? GlassSlotBadge : SlotBadge
-  // glass: each player's IPL colour comes in from his own side of the row
+  // glass: each player's IPL colour comes in from his own side of the row, under the glass
   const colour = (pid: number | null) => {
     const p = pid === null ? null : d.players[pid]
     const team = p && d.teams[p.team || p.profileTeam || '']
     return team ? t.team(team.color) : null
   }
   const row = (key: string, slot: string, a: number | null, b: number | null, dim = false, i?: number) => (
-    <View key={key} style={[s.mrow, dim && { opacity: 0.7 }, glass && { experimental_backgroundImage: sideWash(colour(a), colour(b), 0.16, 28) }]}>
+    <View key={key} style={[s.mrow, dim && { opacity: 0.7 }]}>
       <Cell teamId={m.a} pid={a} week={week} played={played} right={false} />
       <Pressable
         style={{ width: 50, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
@@ -293,14 +308,18 @@ function Lineups({ m: raw }: { m: Matchup }) {
       <Cell teamId={m.b} pid={b} week={week} played={played} right />
     </View>
   )
+  type RowArgs = readonly [string, string, number | null, number | null, boolean, number | undefined]
+  const group = (title: string, rows: RowArgs[]) => glass ? (
+    <GlassSection title={title} inset={0} washes={rows.map(([, , a, b]) => sideWash(colour(a), colour(b), 0.2, 30))}>
+      {rows.map((r) => row(...r))}
+    </GlassSection>
+  ) : (
+    <Section title={title} inset={0}>{rows.map((r) => row(...r))}</Section>
+  )
   return (
     <>
-      <Group title="Starting XI" inset={0}>
-        {SLOTS.map((slot, i) => row(`s${i}`, slot, stA[i], stB[i], false, i))}
-      </Group>
-      <Group title="Bench" inset={0}>
-        {Array.from({ length: Math.max(bA.length, bB.length) }, (_, i) => row(`b${i}`, 'BN', bA[i] ?? null, bB[i] ?? null, true))}
-      </Group>
+      {group('Starting XI', SLOTS.map((slot, i) => [`s${i}`, slot, stA[i], stB[i], false, i] as const))}
+      {group('Bench', Array.from({ length: Math.max(bA.length, bB.length) }, (_, i) => [`b${i}`, 'BN', bA[i] ?? null, bB[i] ?? null, true, undefined] as const))}
     </>
   )
 }
@@ -356,6 +375,8 @@ function Cell({ teamId, pid, week, played, right }: { teamId: number; pid: numbe
 const styles = (t: Theme) => ({
   board: { paddingHorizontal: 16, paddingVertical: 13, gap: 10, backgroundColor: t.c.feature, borderRadius: t.r.lg },
   boardGlass: { paddingHorizontal: 16, paddingVertical: 13, gap: 10 },
+  // full-bleed pager; the vertical padding (taken back by the margin) leaves room for the cards' glow
+  pagerFull: { marginHorizontal: -16, marginVertical: -24 },
   pagerGlass: { alignSelf: 'center' as const, alignItems: 'center' as const, gap: 6, paddingHorizontal: 22, paddingVertical: 9, maxWidth: '100%' as const },
   mrow: { flexDirection: 'row' as const, alignItems: 'center' as const, minHeight: 58 },
   cell: { flex: 1, flexDirection: 'row' as const, alignItems: 'center' as const, gap: 7, paddingVertical: 7, paddingHorizontal: 10 },

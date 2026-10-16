@@ -6,7 +6,7 @@ import { usePrefs } from '@/data/prefs'
 import { nav } from '@/nav'
 import { THEME_ORDER } from '@/generated/themes'
 import { hasLightMode, themeLooks, useTheme, useThemeStore, type ColorMode, type ThemeId } from '@/theme/theme'
-import { confirm, haptic, Icon, Row, RowIcon, Screen, Section, Segmented, SwitchRow, Txt } from '@/ui'
+import { canLiquid, confirm, haptic, Icon, Row, RowIcon, Screen, Section, Segmented, SwitchRow, Txt } from '@/ui'
 
 const MODES: { key: ColorMode; label: string }[] = [
   { key: 'system', label: 'Automatic' },
@@ -21,6 +21,7 @@ export function SettingsScreen() {
   const mode = useThemeStore((s) => s.mode)
   const testingTools = usePrefs((s) => s.testingTools)
   const glassMatchup = usePrefs((s) => s.glassMatchup)
+  const liquidSwipe = usePrefs((s) => s.liquidSwipe)
   const hasLeague = useApp((s) => s.league !== null)
 
   return (
@@ -66,8 +67,14 @@ export function SettingsScreen() {
           <SwitchRow title="Testing tools" icon="hammer" value={testingTools} onChange={(v) => usePrefs.getState().setPref('testingTools', v)} />
         </Section>
 
-        <Section title="Experiments" footer="Liquid Glass cards on the Matchup tab. Turn it off for the original look.">
+        <Section
+          title="Experiments"
+          footer={`Glass cards on the Matchup tab. Turn it off for the original look.${canLiquid && glassMatchup ? ' Liquid swipe melts the scoreboards together as you swipe between matchups, using iOS glass (a little frosted).' : ''}`}
+        >
           <SwitchRow title="Glass matchup" icon="sparkles" value={glassMatchup} onChange={(v) => usePrefs.getState().setPref('glassMatchup', v)} />
+          {canLiquid && glassMatchup && (
+            <SwitchRow title="Liquid swipe" icon="drop" value={liquidSwipe} onChange={(v) => usePrefs.getState().setPref('liquidSwipe', v)} />
+          )}
         </Section>
 
         <Section>

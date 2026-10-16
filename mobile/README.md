@@ -69,10 +69,14 @@ in screens: `Seam` draws nothing and `Meter` is a plain bar in the other themes,
 `@/ui`. Good/bad pairs (added/dropped players, points won/lost, big/low games) are `win`/`loss`, never accent/`loss`:
 the accent is for emphasis and actions, and in Stitch it is red-ish.
 
-**Glass matchup (experiment).** Settings → Experiments → Glass matchup (off by default) puts the Matchup tab on iOS
-Liquid Glass (`expo-glass-effect`): glass lineup cards where each player's IPL colour comes in from his own side of
-the row (`sideWash`), a scoreboard washed in both teams' colours, and lit slot capsules. Everything glass is in `src/ui/glass.tsx`; the screen swaps `Section`/`SlotBadge` for the glass versions
-when `usePrefs().glassMatchup` is on, and off is the original look. Keep it to the Matchup tab until it's decided.
+**Glass matchup (experiment).** Settings → Experiments → Glass matchup (off by default) puts the Matchup tab on
+clear glass, with no frosting: see-through panes whose edges catch the light. Lineup rows let each player's IPL colour
+come in from his own side under the glass (`sideWash`), the scoreboard is washed in both teams' colours, and slots
+are lit capsules. Everything glass is in `src/ui/glass.tsx`; the screen swaps `Section`/`SlotBadge` for the glass
+versions when `usePrefs().glassMatchup` is on, and off is the original look. With it, **Liquid swipe** (iOS 26+, on by
+default, `usePrefs().liquidSwipe`) swaps the scoreboard pager for `LiquidPager`: system glass cards in a `GlassContainer` that
+slide towards each other with the swipe, melt into one and stretch apart as the next page settles. Keep it to the
+Matchup tab until it's decided.
 
 **Feedback.** `Button` already taps a haptic. Use `haptic.select()` for choices, and `report(err, okMessage)` after
 every store action that can fail (store actions return an error string or null): it plays the right haptic and
