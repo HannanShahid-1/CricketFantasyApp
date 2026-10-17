@@ -198,3 +198,38 @@ There is no push server, so the activity only changes while Seam is open (playin
 changes); it doesn't move on its own in the background. Multiplayer with a server could push updates later. It needs
 an Xcode build (not Expo Go) and iOS Settings → Seam → Live Activities on; the Simulator shows it too. A new week or
 opponent replaces the activity; swiping it away hides it until the matchup changes or Seam restarts.
+
+## Home and saved leagues
+
+Seam opens to Home, with a native glass bar for Home, Activity, Chat and Settings. League cards show the current
+weekly matchup, scores, projections and record. An active replay uses its revealed ball-by-ball scores; the app
+still uses recorded IPL data, not a live online feed. Tap a card to enter the existing league tabs. The house
+button returns to Home.
+
+Creating a league keeps the others on this phone. `src/data/leagues.ts` migrates the existing active save into a
+local library, stores inactive league snapshots and saves before switching. The shared game store still operates
+on one active league; the web app is unchanged. Joining remote leagues needs the planned multiplayer service;
+the Join button explains that limitation. Activity and Chat collect the leagues saved on this phone.
+
+Settings uses the existing global theme store: selecting a theme or colour mode applies to Home, native bars,
+league screens and sheets. Reset deletes only the active league named in Settings. Migration regression tests
+run with `npm test` in `app/`.
+
+Pin favourite leagues from a card’s ellipsis menu. The same menu opens My Team, Matchup, league Chat or Activity.
+Pins are phone preferences stored separately from league data.
+
+Create league first opens the tournament picker (`competitions`). IPL 2026 is the only available adapter and
+continues to the existing setup. BBL, The Hundred, T20 World Cup and ODI World Cup are disabled coming-soon
+options with bundled logos (sources in `assets/competitions/README.md`). Existing saved leagues are IPL leagues.
+No future tournament uses IPL players or scoring as a substitute.
+
+## Local manager profile
+
+The avatar at Home’s top right opens Your Profile: photo, display name, @username and a read-only list of your league names. Open leagues from Home.
+Edit Profile uses the system image-library picker (images only, no camera or microphone). Save copies the chosen
+photo into the app’s documents and stores only its filename, so app-container URL changes do not break the photo.
+Cancel leaves the saved profile unchanged. Failed saves keep the old profile and photo.
+
+`src/data/profile.ts` stores this per-phone profile separately from every league. Usernames are locally validated
+(3–24 letters, digits or underscores) and normalised to lowercase; they are not reserved, checked for uniqueness
+or linked to an online account. Settings continues to control the global theme.

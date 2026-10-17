@@ -20,13 +20,14 @@ function unreadOf(l: League) {
  */
 export default function TabsLayout() {
   const t = useTheme()
+  const leagueId = useApp((s) => s.league?.createdAt)
   const unread = useApp((s) => (s.league ? unreadOf(s.league) : 0))
   // the league chat is the Chat tab's first screen, so the bar stays there; a DM hides it
   const inConversation = useOpenChannel((s) => s.channel !== null && s.channel !== LEAGUE_CHANNEL)
   useChatNotifications()
   const tab = { contentStyle: { backgroundColor: t.c.bg } }
   return (
-    <NativeTabs tintColor={t.c.accent} iconColor={{ default: t.c.muted, selected: t.c.accent }} hidden={inConversation}>
+    <NativeTabs key={leagueId} tintColor={t.c.accent} iconColor={{ default: t.c.muted, selected: t.c.accent }} hidden={inConversation}>
       <NativeTabs.Trigger name="matchup" {...tab}>
         <NativeTabs.Trigger.Label>Matchup</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="sportscourt.fill" md="sports_cricket" />

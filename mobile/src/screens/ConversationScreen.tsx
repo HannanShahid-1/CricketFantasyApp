@@ -211,6 +211,8 @@ function useHeaderOptions(league: League, channel: ChannelId, partner: number | 
       ...common,
       // every conversation: DM a manager from there (unread DMs show on the badge)
       unstable_headerLeftItems: () => [{
+        type: 'button', label: 'All leagues', icon: { type: 'sfSymbol', name: 'house' }, tintColor: t.c.text, onPress: nav.home,
+      }, {
         type: 'button',
         label: 'Messages',
         icon: { type: 'sfSymbol', name: 'bubble.left.and.bubble.right' },

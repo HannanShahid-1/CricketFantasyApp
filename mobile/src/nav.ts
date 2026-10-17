@@ -42,12 +42,20 @@ export const nav = {
   league: (screen: 'playoffs' | 'fixtures' | 'activity' | 'draft-board' | 'scoring') => router.push(`/league/${screen}`),
   /** app settings (sheet) */
   settings: () => router.push('/settings'),
+  profile: () => router.push('/profile'),
+  editProfile: () => router.push('/profile/edit'),
   close: () => (router.canGoBack() ? router.back() : nav.home()),
   /**
    * start from the top: Setup, the draft room or the season, by phase. Use after deleting the league, when the sheet
    * you're in has nothing left to go back to.
    */
-  home: () => router.replace('/'),
+  home: () => router.dismissTo('/home'),
+  createLeague: () => router.push('/competitions'),
+  setupIpl: () => router.replace('/setup'),
+  homeActivity: () => router.navigate('/activity'),
+  preferences: () => router.navigate('/preferences'),
+  enterLeague: () => router.replace(useApp.getState().league?.phase === 'draft' ? '/draft' : '/matchup'),
+  openLeague: (target: 'matchup' | 'team' | 'chat' | 'activity' = 'matchup') => router.push(useApp.getState().league?.phase === 'draft' ? '/draft' : target === 'team' ? '/team' : target === 'chat' ? '/chat' : target === 'activity' ? '/league/activity' : '/matchup'),
 }
 
 /** Parse a numeric route param (`useLocalSearchParams` values are strings). */

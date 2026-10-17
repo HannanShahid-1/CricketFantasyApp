@@ -1,13 +1,16 @@
 import { useRef, useState, type RefObject } from 'react'
 import { ScrollView, StyleSheet, TextInput, View, type ReturnKeyTypeOptions } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ROSTER_SIZE, SLOTS, type LeagueOptions } from '@shared/engine/league'
-import { getData, useApp } from '@shared/store'
+import { createLeague, ROSTER_SIZE, SLOTS, type LeagueOptions } from '@shared/engine/league'
+import { getData } from '@shared/store'
 import {
   DEFAULT_LEAGUE_OPTIONS, DRAFT_SPEEDS, draftSlotLabel, leagueFormat, PICK_TIMERS, setupFeatures, TEAM_COUNTS, type DraftSpeed,
   type SetupFeature,
 } from '@shared/ui/draft'
+import { Stack } from 'expo-router'
 import { quickStartLeague } from '@/data/boot'
+import { addLeague, useLeagues } from '@/data/leagues'
+import { nav } from '@/nav'
 import { usePrefs } from '@/data/prefs'
 import { useStyles, useTheme, type Theme } from '@/theme/theme'
 import { Button, chooseOption, Icon, report, Row, RowIcon, Section, Segmented, type SFSymbol, SlotBadge, Txt } from '@/ui'
@@ -31,7 +34,7 @@ export function SetupScreen() {
   const s = useStyles(styles)
   const d = getData()
   const insets = useSafeAreaInsets()
-  const newLeague = useApp((st) => st.newLeague)
+  const busy = useLeagues((st) => st.busy)
   const testingTools = usePrefs((st) => st.testingTools)
   const [o, setO] = useState<LeagueOptions>(DEFAULT_LEAGUE_OPTIONS)
   const [barHeight, setBarHeight] = useState(0)
@@ -55,15 +58,17 @@ export function SetupScreen() {
       onChoose: (v) => set('draftSlot', v),
     })
 
-  const start = () => newLeague({ ...o, name: o.name.trim(), teamName: o.teamName.trim() })
+  const start = async () => {
+    if (await addLeague(createLeague(d, { ...o, name: o.name.trim(), teamName: o.teamName.trim() }))) nav.enterLeague()
+  }
 
-  const quickStart = () => {
-    quickStartLeague()
-    report(null, 'League ready: the AI drafted every team')
+  const quickStart = async () => {
+    if (await quickStartLeague()) { report(null, 'League ready: the AI drafted every team'); nav.enterLeague() }
   }
 
   return (
     <View style={{ flex: 1, backgroundColor: t.c.bg }}>
+      <Stack.Screen options={{ headerShown: true, title: 'New IPL league', headerLeft: () => <Button title="Cancel" kind="plain" onPress={nav.close} /> }} />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         automaticallyAdjustKeyboardInsets
@@ -159,8 +164,8 @@ export function SetupScreen() {
       <View style={[s.statusBar, { height: insets.top }]} />
 
       <View style={[s.bar, { paddingBottom: Math.max(insets.bottom, 12) }]} onLayout={(e) => setBarHeight(e.nativeEvent.layout.height)}>
-        <Button title="Enter the draft room" kind="filled" size="large" onPress={start} />
-        {testingTools && <Button title="Quick start: the AI drafts for you" kind="plain" size="small" onPress={quickStart} />}
+        <Button title="Enter the draft room" kind="filled" size="large" disabled={busy || !o.name.trim() || !o.teamName.trim()} onPress={start} />
+        {testingTools && <Button title="Quick start: the AI drafts for you" kind="plain" size="small" disabled={busy} onPress={quickStart} />}
       </View>
     </View>
   )

@@ -1,10 +1,12 @@
-import { Stack, type NativeStackHeaderItem } from 'expo-router'
+import { Stack, useIsFocused, type NativeStackHeaderItem } from 'expo-router'
 import { useEffect, useMemo, useState } from 'react'
 import { ActivityIndicator, View } from 'react-native'
 import { useShallow } from 'zustand/react/shallow'
 import { teamOnClock, type League } from '@shared/engine/league'
 import { ME, useApp } from '@shared/store'
 import { aiPickDelay, currentSlot, DRAFT_SPEEDS, picksUntil } from '@shared/ui/draft'
+import { deleteActiveLeague } from '@/data/leagues'
+import { nav } from '@/nav'
 import { useGameLeague } from '@/data/gameLeague'
 import { DraftBoardGrid } from '@/components/draft/DraftBoardGrid'
 import { DraftQueue } from '@/components/draft/DraftQueue'
@@ -30,13 +32,15 @@ function autopick() {
 
 export function DraftScreen() {
   const league = useGameLeague()
-  return league ? <DraftRoom league={league} /> : null
+  useEffect(() => { if (league && league.phase !== 'draft') nav.enterLeague() }, [league?.phase])
+  return league?.phase === 'draft' ? <DraftRoom key={league.createdAt} league={league} /> : null
 }
 
 function DraftRoom({ league }: { league: League }) {
   const t = useTheme()
   const s = useStyles(styles)
   const { draftAuto, setDraftSpeed } = useApp(useShallow((st) => ({ draftAuto: st.draftAuto, setDraftSpeed: st.setDraftSpeed })))
+  const focused = useIsFocused()
   const [paused, setPaused] = useState(false)
   const [autoMe, setAutoMe] = useState(false)
   const [pane, setPane] = useState<Pane>('players')
@@ -50,10 +54,10 @@ function DraftRoom({ league }: { league: League }) {
 
   // AI managers (and auto-draft, for you) pick after a pause that depends on the draft speed
   useEffect(() => {
-    if (paused || onClock === null || (mine && !autoMe)) return
+    if (!focused || paused || onClock === null || (mine && !autoMe)) return
     const id = setTimeout(draftAuto, aiPickDelay(speed))
     return () => clearTimeout(id)
-  }, [paused, onClock, mine, autoMe, made, speed, draftAuto])
+  }, [focused, paused, onClock, mine, autoMe, made, speed, draftAuto])
 
   // your turn: a notification tap, every time you come on the clock
   useEffect(() => {
@@ -96,7 +100,7 @@ function DraftRoom({ league }: { league: League }) {
               type: 'action', label: 'Start over', description: 'Deletes this league', icon: sf('arrow.counterclockwise'), destructive: true,
               onPress: async () => {
                 if (await confirm({ title: 'Start over?', message: 'This deletes the league and its draft.', ok: 'Delete league', destructive: true })) {
-                  useApp.getState().reset()
+                  if (await deleteActiveLeague()) nav.home()
                 }
               },
             },
@@ -113,6 +117,7 @@ function DraftRoom({ league }: { league: League }) {
       headerStyle: { backgroundColor: t.c.bg },
       headerTintColor: t.c.accent,
       headerTitleStyle: { fontFamily: t.font.display(700), color: t.c.text },
+      unstable_headerLeftItems: (): NativeStackHeaderItem[] => [{ type: 'button', label: 'All leagues', icon: sf('house'), onPress: nav.home }],
       unstable_headerRightItems: () => items,
     }
   }, [t, league.name, paused, autoMe, mine, speed, setDraftSpeed])
@@ -127,7 +132,7 @@ function DraftRoom({ league }: { league: League }) {
   return (
     <View style={{ flex: 1, backgroundColor: t.c.bg }}>
       <Stack.Screen options={options} />
-      <OnTheClock league={league} paused={paused} autoMe={autoMe} onResume={() => setPaused(false)} />
+      <OnTheClock league={league} paused={paused || !focused} autoMe={autoMe} onResume={() => setPaused(false)} />
       <DraftTicker league={league} />
       <Segmented options={panes} value={pane} onChange={setPane} style={s.tabs} />
       {/* the pool stays mounted so its filters and scroll position survive a look at the other tabs */}

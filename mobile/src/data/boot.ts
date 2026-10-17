@@ -7,6 +7,9 @@ import type { RawData } from '@shared/engine/types'
 import { getData, setCloner, setData, setStorage, useApp, type KeyValueStorage } from '@shared/store'
 import { loadThemeChoice } from '@/theme/theme'
 import { loadPrefs } from './prefs'
+import { loadHomePrefs } from './homePrefs'
+import { loadProfile } from './profile'
+import { addLeague, loadLeagues } from './leagues'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 const raw = require('../../../app/public/data/ipl.json') as RawData
@@ -57,10 +60,11 @@ export function boot(): Promise<void> {
     setData(d)
     setStorage(batchedStorage())
     setCloner(jsonClone)
-    await Promise.all([useApp.persist.rehydrate(), loadThemeChoice(), loadPrefs()])
+    await Promise.all([useApp.persist.rehydrate(), loadThemeChoice(), loadPrefs(), loadHomePrefs(), loadProfile()])
     const l = useApp.getState().league
     if (l && l.dataVersion !== d.version) useApp.getState().reset()
     else if (l) useApp.setState({ league: upgradeLeague(l) })
+    await loadLeagues(l)
     startBots()
   })()
   return booted
@@ -71,5 +75,5 @@ export function quickStartLeague() {
   const d = getData()
   const l = createLeague(d, { name: 'Floodlights League', teamName: 'Seam Bowlers XI', numTeams: 8, draftSlot: 'random', timer: 0, speed: 'instant' })
   while (teamOnClock(l) !== null) makePick(d, l, chooseDraftPick(d, l, teamOnClock(l)!))
-  useApp.setState({ league: l, viewWeek: null })
+  return addLeague(l)
 }

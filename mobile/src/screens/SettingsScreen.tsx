@@ -3,6 +3,7 @@ import { View } from 'react-native'
 import { getData, useApp } from '@shared/store'
 import { useLaunchIntro } from '@/components/LaunchIntro'
 import { liveActivityProblem } from '@/data/liveActivity'
+import { deleteActiveLeague } from '@/data/leagues'
 import { usePrefs } from '@/data/prefs'
 import { nav } from '@/nav'
 import { THEME_ORDER } from '@/generated/themes'
@@ -16,7 +17,7 @@ const MODES: { key: ColorMode; label: string }[] = [
 ]
 
 /** App settings (sheet from the gear button): theme and light/dark mode, testing tools, reset. */
-export function SettingsScreen() {
+export function SettingsScreen({ embedded = false }: { embedded?: boolean }) {
   const t = useTheme()
   const themeId = useThemeStore((s) => s.id)
   const mode = useThemeStore((s) => s.mode)
@@ -24,14 +25,15 @@ export function SettingsScreen() {
   const glassMatchup = usePrefs((s) => s.glassMatchup)
   const liquidSwipe = usePrefs((s) => s.liquidSwipe)
   const liveActivity = usePrefs((s) => s.liveActivity)
-  const hasLeague = useApp((s) => s.league !== null)
+  const activeName = useApp((s) => s.league?.name)
+  const hasLeague = activeName !== undefined
 
   return (
     <>
       <Stack.Screen
         options={{
           title: 'Settings',
-          unstable_headerRightItems: () => [{ type: 'button', label: 'Done', variant: 'done', onPress: nav.close }],
+          unstable_headerRightItems: embedded ? undefined : () => [{ type: 'button', label: 'Done', variant: 'done', onPress: nav.close }],
         }}
       />
       <Screen>
@@ -111,12 +113,12 @@ export function SettingsScreen() {
           <Section footer="Deletes this league on this phone and starts over.">
             <Row
               title="Reset league"
+              subtitle={activeName}
               destructive
               left={<RowIcon name="arrow.counterclockwise" color={t.c.loss} />}
               onPress={async () => {
                 if (await confirm({ title: 'Reset league?', message: 'This deletes the league and starts over.', ok: 'Reset', destructive: true })) {
-                  useApp.getState().reset()
-                  nav.home()
+                  if (await deleteActiveLeague()) nav.home()
                 }
               }}
             />

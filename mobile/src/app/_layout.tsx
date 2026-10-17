@@ -47,12 +47,12 @@ function App() {
       <StatusBar style={t.dark ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t.c.bg } }}>
         <Stack.Screen name="index" />
+        <Stack.Screen name="(home)" />
         <Stack.Screen name="settings" options={sheet} />
-        {/* no league yet: create one */}
-        <Stack.Protected guard={phase === null}>
-          <Stack.Screen name="setup" />
-        </Stack.Protected>
-        <Stack.Protected guard={phase === 'draft'}>
+        <Stack.Screen name="competitions" options={sheet} />
+        <Stack.Screen name="profile" options={sheet} />
+        <Stack.Screen name="setup" />
+        <Stack.Protected guard={phase !== null}>
           <Stack.Screen name="draft" />
         </Stack.Protected>
         <Stack.Protected guard={phase === 'season' || phase === 'complete'}>

@@ -60,6 +60,8 @@ export function useSettingsButton(): () => NativeStackHeaderItem[] {
   const t = useTheme()
   return useMemo(
     () => () => [{
+      type: 'button', label: 'All leagues', icon: { type: 'sfSymbol', name: 'house' }, tintColor: t.c.text, onPress: nav.home,
+    }, {
       type: 'button',
       label: 'Settings',
       icon: { type: 'sfSymbol', name: 'gearshape' },

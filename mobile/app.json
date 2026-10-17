@@ -33,6 +33,14 @@
           "resizeMode": "contain",
           "backgroundColor": "#dc5f57"
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Choose a photo for your Seam profile.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
       ]
     ],
     "scheme": "seam"
