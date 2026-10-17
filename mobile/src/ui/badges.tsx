@@ -1,10 +1,11 @@
 import { Image } from 'expo-image'
-import { memo, type ReactNode } from 'react'
+import { memo, useEffect, useState, type ReactNode } from 'react'
 import { View } from 'react-native'
 import { ROLE_LABEL, type Data, type Player } from '@shared/engine/data'
 import type { FTeam } from '@shared/engine/league'
 import { getData } from '@shared/store'
 import { initials } from '@shared/ui/format'
+import { profilePhotoUri, useProfile } from '@/data/profile'
 import { THUMBS } from '@/generated/photos'
 import { alpha, useTheme, type Theme } from '@/theme/theme'
 import { Txt } from './text'
@@ -48,12 +49,18 @@ export function TeamTag({ code }: { code: string }) {
   )
 }
 
-/** A fantasy team's profile picture: its emoji on the team colour (muted by the theme). */
+/** A fantasy team's profile picture: its emoji on the team colour (muted by the theme). Your own team shows your
+ *  profile photo instead, once you've set one. */
 export function TeamBadge({ team, size = 40 }: { team: FTeam; size?: number }) {
   const t = useTheme()
+  const photo = useProfile((s) => (team.isUser ? profilePhotoUri(s.profile.photo) : null))
+  const [failed, setFailed] = useState(false)
+  useEffect(() => setFailed(false), [photo])
   return (
-    <View style={{ width: size, height: size, borderRadius: size * 0.28, backgroundColor: t.team(team.color), alignItems: 'center', justifyContent: 'center' }}>
-      <Txt size={size * 0.52} accessibilityLabel={team.name}>{team.avatar}</Txt>
+    <View style={{ width: size, height: size, borderRadius: size * 0.28, overflow: 'hidden', backgroundColor: t.team(team.color), alignItems: 'center', justifyContent: 'center' }}>
+      {photo && !failed
+        ? <Image source={{ uri: photo }} contentFit="cover" style={{ width: size, height: size }} onError={() => setFailed(true)} accessibilityLabel={team.name} />
+        : <Txt size={size * 0.52} accessibilityLabel={team.name}>{team.avatar}</Txt>}
     </View>
   )
 }
