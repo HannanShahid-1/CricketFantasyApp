@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router'
+import { Stack, useLocalSearchParams } from 'expo-router'
 import { matchProjection } from '@shared/engine/data'
 import { memo, useMemo, useState } from 'react'
 import { Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native'
@@ -36,13 +36,15 @@ export function MatchupScreen() {
   const { viewWeek, setViewWeek } = useApp(useShallow((s) => ({ viewWeek: s.viewWeek, setViewWeek: s.setViewWeek })))
   const cur = currentWeek(d, league)
   const week = viewWeek ?? cur
-  const [picked, setPicked] = useState({ week, i: 0 })
+  const { focusTeam, focusWeek, selection } = useLocalSearchParams<{ focusTeam?: string; focusWeek?: string; selection?: string }>()
+  const [picked, setPicked] = useState<{ week: number; i: number; selection?: string }>({ week, i: 0 })
   // your matchup first, then the rest of the league
   const ms = useMemo(
     () => matchupsForWeek(league, week).sort((a, b) => Number(b.a === ME || b.b === ME) - Number(a.a === ME || a.b === ME)),
     [league, week],
   )
-  const index = picked.week === week ? Math.min(picked.i, Math.max(0, ms.length - 1)) : 0
+  const requestedIndex = focusTeam === undefined || Number(focusWeek) !== week ? 0 : Math.max(0, ms.findIndex((m) => m.a === Number(focusTeam) || m.b === Number(focusTeam)))
+  const index = picked.week === week && picked.selection === selection ? Math.min(picked.i, Math.max(0, ms.length - 1)) : requestedIndex
   const recap = useMemo(() => weekRecap(d, league, week), [d, league, week])
   const g = d.gameweeks[week - 1]
   // the play button (next match: watch live / sim) sits left of "…"
@@ -65,7 +67,7 @@ export function MatchupScreen() {
           <Txt tone="muted" size={14}>
             {fmtDate(g.start, false)} – {fmtDate(g.end, false)} · {week === cur && league.phase === 'season' ? `${playedIn} of ${g.mis.length} IPL matches played` : `${g.mis.length} IPL matches`}
           </Txt>
-          <WeekPills league={league} week={week} onChange={(w) => { if (simulation.m) return useApp.getState().notify('Finish the current match before switching weeks.', 'info'); setViewWeek(w); setPicked({ week: w, i: 0 }) }} />
+          <WeekPills league={league} week={week} onChange={(w) => { if (simulation.m) return useApp.getState().notify('Finish the current match before switching weeks.', 'info'); setViewWeek(w); setPicked({ week: w, i: 0, selection }) }} />
         </View>
         {league.champion !== null && week === LAST_WEEK && <ChampionCard team={league.teams[league.champion]} />}
         {ms.length === 0 ? (
@@ -77,7 +79,7 @@ export function MatchupScreen() {
           />
         ) : (
           <>
-            <Carousel key={week} ms={ms} index={index} onIndex={(i) => setPicked({ week, i })} />
+            <Carousel key={week} ms={ms} index={index} onIndex={(i) => setPicked({ week, i, selection })} />
             <Lineups m={ms[index]} />
           </>
         )}

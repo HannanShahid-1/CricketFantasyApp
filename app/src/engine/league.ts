@@ -285,7 +285,7 @@ function needs(d: Data, roster: number[]) {
   return { wk, bat, bowl, needWk: Math.max(0, 1 - wk), needBat: Math.max(0, 5 - bat), needBowl: Math.max(0, 5 - bowl) }
 }
 
-export function chooseDraftPick(d: Data, l: League, teamId: number, opts: { useQueue?: boolean; noise?: number } = {}): number {
+export function chooseDraftPick(d: Data, l: League, teamId: number, opts: { useQueue?: boolean; noise?: number; value?: (p: Player) => number } = {}): number {
   const team = l.teams[teamId]
   const taken = draftedSet(l)
   const avail = d.pool.filter((p) => !taken.has(p.idx))
@@ -311,7 +311,7 @@ export function chooseDraftPick(d: Data, l: League, teamId: number, opts: { useQ
   let bestV = -Infinity
   for (const p of avail) {
     if (!fits(p)) continue
-    let v = preseasonValue(p)
+    let v = opts.value ? opts.value(p) : preseasonValue(p)
     const persona = team.persona
     if (persona === 'batting' && (p.role === 'BAT' || p.role === 'WK' || p.role === 'ARB')) v *= 1.12
     if (persona === 'bowling' && (p.role === 'BOWL' || p.role === 'ARW')) v *= 1.12

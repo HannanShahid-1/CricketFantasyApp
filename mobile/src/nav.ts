@@ -38,8 +38,13 @@ export const nav = {
     useApp.getState().setViewWeek(week)
     router.navigate('/matchup')
   },
+  /** Open the selected league overview card, rather than always opening your own matchup. */
+  leagueMatchup: (week: number, team: number) => {
+    useApp.getState().setViewWeek(week)
+    router.navigate({ pathname: '/matchup', params: { focusTeam: String(team), focusWeek: String(week), selection: String(Date.now()) } })
+  },
   /** a screen inside the League tab */
-  league: (screen: 'playoffs' | 'fixtures' | 'activity' | 'draft-board' | 'scoring') => router.push(`/league/${screen}`),
+  league: (screen: 'playoffs' | 'fixtures' | 'activity' | 'draft-board' | 'scoring') => screen === 'draft-board' ? router.push('/draft-review') : router.push(`/league/${screen}`),
   /** app settings (sheet) */
   settings: () => router.push('/settings'),
   profile: () => router.push('/profile'),

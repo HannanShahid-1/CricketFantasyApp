@@ -39,6 +39,21 @@ export const alpha = (c: string, pct: number): string => {
   return css([r, g, b, a * pct])
 }
 
+/** A bright, saturated fill that retains a theme colour's hue, for compact draft tiles. */
+export const vivid = (c: string): string => {
+  const [rr, gg, bb] = parse(c)
+  const [r, g, b] = [rr / 255, gg / 255, bb / 255]
+  const hi = Math.max(r, g, b), lo = Math.min(r, g, b), delta = hi - lo
+  const hue = delta === 0 ? 0 : hi === r ? ((g - b) / delta + 6) % 6 : hi === g ? (b - r) / delta + 2 : (r - g) / delta + 4
+  // Lavender needs a lighter fill than mint/gold/blue for equally clear dark lettering.
+  const purple = hue >= 4 && hue < 5.5
+  const lightness = purple ? 0.79 : 0.71, saturation = 0.9
+  const chroma = (1 - Math.abs(2 * lightness - 1)) * saturation
+  const x = chroma * (1 - Math.abs(hue % 2 - 1)), m = lightness - chroma / 2
+  const channels = hue < 1 ? [chroma, x, 0] : hue < 2 ? [x, chroma, 0] : hue < 3 ? [0, chroma, x] : hue < 4 ? [0, x, chroma] : hue < 5 ? [x, 0, chroma] : [chroma, 0, x]
+  return css([(channels[0] + m) * 255, (channels[1] + m) * 255, (channels[2] + m) * 255, 1])
+}
+
 /** `color-mix(in srgb, a pct, b)` */
 export const mix = (a: string, b: string, pct: number): string => {
   const x = parse(a)

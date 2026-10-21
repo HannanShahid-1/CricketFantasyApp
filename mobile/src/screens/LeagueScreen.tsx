@@ -2,7 +2,7 @@ import { memo, useCallback, useMemo, useState } from 'react'
 import { LayoutAnimation, Pressable, View } from 'react-native'
 import { dmChannel } from '@shared/engine/chat'
 import {
-  currentWeek, managerName, PERSONA_LABEL, REG_WEEKS, TRADE_DEADLINE_WEEK, type FTeam, type League, type StandingRow,
+  currentWeek, managerName, REG_WEEKS, TRADE_DEADLINE_WEEK, type FTeam, type League, type StandingRow,
 } from '@shared/engine/league'
 import { fmt } from '@shared/engine/scoring'
 import { getData, ME } from '@shared/store'
@@ -11,22 +11,24 @@ import { weeklyResults, type WeekCell } from '@shared/ui/weeklyResults'
 import { useGameLeague } from '@/data/gameLeague'
 import { recordOf, standingsOf } from '@/data/derived'
 import { nav } from '@/nav'
+import { LeagueMatchups, LeagueActivity, StandingsHeader } from '@/components/league/LeagueOverview'
+import { useProfile } from '@/data/profile'
 import { alpha, useStyles, useTheme, type Theme } from '@/theme/theme'
 import { Button, haptic, Icon, Row, RowIcon, Screen, Section, TeamBadge, Txt, type Tone } from '@/ui'
 
-// League tab: the standings (playoff spots first; tap a team for its full record), the week-by-week results grid,
-// and links to the rest of the league. Mirrors the web's LeagueView.
+// League overview: matchups, standings and recent activity. Team details and weekly results stay available.
 
 /** the top four after the regular season play the semifinals */
 const PLAYOFF_SPOTS = 4
 /** where a standings row's text starts: padding + rank + gap + badge + gap (separators line up with it) */
-const TEXT_INSET = 16 + 20 + 10 + 36 + 12
+const TEXT_INSET = 12 + 27 + 6 + 26 + 6
 
 export function LeagueScreen() {
   const t = useTheme()
   const d = getData()
   const league = useGameLeague()!
   const rows = standingsOf(league)
+  const [details, setDetails] = useState(false)
   const [open, setOpen] = useState<number | null>(null)
   const toggle = useCallback((id: number) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
@@ -42,8 +44,9 @@ export function LeagueScreen() {
   )
 
   return (
-    <Screen>
+    <Screen gap={16}>
       <Txt tone="muted" size={14}>{league.name} · {league.numTeams} teams · {status}</Txt>
+      <LeagueMatchups league={league} rows={rows} />
       {champ && (
         <Section>
           <Row
@@ -56,21 +59,19 @@ export function LeagueScreen() {
           />
         </Section>
       )}
-      <Section
-        title={seeded ? 'Playoff teams' : 'Playoff spots'}
-        inset={TEXT_INSET}
-        footer={seeded ? 'Seeded 1–4 for the semifinals.' : `The top ${PLAYOFF_SPOTS} after ${weekLabel(REG_WEEKS)} play the semifinals.`}
-      >
-        {rows.slice(0, PLAYOFF_SPOTS).map((r, i) => standing(r, i + 1))}
-      </Section>
-      <Section
-        title={seeded ? 'Consolation bracket' : 'Chasing the playoffs'}
-        inset={TEXT_INSET}
-        footer="Records count head-to-head games plus a weekly game against the league median. Tap a team for its full record."
-      >
-        {rows.slice(PLAYOFF_SPOTS).map((r, i) => standing(r, i + PLAYOFF_SPOTS + 1))}
-      </Section>
-      <WeeklyResults league={league} rows={rows} />
+      <View style={{ gap: 6 }}>
+        <StandingsHeader details={details} onDetails={() => { haptic.select(); setDetails((v) => !v) }} />
+        <Section inset={TEXT_INSET}>
+          <View style={{ flexDirection: 'row', paddingHorizontal: 12, paddingVertical: 7, gap: 6 }}>
+            <Txt up size={9} tone="dim" numberOfLines={1} adjustsFontSizeToFit style={{ width: 27 }}>Rank</Txt>
+            <Txt up size={9} tone="dim" style={{ flex: 1 }}>Team</Txt>
+            {['Waiver', 'PF', 'PA'].map((label) => <Txt key={label} up size={9} tone="dim" style={{ width: 48, textAlign: 'right' }}>{label}</Txt>)}
+          </View>
+          {rows.map((r, i) => <View key={r.teamId} style={i === PLAYOFF_SPOTS ? { borderTopWidth: 1, borderTopColor: t.c.accent } : undefined}>{standing(r, i + 1)}</View>)}
+        </Section>
+        {details && <WeeklyResults league={league} rows={rows} />}
+      </View>
+      <LeagueActivity league={league} />
       <Section title="More" inset={58}>
         <Row
           title="Playoffs"
@@ -115,29 +116,30 @@ export function LeagueScreen() {
 const TeamRow = memo(function TeamRow({ rank, r, open, onToggle }: {
   rank: number; r: StandingRow; open: boolean; onToggle: (teamId: number) => void
 }) {
-  const t = useTheme()
   const s = useStyles(styles)
   const league = useGameLeague()!
   const team = league.teams[r.teamId]
+  const username = useProfile((p) => p.profile.username)
   return (
     <View style={team.isUser && s.mine}>
-      <Row
-        onPress={() => onToggle(team.id)}
-        left={
-          <View style={s.lead}>
-            <Txt num weight={700} size={15} style={[s.rank, { color: rank <= PLAYOFF_SPOTS ? t.c.accent : t.c.dim }]}>{rank}</Txt>
-            <TeamBadge team={team} size={36} />
+      <Pressable onPress={() => onToggle(team.id)} accessibilityRole="button" accessibilityLabel={`${rank}. ${team.name}, ${recordOf(league, team.id)}. Show team details`} accessibilityState={{ expanded: open }} style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, gap: 6 }, pressed && { opacity: 0.65 }]}>
+        <Txt num weight={700} size={13} tone="muted" style={{ width: 27, textAlign: 'center' }}>{rank}</Txt>
+        <TeamBadge team={team} size={26} />
+        <View style={{ flex: 1, minWidth: 0, gap: 1 }}>
+          <Txt weight={700} size={12.5} tone={team.isUser ? 'accent' : 'text'} numberOfLines={2}>{team.name}</Txt>
+          <Txt size={10} tone="dim" numberOfLines={1}>{team.isUser && username ? `@${username}` : managerName(team)}</Txt>
+          <View style={{ flexDirection: 'row', gap: 4, alignItems: 'center' }}>
+            <Txt num weight={600} size={11} tone="muted">{recordOf(league, team.id)}</Txt>
+            {r.streak && <Txt size={10} tone={r.streak.startsWith('W') ? 'win' : 'loss'}>{r.streak.startsWith('W') ? '▲' : '▼'} {r.streak.slice(1)}{r.streak[0]}</Txt>}
           </View>
-        }
-        title={<Txt display weight={700} size={16} numberOfLines={1}>{team.name}</Txt>}
-        subtitle={team.isUser ? 'You' : `${managerName(team)} · ${PERSONA_LABEL[team.persona]}`}
-        right={
-          <View style={{ alignItems: 'flex-end', gap: 1 }}>
-            <Txt num weight={700} size={17}>{recordOf(league, team.id)}</Txt>
-            <Txt num size={12} tone="dim">{fmt(r.pf, 1)} PF</Txt>
-          </View>
-        }
-      />
+        </View>
+        <View style={{ width: 48, alignItems: 'flex-end', gap: 2 }}>
+          <Txt num size={11} tone="muted">${team.faab}</Txt>
+          <Txt num size={9} tone="dim">#{league.waiverOrder.indexOf(team.id) + 1}</Txt>
+        </View>
+        <Txt num size={11} tone="muted" style={{ width: 48, textAlign: 'right' }}>{fmt(r.pf, 1)}</Txt>
+        <Txt num size={11} tone="muted" style={{ width: 48, textAlign: 'right' }}>{fmt(r.pa, 1)}</Txt>
+      </Pressable>
       {open && <TeamDetail team={team} r={r} />}
     </View>
   )

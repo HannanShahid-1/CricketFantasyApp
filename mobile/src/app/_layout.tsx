@@ -54,6 +54,7 @@ function App() {
         <Stack.Screen name="setup" />
         <Stack.Protected guard={phase !== null}>
           <Stack.Screen name="draft" />
+          <Stack.Screen name="draft-review" />
         </Stack.Protected>
         <Stack.Protected guard={phase === 'season' || phase === 'complete'}>
           <Stack.Screen name="(tabs)" />

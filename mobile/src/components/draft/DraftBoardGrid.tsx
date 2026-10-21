@@ -3,16 +3,16 @@ import { ScrollView, View } from 'react-native'
 import type { League } from '@shared/engine/league'
 import { getData, ME } from '@shared/store'
 import { currentSlot, draftBoard } from '@shared/ui/draft'
-import { alpha, useStyles, useTheme, type Theme } from '@/theme/theme'
-import { PlayerLink, RoleTag, roleColor, TeamBadge, Txt } from '@/ui'
+import { alpha, vivid, useStyles, useTheme, type Theme } from '@/theme/theme'
+import { PlayerLink, roleColor, TeamBadge, Txt } from '@/ui'
 
 // The draft board as the classic grid: a column per team in draft order, a row per round. It scrolls both ways, the
 // team header stays pinned, and it opens on the round being drafted. Tap a pick for the player's card.
 
-const CW = 96
-const RH = 58
-const GAP = 4
-const HEADER = 50
+const CW = 80
+const RH = 50
+const GAP = 3
+const HEADER = 37
 
 export function DraftBoardGrid({ league }: { league: League }) {
   const s = useStyles(styles)
@@ -30,15 +30,8 @@ export function DraftBoardGrid({ league }: { league: League }) {
   return (
     <View style={{ flex: 1 }} onLayout={(e) => setHeight(e.nativeEvent.layout.height)}>
       {height > 0 && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentOffset={{ x: start.x, y: 0 }} contentContainerStyle={{ paddingHorizontal: 16 }}>
-          <ScrollView
-            style={{ width, height }}
-            stickyHeaderIndices={[0]}
-            contentOffset={{ x: 0, y: start.y }}
-            contentInsetAdjustmentBehavior="automatic"
-            contentContainerStyle={{ paddingBottom: 24, gap: GAP }}
-            showsVerticalScrollIndicator={false}
-          >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentOffset={{ x: start.x, y: 0 }} contentContainerStyle={{ paddingHorizontal: 6 }}>
+          <View style={{ width, height }}>
             <View style={s.header}>
               {order.map((tid) => {
                 const team = league.teams[tid]
@@ -52,6 +45,7 @@ export function DraftBoardGrid({ league }: { league: League }) {
                 )
               })}
             </View>
+            <ScrollView style={{ flex: 1 }} contentOffset={{ x: 0, y: start.y }} contentContainerStyle={{ paddingBottom: 12, gap: GAP }} showsVerticalScrollIndicator={false}>
             {rows.map((row, r) => (
               <View key={r} style={s.row}>
                 {row.map((pk, c) => {
@@ -64,19 +58,21 @@ export function DraftBoardGrid({ league }: { league: League }) {
                       label={`${r + 1}.${String(pick).padStart(2, '0')}`}
                       mine={tid === ME}
                       current={!!cur && cur.round === r + 1 && cur.teamId === tid}
+                      arrow={c === (r % 2 === 0 ? order.length - 1 : 0) ? '↓' : r % 2 === 0 ? '→' : '←'}
                     />
                   )
                 })}
               </View>
             ))}
-          </ScrollView>
+            </ScrollView>
+          </View>
         </ScrollView>
       )}
     </View>
   )
 }
 
-const Cell = memo(function Cell({ pid, label, mine, current }: { pid: number | null; label: string; mine: boolean; current: boolean }) {
+const Cell = memo(function Cell({ pid, label, mine, current, arrow }: { pid: number | null; label: string; mine: boolean; current: boolean; arrow: string }) {
   const t = useTheme()
   const s = useStyles(styles)
   if (pid === null) {
@@ -89,14 +85,18 @@ const Cell = memo(function Cell({ pid, label, mine, current }: { pid: number | n
   }
   const p = getData().players[pid]
   const color = roleColor(t, p.role)
+  const background = vivid(color)
   return (
-    <PlayerLink pid={pid} style={{ ...s.cell, backgroundColor: alpha(color, mine ? 0.24 : 0.12), borderColor: mine ? alpha(t.c.accent, 0.6) : alpha(color, 0.25) }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-        <Txt num size={10} tone="dim">{label}</Txt>
-        <RoleTag p={p} />
+    <PlayerLink pid={pid} style={{ ...s.cell, backgroundColor: background, borderColor: mine ? t.c.accent : background }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 3 }}>
+        <Txt size={7.5} weight={700} numberOfLines={1} style={{ color: t.c.ink, flexShrink: 1 }}>{p.role} · {p.team}</Txt>
+        <Txt num size={8} weight={700} style={{ color: t.c.ink }}>{label}</Txt>
       </View>
-      <Txt size={12.5} weight={700} numberOfLines={1}>{p.name}</Txt>
-      <Txt size={10} tone="muted">{p.team}</Txt>
+      <View style={{ paddingRight: 9 }}>
+        <Txt size={9} weight={600} numberOfLines={1} adjustsFontSizeToFit style={{ color: t.c.ink }}>{p.fullName.includes(' ') ? p.fullName.slice(0, p.fullName.lastIndexOf(' ')) : ''}</Txt>
+        <Txt size={11} weight={700} numberOfLines={1} adjustsFontSizeToFit style={{ color: t.c.ink }}>{p.fullName.slice(p.fullName.lastIndexOf(' ') + 1)}</Txt>
+      </View>
+      <Txt size={11} style={{ color: t.c.ink, position: 'absolute', right: 4, bottom: 1 }}>{arrow}</Txt>
     </PlayerLink>
   )
 })
@@ -105,7 +105,7 @@ const styles = (t: Theme) => ({
   header: { flexDirection: 'row' as const, gap: GAP, height: HEADER, alignItems: 'center' as const, backgroundColor: t.c.bg },
   head: { width: CW, flexDirection: 'row' as const, alignItems: 'center' as const, gap: 6 },
   row: { flexDirection: 'row' as const, gap: GAP },
-  cell: { width: CW, height: RH, borderRadius: t.r.sm, paddingHorizontal: 7, paddingVertical: 6, justifyContent: 'space-between' as const, borderWidth: 1 },
+  cell: { width: CW, height: RH, borderRadius: t.r.sm, paddingHorizontal: 5, paddingVertical: 4, justifyContent: 'space-between' as const, borderWidth: 1 },
   empty: { alignItems: 'center' as const, justifyContent: 'center' as const, gap: 2, borderColor: t.c.line2, borderStyle: 'dashed' as const },
   emptyMine: { backgroundColor: alpha(t.c.accent, 0.05) },
   current: { borderStyle: 'solid' as const, borderColor: t.c.accent, backgroundColor: alpha(t.c.accent, 0.1) },

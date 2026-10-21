@@ -233,3 +233,31 @@ Cancel leaves the saved profile unchanged. Failed saves keep the old profile and
 `src/data/profile.ts` stores this per-phone profile separately from every league. Usernames are locally validated
 (3–24 letters, digits or underscores) and normalised to lowercase; they are not reserved, checked for uniqueness
 or linked to an online account. Settings continues to control the global theme.
+
+## League overview
+
+The mobile League tab shows weekly matchup cards, standings and the four latest transactions. Week arrows stay
+within the season; tapping a card opens that pairing in Matchup. Cards use the existing score/projection/win-odds
+helpers, including the active simulation when present and frozen projections for completed weeks.
+
+Standings retain the engine's combined head-to-head/median record and actual head-to-head streak, FAAB, waiver
+priority, PF and PA. The accent divider marks the top four playoff places; your team has an accent background.
+Tap a team for its existing details, or Details for the weekly results grid. Playoffs opens the existing bracket.
+Activity uses real transaction data and gameweek labels (transaction records do not store wall-clock timestamps).
+No league rules, saves or web screens change.
+
+## Draft room and retrospective rankings
+
+The mobile draft keeps the compact snake grid visible above a resizable Players / Queue / Team / Chat panel.
+Tap the handle to expand or collapse it. Role colours come from the active theme. Team headers stay above the
+vertically scrolling rounds; horizontal scrolling moves both together. Draft review opens full-screen from League.
+
+At the owner's request, mobile draft ratings use completed IPL 2026 results, including all matches supplied in
+`raw.seasons[raw.simSeason]`, even before the replay begins. This is deliberately a retrospective model. The player
+list shows actual 2025 and 2026 FPTS totals and projected **PPG**, not a season-total projection or external ADP.
+`app/src/ui/draftRankings.ts` applies the app's scoring, shrinks 2026 PPG toward each role's baseline using three
+prior appearances, then discounts limited playing time for draft rank. No 2026 appearances uses the role baseline
+and a conservative availability weight; absent actual-season totals display a dash. Estimated round is rank divided
+by league size, rounded up. Remaining players stay ordered best-first rather than hiding an unexpectedly available
+high-ranked player. Mobile autopicks use that valuation with the engine's existing queue, roster and persona rules.
+Web draft defaults and in-season player projections remain unchanged.

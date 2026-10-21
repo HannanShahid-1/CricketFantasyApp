@@ -1,14 +1,15 @@
 import { memo, useCallback, useMemo, useState } from 'react'
 import { FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import type { Player } from '@shared/engine/data'
-import { draftedSet, preseasonValue, type League } from '@shared/engine/league'
+import { draftedSet, type League } from '@shared/engine/league'
 import { fmt } from '@shared/engine/scoring'
 import { getData, ME, useApp } from '@shared/store'
-import { availablePool, canDraft, rankedPool } from '@shared/ui/draft'
+import { availablePool, canDraft, currentSlot } from '@shared/ui/draft'
+import { draftRating, draftRatings, estimatedRound } from '@shared/ui/draftRankings'
 import type { RoleFilter } from '@shared/ui/playerList'
 import { RolePills } from '@/components/RolePills'
 import { useStyles, useTheme, type Theme } from '@/theme/theme'
-import { Button, chooseOption, EmptyState, haptic, Icon, Pill, PlayerLine, PlayerLink, SearchField, Txt } from '@/ui'
+import { Button, chooseOption, EmptyState, haptic, Icon, Pill, PlayerAvatar, PlayerLink, SearchField, Txt } from '@/ui'
 
 // The draft room's player pool: every undrafted player best first by preseason value, filtered by role, IPL team and
 // name. Rows are memoised on plain values, so a pick only re-renders the rows it changes.
@@ -28,8 +29,8 @@ export function toggleQueued(pid: number) {
 /** separators start under the player's name: row padding + rank + gap + avatar + gap */
 const INSET = 8 + 24 + 8 + 36 + 12
 /** the star and Draft button after the numbers, so the Proj heading lines up: star + gap + button + gap */
-const DRAFT_W = 62
-const TRAIL = 30 + 8 + DRAFT_W + 8
+const DRAFT_W = 48
+const TRAIL = 26 + 6 + DRAFT_W + 6
 
 export function PlayerPool({ league, canPick, hidden }: { league: League; canPick: boolean; hidden?: boolean }) {
   const t = useTheme()
@@ -39,9 +40,10 @@ export function PlayerPool({ league, canPick, hidden }: { league: League; canPic
   const [team, setTeam] = useState('ALL')
   const [q, setQ] = useState('')
   const taken = useMemo(() => draftedSet(league), [league])
-  const pool = useMemo(() => availablePool(getData(), taken, { role, team, q }), [taken, role, team, q])
+  const ratings = draftRatings(d)
+  const pool = useMemo(() => availablePool(d, taken, { role, team, q }).sort((a, b) => ratings.get(a.idx)!.rank - ratings.get(b.idx)!.rank), [d, ratings, taken, role, team, q])
   const queued = useMemo(() => new Set(league.draft.queue), [league])
-  const { rank } = rankedPool(d)
+  const round = currentSlot(league)?.round
   const filtered = role !== 'ALL' || team !== 'ALL' || q.trim() !== ''
 
   const pickTeam = () =>
@@ -56,15 +58,15 @@ export function PlayerPool({ league, canPick, hidden }: { league: League; canPic
   const last = pool.length - 1
   const renderItem = useCallback(
     ({ item, index }: { item: Player; index: number }) => (
-      <PoolRow p={item} rank={rank.get(item.idx)!} queued={queued.has(item.idx)} canPick={canPick} first={index === 0} last={index === last} />
+      <PoolRow p={item} rank={ratings.get(item.idx)!.rank} teams={league.numTeams} queued={queued.has(item.idx)} canPick={canPick} first={index === 0} last={index === last} />
     ),
-    [rank, queued, canPick, last],
+    [ratings, queued, canPick, last, league.numTeams],
   )
 
   return (
     <View style={[{ flex: 1 }, hidden && { display: 'none' }]}>
       <View style={s.filters}>
-        <SearchField value={q} onChange={setQ} placeholder="Search players" style={{ marginHorizontal: 16 }} />
+        <SearchField value={q} onChange={setQ} placeholder="Search players" style={{ marginHorizontal: 8 }} />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 6, paddingHorizontal: 16 }}>
           <RolePills value={role} onChange={setRole} />
           <Pill
@@ -90,19 +92,12 @@ export function PlayerPool({ league, canPick, hidden }: { league: League; canPic
         ListHeaderComponent={
           pool.length ? (
             <View style={s.listHead}>
-              <Txt up size={12} weight={600} tone="muted" style={{ flex: 1 }}>{filtered ? 'Matching' : 'Available'} · {pool.length}</Txt>
-              <Txt up size={12} weight={600} tone="muted">Proj</Txt>
+              <Txt up size={10} weight={600} tone="muted" style={{ flex: 1 }}>{filtered ? 'Matching' : round ? `Round ${round}` : 'Available'} · {pool.length}</Txt>
+              {['2025', '2026', 'PPG'].map((year) => <Txt key={year} up size={9} tone="dim" style={{ width: 37, textAlign: 'right' }}>{year}</Txt>)}
             </View>
           ) : null
         }
-        ListFooterComponent={
-          pool.length ? (
-            <Txt size={12.5} tone="dim" style={s.footer}>
-              Ranked by Proj: 14 matches at his {Number(d.raw.simSeason) - 1} points per game (blended with his role's
-              average), scaled by how often he played. Star a player to queue him; autopick takes from your queue first.
-            </Txt>
-          ) : null
-        }
+        ListFooterComponent={<Txt size={10} tone="dim" style={s.footer}>2025/2026 actual FPTS · PPG is a 2026-based estimate · R is estimated round.</Txt>}
         ListEmptyComponent={
           <EmptyState
             icon="magnifyingglass"
@@ -116,37 +111,22 @@ export function PlayerPool({ league, canPick, hidden }: { league: League; canPic
   )
 }
 
-const PoolRow = memo(function PoolRow({ p, rank, queued, canPick, first, last }: {
-  p: Player; rank: number; queued: boolean; canPick: boolean; first: boolean; last: boolean
+const PoolRow = memo(function PoolRow({ p, rank, teams, queued, canPick, first, last }: {
+  p: Player; rank: number; teams: number; queued: boolean; canPick: boolean; first: boolean; last: boolean
 }) {
   const t = useTheme()
   const s = useStyles(styles)
-  const played = p.s25.apps > 0
+  const rating = draftRating(getData(), p)
   return (
     <View style={[s.row, first && s.first, last && s.last]}>
-      <Txt num size={12} tone="dim" style={s.rank}>{rank}</Txt>
-      <PlayerLink pid={p.idx} style={s.link}>
-        <PlayerLine
-          p={p}
-          sub={played ? `${p.s25.apps} GP` : 'New'}
-          right={
-            <View style={s.stat}>
-              <Txt num weight={700} size={15} tone="accent">{fmt(preseasonValue(p), 0)}</Txt>
-              <Txt num size={10.5} tone="dim">{played ? `${fmt(p.s25.avg, 1)}/g` : '–'}</Txt>
-            </View>
-          }
-        />
+      <Txt num size={10} tone="dim" style={s.rank}>{rank}</Txt>
+      <PlayerLink pid={p.idx} style={{ flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+        <PlayerAvatar p={p} size={25} />
+        <View style={{ flex: 1, minWidth: 0, gap: 2 }}><Txt size={12} weight={700} numberOfLines={1}>{p.name}</Txt><Txt size={9} tone="muted" numberOfLines={1}>{p.role} · {p.team} · R{estimatedRound(rank, teams)}</Txt></View>
       </PlayerLink>
-      <Pressable
-        hitSlop={8}
-        onPress={() => toggleQueued(p.idx)}
-        accessibilityRole="button"
-        accessibilityLabel={queued ? `Remove ${p.name} from your queue` : `Queue ${p.name}`}
-        style={({ pressed }) => [s.star, pressed && { opacity: 0.5 }]}
-      >
-        <Icon name={queued ? 'star.fill' : 'star'} size={19} color={queued ? t.c.gold : t.c.dim} />
-      </Pressable>
-      <Button title="Draft" kind="filled" size="small" disabled={!canPick} onPress={() => draftPlayer(p.idx)} accessibilityLabel={`Draft ${p.name}`} style={{ width: DRAFT_W }} />
+      {[p.s25.apps ? rating.points25 : null, rating.games26 ? rating.points26 : null, rating.projection].map((n, i) => <Txt key={i} num size={11} weight={i === 2 ? 700 : 400} tone={i === 2 ? 'accent' : 'muted'} style={{ width: 31, textAlign: 'right' }}>{n === null ? '–' : fmt(n, i === 2 ? 1 : 0)}</Txt>)}
+      <Pressable hitSlop={5} onPress={() => toggleQueued(p.idx)} accessibilityRole="button" accessibilityLabel={queued ? `Remove ${p.name} from your queue` : `Queue ${p.name}`} style={({ pressed }) => [s.star, pressed && { opacity: 0.5 }]}><Icon name={queued ? 'star.fill' : 'star'} size={17} color={queued ? t.c.gold : t.c.dim} /></Pressable>
+      <Button title="Draft" kind="filled" size="small" disabled={!canPick} onPress={() => draftPlayer(p.idx)} accessibilityLabel={`Draft ${p.name}`} style={{ width: DRAFT_W, paddingHorizontal: 4 }} />
     </View>
   )
 })
@@ -162,15 +142,15 @@ function Separator() {
 
 const styles = (t: Theme) => ({
   filters: { gap: 10, paddingBottom: 10 },
-  listHead: { flexDirection: 'row' as const, paddingLeft: 32, paddingRight: 16 + 12 + TRAIL, paddingTop: 4, paddingBottom: 7 },
+  listHead: { flexDirection: 'row' as const, paddingLeft: 13, paddingRight: 13 + TRAIL, paddingTop: 4, paddingBottom: 7 },
   footer: { paddingHorizontal: 32, paddingTop: 8, lineHeight: 17 },
-  row: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8, minHeight: 62, marginHorizontal: 16, paddingLeft: 8, paddingRight: 12, paddingVertical: 8, backgroundColor: t.c.panel },
+  row: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 6, minHeight: 49, marginHorizontal: 8, paddingLeft: 5, paddingRight: 5, paddingVertical: 6, backgroundColor: t.c.panel },
   first: { borderTopLeftRadius: t.r.lg, borderTopRightRadius: t.r.lg },
   last: { borderBottomLeftRadius: t.r.lg, borderBottomRightRadius: t.r.lg },
-  rank: { width: 24, textAlign: 'center' as const },
+  rank: { width: 17, textAlign: 'center' as const },
   link: { flex: 1, minWidth: 0 },
   stat: { alignItems: 'flex-end' as const, minWidth: 36 },
-  star: { width: 30, height: 30, alignItems: 'center' as const, justifyContent: 'center' as const },
-  sepWrap: { marginHorizontal: 16, backgroundColor: t.c.panel },
+  star: { width: 26, height: 32, alignItems: 'center' as const, justifyContent: 'center' as const },
+  sepWrap: { marginHorizontal: 8, backgroundColor: t.c.panel },
   sep: { height: StyleSheet.hairlineWidth, marginLeft: INSET, backgroundColor: t.c.line2 },
 })
