@@ -253,7 +253,7 @@ const styles = (t: Theme) => ({
   slots: { flexDirection: 'row' as const, justifyContent: 'center' as const, gap: 4, marginTop: 3 },
   pill: {
     flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'center' as const, gap: 7,
-    height: 38, borderRadius: 999, backgroundColor: HERO.button, marginTop: 'auto' as const, // bottom of the card, level with the slot badges
+    height: 38, borderRadius: 999, backgroundColor: HERO.button, marginTop: 14,
   },
   close: {
     position: 'absolute' as const, top: 12, right: 12, width: 28, height: 28, borderRadius: 14,

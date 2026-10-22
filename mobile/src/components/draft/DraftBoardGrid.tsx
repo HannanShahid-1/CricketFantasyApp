@@ -3,40 +3,44 @@ import { ScrollView, View } from 'react-native'
 import type { League } from '@shared/engine/league'
 import { getData, ME } from '@shared/store'
 import { currentSlot, draftBoard } from '@shared/ui/draft'
-import { alpha, vivid, useStyles, useTheme, type Theme } from '@/theme/theme'
-import { PlayerLink, roleColor, TeamBadge, Txt } from '@/ui'
+import { alpha, useStyles, useTheme, type Theme } from '@/theme/theme'
+import { PlayerLink, TeamBadge, Txt } from '@/ui'
 
 // The draft board as the classic grid: a column per team in draft order, a row per round. It scrolls both ways, the
 // team header stays pinned, and it opens on the round being drafted. Tap a pick for the player's card.
 
-const CW = 80
+const DRAFT_COLORS = { WK: '#E9CB72', BAT: '#80B5DE', BOWL: '#87C5A4', ARB: '#DF9391', ARW: '#DF9391' }
+const INK = '#192C3C'
 const RH = 50
 const GAP = 3
 const HEADER = 37
 
 export function DraftBoardGrid({ league }: { league: League }) {
   const s = useStyles(styles)
-  const [height, setHeight] = useState(0)
+  const [size, setSize] = useState({ width: 0, height: 0 })
+  const { height } = size
   const rows = useMemo(() => draftBoard(league), [league])
   const cur = currentSlot(league)
   const order = league.draft.order
-  const width = order.length * (CW + GAP) - GAP
+  const visibleColumns = Math.min(order.length, size.width < 390 ? 4 : 5)
+  const columnWidth = (size.width - 12 - (visibleColumns - 1) * GAP) / visibleColumns
+  const width = order.length * (columnWidth + GAP) - GAP
   // open on the round being drafted (one round of context above it) and the column on the clock
   const [start] = useState(() => ({
-    x: cur ? Math.max(0, order.indexOf(cur.teamId) - 1) * (CW + GAP) : 0,
+    column: cur ? Math.max(0, Math.min(order.indexOf(cur.teamId) - 1, order.length - visibleColumns)) : 0,
     y: cur ? Math.max(0, cur.round - 2) * (RH + GAP) : 0,
   }))
 
   return (
-    <View style={{ flex: 1 }} onLayout={(e) => setHeight(e.nativeEvent.layout.height)}>
+    <View style={{ flex: 1, paddingHorizontal: 6 }} onLayout={(e) => setSize(e.nativeEvent.layout)}>
       {height > 0 && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentOffset={{ x: start.x, y: 0 }} contentContainerStyle={{ paddingHorizontal: 6 }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator snapToInterval={columnWidth + GAP} decelerationRate="fast" contentOffset={{ x: start.column * (columnWidth + GAP), y: 0 }}>
           <View style={{ width, height }}>
             <View style={s.header}>
               {order.map((tid) => {
                 const team = league.teams[tid]
                 return (
-                  <View key={tid} style={s.head}>
+                  <View key={tid} style={[s.head, { width: columnWidth }]}>
                     <TeamBadge team={team} size={22} />
                     <Txt size={11.5} weight={700} numberOfLines={1} tone={tid === ME ? 'accent' : 'text'} style={{ flexShrink: 1 }}>
                       {team.isUser ? 'You' : team.name}
@@ -54,6 +58,7 @@ export function DraftBoardGrid({ league }: { league: League }) {
                   return (
                     <Cell
                       key={tid}
+                      width={columnWidth}
                       pid={pk?.player ?? null}
                       label={`${r + 1}.${String(pick).padStart(2, '0')}`}
                       mine={tid === ME}
@@ -72,40 +77,41 @@ export function DraftBoardGrid({ league }: { league: League }) {
   )
 }
 
-const Cell = memo(function Cell({ pid, label, mine, current, arrow }: { pid: number | null; label: string; mine: boolean; current: boolean; arrow: string }) {
+const Cell = memo(function Cell({ pid, label, mine, current, arrow, width }: { width: number; pid: number | null; label: string; mine: boolean; current: boolean; arrow: string }) {
   const t = useTheme()
   const s = useStyles(styles)
   if (pid === null) {
     return (
-      <View style={[s.cell, s.empty, mine && s.emptyMine, current && s.current]}>
+      <View style={[s.cell, { width }, s.empty, mine && s.emptyMine, current && s.current]}>
         <Txt num size={11} tone={current ? 'accent' : 'dim'} weight={current ? 700 : 400}>{label}</Txt>
         {current && <Txt size={9.5} weight={700} tone="accent">ON THE CLOCK</Txt>}
       </View>
     )
   }
   const p = getData().players[pid]
-  const color = roleColor(t, p.role)
-  const background = vivid(color)
+  const background = DRAFT_COLORS[p.role]
   return (
-    <PlayerLink pid={pid} style={{ ...s.cell, backgroundColor: background, borderColor: mine ? t.c.accent : background }}>
+    <View style={{ width, height: RH, overflow: 'hidden', borderRadius: t.r.sm }}>
+    <PlayerLink pid={pid} style={{ ...s.cell, width, backgroundColor: background, borderColor: mine ? t.c.accent : background }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 3 }}>
-        <Txt size={7.5} weight={700} numberOfLines={1} style={{ color: t.c.ink, flexShrink: 1 }}>{p.role} · {p.team}</Txt>
-        <Txt num size={8} weight={700} style={{ color: t.c.ink }}>{label}</Txt>
+        <Txt size={7.5} weight={700} numberOfLines={1} style={{ color: INK, flexShrink: 1 }}>{p.role} · {p.team}</Txt>
+        <Txt num size={8} weight={700} style={{ color: INK }}>{label}</Txt>
       </View>
       <View style={{ paddingRight: 9 }}>
-        <Txt size={9} weight={600} numberOfLines={1} adjustsFontSizeToFit style={{ color: t.c.ink }}>{p.fullName.includes(' ') ? p.fullName.slice(0, p.fullName.lastIndexOf(' ')) : ''}</Txt>
-        <Txt size={11} weight={700} numberOfLines={1} adjustsFontSizeToFit style={{ color: t.c.ink }}>{p.fullName.slice(p.fullName.lastIndexOf(' ') + 1)}</Txt>
+        <Txt size={9} weight={600} numberOfLines={1} adjustsFontSizeToFit style={{ color: INK }}>{p.fullName.includes(' ') ? p.fullName.slice(0, p.fullName.lastIndexOf(' ')) : ''}</Txt>
+        <Txt size={11} weight={700} numberOfLines={1} adjustsFontSizeToFit style={{ color: INK }}>{p.fullName.slice(p.fullName.lastIndexOf(' ') + 1)}</Txt>
       </View>
-      <Txt size={11} style={{ color: t.c.ink, position: 'absolute', right: 4, bottom: 1 }}>{arrow}</Txt>
+      <Txt size={11} style={{ color: INK, position: 'absolute', right: 4, bottom: 1 }}>{arrow}</Txt>
     </PlayerLink>
+    </View>
   )
 })
 
 const styles = (t: Theme) => ({
   header: { flexDirection: 'row' as const, gap: GAP, height: HEADER, alignItems: 'center' as const, backgroundColor: t.c.bg },
-  head: { width: CW, flexDirection: 'row' as const, alignItems: 'center' as const, gap: 6 },
+  head: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 6 },
   row: { flexDirection: 'row' as const, gap: GAP },
-  cell: { width: CW, height: RH, borderRadius: t.r.sm, paddingHorizontal: 5, paddingVertical: 4, justifyContent: 'space-between' as const, borderWidth: 1 },
+  cell: { height: RH, borderRadius: t.r.sm, paddingHorizontal: 5, paddingVertical: 4, justifyContent: 'space-between' as const, borderWidth: 1 },
   empty: { alignItems: 'center' as const, justifyContent: 'center' as const, gap: 2, borderColor: t.c.line2, borderStyle: 'dashed' as const },
   emptyMine: { backgroundColor: alpha(t.c.accent, 0.05) },
   current: { borderStyle: 'solid' as const, borderColor: t.c.accent, backgroundColor: alpha(t.c.accent, 0.1) },

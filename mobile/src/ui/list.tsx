@@ -114,7 +114,7 @@ export function Tiles({ items }: { items: { label: string; value: string; tone?:
 }
 
 /** Labelled numbers in one rounded panel, a grid with hairlines between cells (a player's batting line, say). */
-export function StatGrid({ items, columns = 3 }: { items: { label: string; value: string }[]; columns?: number }) {
+export function StatGrid({ items, columns = 3, compact = false }: { items: { label: string; value: string }[]; columns?: number; compact?: boolean }) {
   const s = useStyles(styles)
   const rows = Array.from({ length: Math.ceil(items.length / columns) }, (_, r) => items.slice(r * columns, (r + 1) * columns))
   return (
@@ -122,11 +122,11 @@ export function StatGrid({ items, columns = 3 }: { items: { label: string; value
       {rows.map((row, r) => (
         <View key={r} style={[s.statRow, r > 0 && s.statRowSep]}>
           {Array.from({ length: columns }, (_, c) => (
-            <View key={c} style={[s.stat, c > 0 && s.statSep]}>
+            <View key={c} style={[s.stat, compact && { paddingHorizontal: 10, paddingVertical: 8 }, c > 0 && s.statSep]}>
               {row[c] && (
                 <>
-                  <Txt num weight={700} size={18} numberOfLines={1}>{row[c].value}</Txt>
-                  <Txt size={12} tone="muted" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{row[c].label}</Txt>
+                  <Txt num weight={700} size={compact ? 16 : 18} numberOfLines={1}>{row[c].value}</Txt>
+                  <Txt size={compact ? 11 : 12} tone="muted" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{row[c].label}</Txt>
                 </>
               )}
             </View>

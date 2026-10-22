@@ -1,17 +1,19 @@
-import { memo, useCallback, useMemo, useState } from 'react'
-import { LayoutAnimation, Pressable, View } from 'react-native'
-import { matchProjection, ROLE_NAME, type Player } from '@shared/engine/data'
+import { Image } from 'expo-image'
+import { memo, useMemo, useState } from 'react'
+import { Pressable, ScrollView, View } from 'react-native'
+import { matchProjection, type Player } from '@shared/engine/data'
 import { countedMatch, currentWeek, LAST_WEEK, weekMatches, type League } from '@shared/engine/league'
 import { fmt } from '@shared/engine/scoring'
 import { getData } from '@shared/store'
 import { fmtDate, weekLabel } from '@shared/ui/format'
-import { ptsBand } from '@shared/ui/playerCard'
 import { ownersOf } from '@/data/derived'
+import { useLiveSim } from '@/data/simulation'
+import { LOGOS } from '@/generated/photos'
 import { alpha, useStyles, useTheme, type Theme } from '@/theme/theme'
-import { Chip, haptic, Icon, Row, Section, type SFSymbol, TeamTag, type Tone, Txt } from '@/ui'
+import { haptic, Icon, type SFSymbol, Txt } from '@/ui'
 import { InfoButton } from './InfoButton'
 
-// The player card's weekly projections: one row per match, each opening to the forecast's breakdown.
+// Compact weekly match tiles with projection and final/live points or start time.
 
 const HOW_PROJECTIONS =
   'Each projection starts from his average and his estimated chance of playing, then adjusts for the venue, how ' +
@@ -30,7 +32,7 @@ export function Projections({ p, league, played }: { p: Player; league: League |
   const [week, setWeek] = useState(() =>
     league?.phase === 'season' ? currentWeek(d, league) : league?.phase === 'complete' ? LAST_WEEK : 1,
   )
-  const [open, setOpen] = useState<number | null>(null)
+  const [width, setWidth] = useState(340)
   const gw = d.gameweeks.find((g) => g.gw === week)
   const rows = useMemo(
     () => weekMatches(d, p.idx, week).map((mi) => ({ mi, f: matchProjection(d, p, mi, Math.min(played, mi)) })),
@@ -41,115 +43,70 @@ export function Projections({ p, league, played }: { p: Player; league: League |
   const counted = league && owner !== undefined && rows.length > 1 ? countedMatch(d, league, owner, p.idx, week) : null
   const step = (by: number) => {
     haptic.select()
-    setOpen(null)
     setWeek((w) => w + by)
   }
-  const toggle = useCallback((mi: number) => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-    haptic.select()
-    setOpen((o) => (o === mi ? null : mi))
-  }, [])
+  const columns = Math.min(3, Math.max(1, rows.length))
+  const tileWidth = Math.min(132, (width - (columns - 1) * 8) / columns)
   return (
-    <Section
-      title="Projections"
-      action={<InfoButton title="How projections work" message={HOW_PROJECTIONS} />}
-    >
-      <View style={s.stepper}>
-        <StepButton icon="chevron.left" label="Previous week" disabled={week <= 1} onPress={() => step(-1)} />
-        <View style={{ flex: 1, alignItems: 'center', gap: 1 }}>
-          <Txt display weight={700} size={16}>{weekLabel(week)}</Txt>
-          {gw && <Txt size={12} tone="muted">{fmtDate(gw.start, false)} – {fmtDate(gw.end, false)}</Txt>}
+    <View style={{ gap: 10 }} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
+      <View style={s.heading}>
+        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 7 }}>
+          <Txt up size={10.5} weight={700} tone="muted">FPTS Projections</Txt>
+          <InfoButton title="How projections work" message={HOW_PROJECTIONS} />
         </View>
-        <StepButton icon="chevron.right" label="Next week" disabled={week >= LAST_WEEK} onPress={() => step(1)} />
+        <View style={s.stepper}>
+          <StepButton icon="chevron.left" label="Previous week" disabled={week <= 1} onPress={() => step(-1)} />
+          <View style={{ alignItems: 'center', gap: 2 }}>
+            <Txt weight={700} size={14} tone="accent">{weekLabel(week)}</Txt>
+            {gw && <Txt size={9.5} weight={600} tone="accent">{fmtDate(gw.start, false)}–{fmtDate(gw.end, false)}</Txt>}
+          </View>
+          <StepButton icon="chevron.right" label="Next week" disabled={week >= LAST_WEEK} onPress={() => step(1)} />
+        </View>
       </View>
       {rows.length ? (
-        rows.map(({ mi, f }) => (
-          <ProjectionRow key={mi} p={p} mi={mi} f={f} played={played} counts={mi === counted} open={open === mi} onToggle={toggle} />
-        ))
-      ) : (
-        <Row title="No match this week" subtitle={`${getData().teams[p.team]?.name ?? 'His team'} doesn't play in ${weekLabel(week).toLowerCase()}.`} />
-      )}
-    </Section>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+          {rows.map(({ mi, f }) => <ProjectionTile key={mi} p={p} mi={mi} f={f} played={played} counts={mi === counted} width={tileWidth} replay={league?.replayMatch === mi && played === mi} />)}
+        </ScrollView>
+      ) : <View style={s.empty}><Txt size={13} tone="muted">No match this week</Txt></View>}
+    </View>
   )
 }
 
-const ProjectionRow = memo(function ProjectionRow({ p, mi, f, played, counts, open, onToggle }: {
-  p: Player; mi: number; f: Forecast; played: number; counts: boolean; open: boolean; onToggle: (mi: number) => void
+const ProjectionTile = memo(function ProjectionTile({ p, mi, f, played, counts, width, replay }: {
+  p: Player; mi: number; f: Forecast; played: number; counts: boolean; width: number; replay: boolean
 }) {
   const t = useTheme()
   const s = useStyles(styles)
   const m = getData().matches[mi]
   const done = mi < played
   const g = done ? p.games.get(mi) : undefined
-  const actual: { value: string; tone: Tone } = !done
-    ? { value: '–', tone: 'dim' }
-    : !g
-      ? { value: 'DNP', tone: 'loss' }
-      : { value: fmt(g.pts.total, 1), tone: ptsBand(g.pts.total) === 'big' ? 'win' : ptsBand(g.pts.total) === 'low' ? 'loss' : 'text' }
+  const live = useLiveSim((sim) => replay && sim.m?.mi === mi ? sim.scores.get(p.idx) : undefined)
+  const actual = done ? g ? fmt(g.pts.total, 2) : 'DNP' : live ? fmt(live.points, 2) : null
+  const forecast = live?.projection ?? f.total
+  const pace = live?.pace === 'ahead' ? t.c.win : live?.pace === 'behind' ? t.c.loss : t.c.text
+  const day = fmtDate(m.raw.date).split(' ')[0].toUpperCase()
   return (
-    <View>
-      <Pressable
-        onPress={() => onToggle(mi)}
-        accessibilityRole="button"
-        accessibilityState={{ expanded: open }}
-        accessibilityHint="Shows what went into his projection"
-        style={({ pressed }) => [s.projRow, pressed && { backgroundColor: alpha(t.c.tint, 0.07) }]}
-      >
-        <View style={{ flex: 1, minWidth: 0, gap: 5 }}>
-          <View style={s.inline}>
-            <Txt size={13} tone="muted">v</Txt>
-            <TeamTag code={f.opponent} />
-            {counts && <Chip label="Counts" tone="accent" icon="checkmark" />}
-          </View>
-          <Txt size={13} tone="muted" numberOfLines={1}>{fmtDate(m.raw.date)} · {m.raw.time}</Txt>
+    <View accessible accessibilityLabel={`${day} versus ${f.opponent}${counts ? ', counting match' : ''}. Projection ${fmt(forecast, 2)}. ${done ? `Final ${actual}` : live ? `Live ${actual}` : `Starts ${m.raw.time}`}`} style={{ width, gap: 5 }}>
+      <View style={s.opponent}>
+        <Txt size={10} weight={700} tone="muted" numberOfLines={1}>{day} vs {f.opponent}</Txt>
+        {LOGOS[f.opponent] && <Image source={LOGOS[f.opponent]} style={{ width: 15, height: 15 }} contentFit="contain" accessible={false} />}
+        {counts && <Icon name="checkmark.circle.fill" size={11} color={t.c.accent} />}
+      </View>
+      <View style={s.tile}>
+        <View style={s.tileRow}>
+          <Txt up size={10} tone="muted">Proj</Txt>
+          <Txt num weight={700} size={14} style={{ color: live ? pace : t.c.text }} numberOfLines={1} adjustsFontSizeToFit>{fmt(forecast, 2)}</Txt>
         </View>
-        <NumCol label="Proj" value={fmt(f.total, 1)} tone={done ? 'muted' : 'text'} />
-        <NumCol label="FPTS" value={actual.value} tone={actual.tone} />
-        <Icon name={open ? 'chevron.up' : 'chevron.down'} size={11} color={t.c.dim} weight="semibold" />
-      </Pressable>
-      {open && <Breakdown p={p} f={f} />}
+        <View style={[s.tileRow, s.resultRow]}>
+          {actual !== null ? <>
+            <Txt up size={10} tone="muted">{done ? 'Final' : 'Live'}</Txt>
+            <Txt num weight={700} size={14} numberOfLines={1} adjustsFontSizeToFit>{actual}</Txt>
+          </> : <Txt size={11} tone="muted" numberOfLines={1} adjustsFontSizeToFit>{fmtDate(m.raw.date).split(' ')[0]} · {m.raw.time}</Txt>}
+        </View>
+      </View>
     </View>
   )
 })
-
-function NumCol({ label, value, tone }: { label: string; value: string; tone: Tone }) {
-  return (
-    <View style={{ width: 50, alignItems: 'flex-end', gap: 1 }}>
-      <Txt up size={9.5} weight={700} tone="dim">{label}</Txt>
-      <Txt num weight={700} size={18} tone={tone} numberOfLines={1}>{value}</Txt>
-    </View>
-  )
-}
-
-const signed = (x: number) => `${x < 0 ? '−' : '+'}${Math.abs(x).toFixed(2)}`
-const appearances = (n: number) => `${n} earlier ${n === 1 ? 'appearance' : 'appearances'}`
-
-/**
- * Why this forecast: his baseline plus each adjustment, both already scaled by his chance of playing, so the lines
- * add up to the projection. Adjustments that are zero (bowling workload for a keeper, say) are left out.
- */
-function Breakdown({ p, f }: { p: Player; f: Forecast }) {
-  const s = useStyles(styles)
-  const line = (label: string, value: string, strong = false) => (
-    <View key={label} style={s.line}>
-      <Txt size={13.5} tone={strong ? 'text' : 'muted'} weight={strong ? 600 : 400} style={{ flex: 1 }}>{label}</Txt>
-      <Txt num size={13.5} weight={strong ? 700 : 600}>{value}</Txt>
-    </View>
-  )
-  const role = ROLE_NAME[p.role].toLowerCase()
-  return (
-    <View style={s.forecast}>
-      {line('Player baseline', (f.base * f.chance).toFixed(2))}
-      {f.components.filter((c) => Math.abs(c.points) >= 0.005).map((c) => line(c.label, signed(c.points)))}
-      <View style={s.rule} />
-      {line('Projection', f.total.toFixed(2), true)}
-      <Txt size={12} tone="dim" style={{ lineHeight: 16, marginTop: 6 }}>
-        Already allows for his {Math.round(f.chance * 100)}% chance of playing. Venue: {appearances(f.venueSamples)} by a{' '}
-        {role} at {f.venue}. Opponent: {appearances(f.opponentSamples)} by a {role} against {f.opponent}. Small samples count for less.
-      </Txt>
-    </View>
-  )
-}
 
 function StepButton({ icon, label, disabled, onPress }: { icon: SFSymbol; label: string; disabled: boolean; onPress: () => void }) {
   const t = useTheme()
@@ -163,20 +120,18 @@ function StepButton({ icon, label, disabled, onPress }: { icon: SFSymbol; label:
       accessibilityLabel={label}
       style={({ pressed }) => [s.step, { opacity: disabled ? 0.3 : pressed ? 0.6 : 1 }]}
     >
-      <Icon name={icon} size={14} weight="semibold" color={t.c.text} />
+      <Icon name={icon} size={14} weight="semibold" color={t.c.accent} />
     </Pressable>
   )
 }
 
 const styles = (t: Theme) => ({
-  stepper: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 12, paddingHorizontal: 12, paddingVertical: 10 },
-  step: {
-    width: 34, height: 34, borderRadius: 17, alignItems: 'center' as const, justifyContent: 'center' as const,
-    backgroundColor: alpha(t.c.tint, 0.08),
-  },
-  projRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10, minHeight: 62, paddingHorizontal: 16, paddingVertical: 10 },
-  forecast: { gap: 2, paddingHorizontal: 16, paddingTop: 4, paddingBottom: 14, backgroundColor: alpha(t.c.shade, 0.12) },
-  line: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 12, minHeight: 22 },
-  rule: { height: 1, backgroundColor: t.c.line2, marginVertical: 4 },
-  inline: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 5 },
+  heading: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 6 },
+  stepper: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 2 },
+  step: { width: 24, height: 36, alignItems: 'center' as const, justifyContent: 'center' as const },
+  opponent: { flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'center' as const, gap: 3, height: 20 },
+  tile: { borderRadius: t.r.md, borderWidth: 1, borderColor: t.c.line2, overflow: 'hidden' as const, backgroundColor: t.c.panel },
+  tileRow: { flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'space-between' as const, gap: 4, paddingHorizontal: 9, minHeight: 34 },
+  resultRow: { backgroundColor: alpha(t.c.tint, 0.035), borderTopWidth: 1, borderTopColor: t.c.line },
+  empty: { padding: 16, borderRadius: t.r.md, backgroundColor: t.c.panel },
 })

@@ -76,8 +76,10 @@ export function PlayerScreen() {
         {tab === 'summary' && (
           <>
             <Headline p={p} played={played} />
-            {league && <ThisWeek p={p} league={league} />}
-            <Projections p={p} league={league} played={played} />
+            <View style={{ gap: 12 }}>
+              {league && <ThisWeek p={p} league={league} />}
+              <Projections p={p} league={league} played={played} />
+            </View>
             <Season p={p} played={played} />
             <Outlook p={p} league={league} played={played} />
           </>
@@ -188,7 +190,7 @@ function Season({ p, played }: { p: Player; played: number }) {
   return (
     <View>
       <GroupHeader title={`IPL ${d.raw.simSeason} stats`} />
-      <StatGrid items={stats} columns={stats.length === 4 ? 2 : 3} />
+      <StatGrid items={stats} columns={stats.length === 4 ? 2 : 3} compact />
     </View>
   )
 }
